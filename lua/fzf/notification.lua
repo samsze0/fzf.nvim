@@ -2,7 +2,7 @@ local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
 local utils = require("utils")
 local timeago = require("utils.timeago")
-local noti = require("noti")
+local notifier = require("notifier")
 local fzf_utils = require("fzf.utils")
 local config = require("fzf").config
 
@@ -34,30 +34,21 @@ return function(opts)
     },
   })
 
-  ---@alias FzfNotificationEntry { display: string, notification: Notification, unread: boolean }
+  ---@alias FzfNotificationEntry { display: string, notification: Notification }
   ---@return FzfNotificationEntry[]
   local entries_getter = function()
     -- Caution: don't call vim.notify here
 
-    local notifications = noti.all()
-    local num_unread = noti.num_unread()
-    noti.clear_unread()
+    local notifications = notifier.all()
 
     return utils.map(notifications, function(i, e)
-      local unread = i <= num_unread
-
       local icon = utils.switch(e.level, {
-        [vim.log.levels.INFO] = unread and utils.ansi_codes.blue("󰋼 ")
-          or "󰋼 ",
-        [vim.log.levels.WARN] = unread and utils.ansi_codes.yellow(" ")
-          or " ",
-        [vim.log.levels.ERROR] = unread and utils.ansi_codes.red(" ")
-          or " ",
-        [vim.log.levels.DEBUG] = unread and utils.ansi_codes.grey(" ")
-          or " ",
-        [vim.log.levels.TRACE] = unread and utils.ansi_codes.grey(" ")
-          or " ",
-      }, unread and utils.ansi_codes.grey(" ") or " ")
+        [vim.log.levels.INFO] = utils.ansi_codes.blue("󰋼 "),
+        [vim.log.levels.WARN] = utils.ansi_codes.yellow(" "),
+        [vim.log.levels.ERROR] = utils.ansi_codes.red(" "),
+        [vim.log.levels.DEBUG] = utils.ansi_codes.grey(" "),
+        [vim.log.levels.TRACE] = utils.ansi_codes.grey(" "),
+      }, utils.ansi_codes.grey(" "))
 
       local parts = vim.split(e.message, "\n")
       local brief
@@ -71,10 +62,9 @@ return function(opts)
         display = ([[%s %s %s]]):format(
           icon,
           timeago(e.time),
-          unread and utils.ansi_codes.white(brief) or brief
+          brief
         ),
         notification = e,
-        unread = unread,
       }
     end)
   end
