@@ -7,6 +7,10 @@ local uv_utils = require("utils.uv")
 local jumplist = require("jumplist")
 local config = require("fzf").config
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 -- Fzf git status
 --
 ---@alias FzfGitStatusOptions { git_dir?: string }
@@ -176,7 +180,7 @@ return function(opts)
 
     local path = controller.focus.filepath
     vim.fn.setreg("+", path)
-    vim.info(([[Copied %s to clipboard]]):format(path))
+    _info(([[Copied %s to clipboard]]):format(path))
   end)
 
   popups.main:map("<C-r>", "Refresh", function() controller:refresh() end)
@@ -207,7 +211,7 @@ return function(opts)
     ---@cast focus FzfGitStatusEntry
 
     if focus.has_merge_conflicts then
-      vim.error("Cannot restore/delete file with merge conflicts", filepath)
+      _error("Cannot restore/delete file with merge conflicts", filepath)
       return
     end
 

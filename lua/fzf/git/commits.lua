@@ -9,6 +9,10 @@ local fzf_git_file_changes = require("fzf.git.file-changes")
 local config = require("fzf").config
 local terminal_ft = require("terminal-filetype")
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 -- Fzf git commits (i.e. run `git log`)
 --
 -- If filepaths is nil, then all commits are shown, otherwise only those commits that

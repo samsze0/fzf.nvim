@@ -12,6 +12,10 @@ local fzf_git_status = require("fzf.git.status")
 local fzf_git_commits = require("fzf.git.commits")
 local fzf_git_branches = require("fzf.git.branch")
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 -- Fzf git submodules
 --
 ---@alias FzfGitSubmodulesOptions { }
@@ -68,7 +72,7 @@ return function(opts)
 
     local path = controller.focus.path
     vim.fn.setreg("+", path)
-    vim.info(([[Copied %s to clipboard]]):format(path))
+    _info(([[Copied %s to clipboard]]):format(path))
   end)
 
   popups.main:map("<C-l>", "List git files", function()

@@ -7,6 +7,10 @@ local config = require("fzf").config
 local fzf_utils = require("fzf.utils")
 local docker_utils = require("utils.docker")
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 -- TODO: watch for changes in background
 
 -- Fzf docker containers
@@ -58,7 +62,7 @@ return function(opts)
     if not focus then return end
 
     vim.fn.setreg("+", focus.container.ID)
-    vim.info(([[Copied %s to clipboard]]):format(focus.container.ID))
+    _info(([[Copied %s to clipboard]]):format(focus.container.ID))
   end)
 
   popups.main:map("<C-x>", "Delete", function()
@@ -68,7 +72,7 @@ return function(opts)
     if not focus then return end
 
     if focus.container.Status == "running" then
-      vim.error("Cannot delete running container")
+      _error("Cannot delete running container")
       return
     end
 
@@ -83,7 +87,7 @@ return function(opts)
     if not focus then return end
 
     if focus.container.Status == "running" then
-      vim.warn("Container is already running")
+      _warn("Container is already running")
       return
     end
 
@@ -98,7 +102,7 @@ return function(opts)
     if not focus then return end
 
     if focus.container.Status == "exited" then
-      vim.error("Container is already stopped")
+      _error("Container is already stopped")
       return
     end
 

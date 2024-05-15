@@ -6,6 +6,10 @@ local utils = require("utils")
 local jumplist = require("jumplist")
 local NuiEvent = require("nui.utils.autocmd").event
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 local M = {}
 
 -- TODO: generics on Popup class

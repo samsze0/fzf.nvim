@@ -9,6 +9,10 @@ local fzf_git_file_changes = require("fzf.git.file-changes")
 local config = require("fzf").config
 local terminal_ft = require("terminal-filetype")
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 -- Fzf git stash
 --
 ---@alias FzfGitStashOptions { git_dir?: string }
@@ -93,7 +97,7 @@ return function(opts)
 
     local ref = controller.focus.ref
     vim.fn.setreg("+", ref)
-    vim.info(([[Copied %s to clipboard]]):format(ref))
+    _info(([[Copied %s to clipboard]]):format(ref))
   end)
 
   popups.main:map("<C-l>", "List file changes", function()

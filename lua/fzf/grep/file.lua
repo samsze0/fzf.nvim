@@ -5,6 +5,10 @@ local git_utils = require("utils.git")
 local jumplist = require("jumplist")
 local config = require("fzf").config
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 -- Fzf all lines in current file
 --
 ---@alias FzfGrepFileOptions { initial_query?: string }

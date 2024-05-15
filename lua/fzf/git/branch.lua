@@ -8,6 +8,10 @@ local fzf_utils = require("fzf.utils")
 local config = require("fzf").config
 local terminal_ft = require("terminal-filetype")
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 -- TODO: initial pos
 
 -- Fzf git branches
@@ -97,7 +101,7 @@ return function(opts)
     local branch_or_commit_hash = controller.focus.branch
       or controller.focus.detached_commit
     vim.fn.setreg("+", branch_or_commit_hash)
-    vim.info(([[Copied %s to clipboard]]):format(branch_or_commit_hash))
+    _info(([[Copied %s to clipboard]]):format(branch_or_commit_hash))
   end)
 
   popups.main:map("<C-x>", "Delete branch", function()
@@ -107,17 +111,17 @@ return function(opts)
     ---@cast focus FzfGitBranchEntry
 
     if focus.detached_commit then
-      vim.error("Cannot delete detached commit")
+      _error("Cannot delete detached commit")
       return
     end
 
     if focus.is_current_branch then
-      vim.error("Cannot delete current branch")
+      _error("Cannot delete current branch")
       return
     end
 
     if focus.is_remote_branch then
-      vim.error("Cannot delete remote branch")
+      _error("Cannot delete remote branch")
       return
     end
 
@@ -147,7 +151,7 @@ return function(opts)
     utils.system(
       ("git -C '%s' checkout '%s'"):format(opts.git_dir, branch_or_commit_hash)
     )
-    vim.info(([[Checked out: %s]]):format(branch_or_commit_hash))
+    _info(([[Checked out: %s]]):format(branch_or_commit_hash))
     controller:refresh()
   end)
 

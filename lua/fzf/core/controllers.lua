@@ -323,11 +323,11 @@ function Controller:start()
       self:_destroy()
     end,
     on_stdout = function(job_id, ...)
-      -- vim.info("fzf stdout", ...)
+      -- _info("fzf stdout", ...)
       -- print(vim.inspect({ ... }))
     end,
     on_stderr = function(job_id, ...)
-      -- vim.info("fzf stderr", ...)
+      -- _info("fzf stderr", ...)
       -- error(vim.inspect({ ... }))
     end,
   })
@@ -500,7 +500,7 @@ function Controller:_load_fetched_entries(opts)
   opts = opts or {}
 
   if not self:is_entries_stale() then
-    vim.warn("Entries are up to date. Ignoring refresh request")
+    _warn("Entries are up to date. Ignoring refresh request")
     return
   end
 

@@ -7,6 +7,10 @@ local jumplist = require("jumplist")
 local NuiEvent = require("nui.utils.autocmd").event
 local layouts = require("fzf.layouts")
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 local M = {}
 
 -- Configure remote navigation between main and target popup.
@@ -132,7 +136,7 @@ M.configure_filepreview = function(main_popup, preview_popup, controller, opts)
 
     local filepath = opts.filepath_accessor(controller.focus)
     vim.fn.setreg("+", filepath)
-    vim.info(([[Copied %s to clipboard]]):format(filepath))
+    _info(([[Copied %s to clipboard]]):format(filepath))
   end)
 
   if opts.setup_file_open_keymaps then

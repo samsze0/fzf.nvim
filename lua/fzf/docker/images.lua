@@ -7,6 +7,10 @@ local config = require("fzf").config
 local fzf_utils = require("fzf.utils")
 local docker_utils = require("utils.docker")
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 -- TODO: watch for changes in background
 
 -- Fzf docker images
@@ -51,7 +55,7 @@ return function(opts)
     if not focus then return end
 
     vim.fn.setreg("+", focus.image.ID)
-    vim.info(([[Copied %s to clipboard]]):format(focus.image.ID))
+    _info(([[Copied %s to clipboard]]):format(focus.image.ID))
   end)
 
   popups.main:map("<C-x>", "Delete", function()

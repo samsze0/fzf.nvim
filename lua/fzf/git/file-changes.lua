@@ -7,6 +7,10 @@ local uv_utils = require("utils.uv")
 local jumplist = require("jumplist")
 local config = require("fzf").config
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 -- Fzf git file changes incurred by a git commit, or stash, or any git object
 --
 ---@alias FzfGitFileChangesOptions { git_dir?: string }
@@ -96,7 +100,7 @@ return function(ref, opts)
 
     local path = controller.focus.filepath
     vim.fn.setreg("+", path)
-    vim.info(([[Copied %s to clipboard]]):format(path))
+    _info(([[Copied %s to clipboard]]):format(path))
   end)
 
   popups.main:map("<CR>", "Goto file", function()

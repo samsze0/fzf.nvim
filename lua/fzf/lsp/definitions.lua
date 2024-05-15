@@ -7,6 +7,10 @@ local config = require("fzf").config
 local fzf_utils = require("fzf.utils")
 local shared = require("fzf.lsp.shared")
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 -- Fzf definitions of symbol under cursor
 --
 ---@alias FzfLspDefinitionsOptions { }

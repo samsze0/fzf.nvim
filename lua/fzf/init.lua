@@ -2,10 +2,22 @@ local utils = require("utils")
 
 local M = {}
 
+---@alias FzfNotifier { info?: fun(message: string), warn?: fun(message: string), error?: fun(message: string) }
 ---@alias FzfKeymapsOptions { move_to_pane?: { left?: string, down?: string, up?: string, right?: string }, remote_scroll_preview_pane?: { up?: string, down?: string, left?: string, right?: string } }
 ---@alias FzfOptions { keymaps?: FzfKeymapsConfig, default_extra_args?: UtilsShellOpts, default_extra_env_vars?: UtilsShellOpts, default_rg_args?: UtilsShellOpts }
 
 M.config = {
+  notifier = {
+    info = function(message)
+      vim.notify(message, vim.log.levels.INFO)
+    end,
+    warn = function(message)
+      vim.notify(message, vim.log.levels.WARN)
+    end,
+    error = function(message)
+      vim.notify(message, vim.log.levels.ERROR)
+    end,
+  },
   keymaps = {
     move_to_pane = {
       left = "<C-s>",

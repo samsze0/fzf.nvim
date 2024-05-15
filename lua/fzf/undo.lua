@@ -9,6 +9,10 @@ local config = require("fzf").config
 local timeago = require("utils.timeago")
 local undo_utils = require("utils.undo")
 
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
+
 -- Fzf current file's undos
 --
 ---@alias FzfUndoOptions { }
@@ -92,7 +96,7 @@ return function(opts)
 
     local undo_nr = controller.focus.undo.seq_nr
     vim.fn.setreg("+", undo_nr)
-    vim.info(([[Copied %s to clipboard]]):format(undo_nr))
+    _info(([[Copied %s to clipboard]]):format(undo_nr))
   end)
 
   popups.main:map("<C-o>", "Open diff", function()
@@ -123,7 +127,7 @@ return function(opts)
 
     local undo_nr = focus.undo.seq
     vim.cmd(("redo %s"):format(undo_nr))
-    vim.info("Redone to %s", undo_nr)
+    _info("Redone to %s", undo_nr)
   end)
 
   return controller

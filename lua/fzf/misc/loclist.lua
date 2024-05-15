@@ -4,7 +4,9 @@ local layouts = require("fzf.layouts")
 local helpers = require("fzf.helpers")
 local utils = require("utils")
 
-local fn = vim.fn
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
 
 -- Fzf the most recent loclist of current window
 --
