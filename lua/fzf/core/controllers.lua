@@ -87,7 +87,7 @@ function ControllerMap.create(opts)
     _parent_id = nil,
     query = "",
     focus = nil,
-    _ipc_client = IpcClient.new(IPC_CLIENT_TYPE),
+    _ipc_client = IpcClient.new(config.ipc_client_type or IpcClient.CLIENT_TYPE.tcp),
     _extra_args = opts.extra_args,
     _entries_getter = nil,
     _entries = nil,
@@ -273,10 +273,23 @@ function Controller:start()
     ["--bind"] = "'" .. self._ipc_client:bindings() .. "'",
     ["--delimiter"] = "'" .. utils.nbsp .. "'",
   }
+  if config.ipc_client_type == IpcClient.CLIENT_TYPE.websocket then
+    args["--websocket-listen-to"] = ("%s:%s"):format(
+      self._ipc_client.host,
+      self._ipc_client.port
+    )
+  else
+    args["--listen"] = ("%s:%s"):format(
+      self._ipc_client.fzf_host,
+      self._ipc_client.fzf_port
+    )
+  end
   args = utils.tbl_extend({ mode = "error" }, args, config.default_extra_args)
   args = utils.tbl_extend({ mode = "error" }, args, self._extra_args)
 
-  local command = "fzf " .. utils.shell_opts_tostring(args)
+  local command = (config.fzf_path or "fzf")
+    .. " "
+    .. utils.shell_opts_tostring(args)
 
   -- TODO: cater Windows
   command = [[printf "" | ]] .. command

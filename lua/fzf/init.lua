@@ -4,9 +4,10 @@ local M = {}
 
 ---@alias FzfNotifier { info?: fun(message: string), warn?: fun(message: string), error?: fun(message: string) }
 ---@alias FzfKeymapsOptions { move_to_pane?: { left?: string, down?: string, up?: string, right?: string }, remote_scroll_preview_pane?: { up?: string, down?: string, left?: string, right?: string } }
----@alias FzfOptions { keymaps?: FzfKeymapsConfig, default_extra_args?: UtilsShellOpts, default_extra_env_vars?: UtilsShellOpts, default_rg_args?: UtilsShellOpts }
+---@alias FzfOptions { fzf_path?: string, ipc_client_type?: FzfIpcClientType, keymaps?: FzfKeymapsOptions, default_extra_args?: UtilsShellOpts, default_extra_env_vars?: UtilsShellOpts, default_rg_args?: UtilsShellOpts }
 
 M.config = {
+  -- ipc_client_type = ,  -- Avoid importing ipc-client here to avoid circular dep
   notifier = {
     info = function(message)
       vim.notify(message, vim.log.levels.INFO)

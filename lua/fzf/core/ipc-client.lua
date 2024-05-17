@@ -4,12 +4,14 @@ local uv_utils = require("utils.uv")
 local json = require("utils.json")
 local os_utils = require("utils.os")
 local CallbackMap = require("fzf.core.callback-map")
+local WebsocketServer = require("websocket.server").WebsocketServer
 
 ---@enum FzfIpcClientType
 local CLIENT_TYPE = {
   tcp = 1,
   named_pipe = 2,
   nvim_rpc = 3,
+  websocket = 4,
 }
 
 local FZF_API_KEY = utils.uuid()
@@ -153,6 +155,45 @@ function FzfIpcClient.new(client_type)
     -- obj.receive_message_cmd = function(self, message)
     --   return os_utils.write_to_named_pipe_cmd(pipe.name, message)
     -- end
+  elseif client_type == CLIENT_TYPE.websocket then
+    local ws_server =
+      WebsocketServer.new({
+        on_message = function(ws_server_client, message)
+          message_handler(message)
+        end
+      })
+
+    ws_server:start()
+
+    obj.execute = function(self, action, opts) ws_server:broadcast_data(action) end
+
+    obj.ask = function(self, response_payload, callback)
+      local key = self._callback_map:add(callback)
+
+      local message = json.stringify({
+        key = key,
+        message = response_payload,
+      })
+      ws_server:broadcast_data("websocket-push$" .. message .. "$")
+    end
+
+    obj.subscribe = function(self, event, response_payload, callback)
+      local key = self._callback_map:add(callback)
+
+      local message = json.stringify({
+        key = key,
+        message = response_payload,
+        event = event,
+      })
+
+      local action = "websocket-push$" .. message .. "$"
+
+      self:bind(event, action)
+
+      return function() self._callback_map:remove(key) end
+    end
+
+    obj.destroy = function(self) ws_server:terminate() end
   else
     error("Invalid client type")
   end
