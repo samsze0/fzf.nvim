@@ -45,13 +45,21 @@ return function(opts)
 
   ---@return FzfGrepFileEntry[]
   local entries_getter = function()
-    local entries = utils.systemlist(
+    local entries, exit_status, err_msg = utils.systemlist_safe(
       ([[rg %s "%s" %s]]):format(
         utils.shell_opts_tostring(config.default_rg_args),
         controller.query,
         current_filepath
       )
     )
+
+    if exit_status == 1 then
+      return {}
+    end
+
+    if exit_status ~= 0 then
+      error(("rg exits with status %d\n%s"):format(exit_status, err_msg))
+    end
 
     return utils.map(entries, function(i, e)
       local parts = utils.split_string_n(e, 1, ":", {

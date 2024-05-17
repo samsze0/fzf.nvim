@@ -215,12 +215,13 @@ return function(opts)
       return
     end
 
-    utils.system_safe(
-      ([[git -C '%s' restore '%s']]):format(opts.git_dir, filepath),
-      {
-        on_error = function(err) utils.system(([[rm '%s']]):format(filepath)) end,
-      }
+    local _, exit_status, _ = utils.system_safe(
+      ([[git -C '%s' restore '%s']]):format(opts.git_dir, filepath)
     )
+    if exit_status ~= 0 then
+      utils.system(([[rm '%s']]):format(filepath))
+    end
+
     controller:refresh()
   end)
 

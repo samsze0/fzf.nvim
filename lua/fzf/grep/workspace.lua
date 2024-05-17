@@ -48,7 +48,16 @@ return function(opts)
       git_utils.files_cmd(opts.git_dir)
     )
 
-    local entries = utils.systemlist(command)
+    local entries, exit_status, err_msg = utils.systemlist(command)
+
+    if exit_status == 1 then
+      return {}
+    end
+
+    if exit_status ~= 0 then
+      error(("rg exits with status %d\n%s"):format(exit_status, err_msg))
+    end
+
     return utils.map(entries, function(i, e)
       local parts = utils.split_string_n(e, 2, ":", {
         discard_empty = false,
