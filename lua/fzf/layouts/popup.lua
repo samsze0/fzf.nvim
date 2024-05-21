@@ -1,7 +1,7 @@
-local NuiLayout = require("nui.layout")
 local NuiPopup = require("nui.popup")
 local NuiEvent = require("nui.utils.autocmd").event
-local utils = require("utils")
+local opts_utils = require("utils.opts")
+local terminal_utils = require("utils.terminal")
 
 local base_popup_config = {
   focusable = true,
@@ -38,7 +38,7 @@ setmetatable(MainPopup, { __index = NuiPopup })
 ---@param config? nui_popup_options
 ---@return FzfMainPopup
 function MainPopup.new(config)
-  config = utils.opts_deep_extend(base_popup_config, {
+  config = opts_utils.deep_extend(base_popup_config, {
     enter = false, -- This can mute BufEnter event
     border = {
       text = {
@@ -71,7 +71,7 @@ function MainPopup:focus() vim.api.nvim_set_current_win(self.winid) end
 ---@param handler fun()
 ---@param opts? { force?: boolean }
 function MainPopup:map(key, name, handler, opts)
-  opts = utils.opts_extend({ force = false }, opts)
+  opts = opts_utils.extend({ force = false }, opts)
   name = name or "?"
 
   if self._fzf_keymaps[key] and not opts.force then
@@ -113,7 +113,7 @@ setmetatable(SidePopup, { __index = NuiPopup })
 ---@param config? nui_popup_options
 ---@return FzfSidePopup
 function SidePopup.new(config)
-  config = utils.opts_deep_extend(base_popup_config, {}, config)
+  config = opts_utils.deep_extend(base_popup_config, {}, config)
 
   local obj = NuiPopup(config)
   setmetatable(obj, SidePopup)
@@ -132,7 +132,7 @@ end
 ---@param lines string[]
 ---@param opts? { cursor_pos?: number[] }
 function SidePopup:set_lines(lines, opts)
-  opts = utils.opts_extend({}, opts)
+  opts = opts_utils.extend({}, opts)
 
   vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, false, lines)
   if opts.cursor_pos then
@@ -144,22 +144,21 @@ end
 ---@param path string
 ---@param opts? { cursor_pos?: number[] }
 function SidePopup:show_file_content(path, opts)
-  opts = utils.opts_extend({}, opts)
+  opts = opts_utils.extend({}, opts)
 
   if vim.fn.filereadable(path) ~= 1 then
     self:set_lines({ "File not readable, or doesnt exist" })
     return
   end
 
-  local is_binary = utils
-    .system("file --mime " .. path, {
-      on_error = function()
-        self:set_lines({
-          "Cannot determine if file is binary",
-        })
-      end,
-    })
-    :match("charset=binary")
+  local file_mime, status, _ = terminal_utils
+    .system("file --mime " .. path)
+  if status ~= 0 then
+    self:set_lines({ "Cannot determine if file is binary" })
+    return
+  end
+
+  local is_binary = file_mime:match("charset=binary")
 
   if is_binary then
     self:set_lines({ "No preview available for binary file" })

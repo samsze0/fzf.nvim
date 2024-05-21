@@ -1,10 +1,10 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
+local tbl_utils = require("utils.table")
+local opts_utils = require("utils.opts")
+local terminal_utils = require("utils.terminal")
 local git_utils = require("utils.git")
-local jumplist = require("jumplist")
 local config = require("fzf").config
-local fzf_utils = require("fzf.utils")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -20,7 +20,7 @@ local _error = config.notifier.error
 ---@param opts? FzfFilesOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     git_dir = git_utils.current_dir(),
   }, opts)
   ---@cast opts FzfFilesOptions
@@ -42,14 +42,14 @@ return function(opts)
       files = git_utils.files(opts.git_dir)
     else
       if vim.fn.executable("fd") ~= 1 then error("fd is not installed") end
-      files = utils.systemlist(
+      files = terminal_utils.systemlist_unsafe(
         "fd --type f --no-ignore --hidden --follow --exclude .git"
       )
     end
     ---@cast files string[]
     -- files = utils.sort_by_files(files)
 
-    return utils.map(files, function(i, file)
+    return tbl_utils.map(files, function(i, file)
       local path, git_path
       if opts.git_dir then
         path = vim.fn.fnamemodify(opts.git_dir .. "/" .. file, ":.")

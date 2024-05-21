@@ -1,9 +1,13 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
 local git_utils = require("utils.git")
 local fzf_utils = require("fzf.utils")
-local uv_utils = require("utils.uv")
+local tbl_utils = require("utils.table")
+local opts_utils = require("utils.opts")
+local lang_utils = require("utils.lang")
+local str_utils = require("utils.string")
+local vimdiff_utils = require("utils.vimdiff")
+local terminal_utils = require("utils.terminal")
 local jumplist = require("jumplist")
 local config = require("fzf").config
 
@@ -17,7 +21,7 @@ local _error = config.notifier.error
 ---@param opts? FzfGitStatusOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     git_dir = git_utils.current_dir(),
   }, opts)
   ---@cast opts FzfGitStatusOptions
@@ -34,7 +38,7 @@ return function(opts)
   ---@alias FzfGitStatusEntry { display: string, initial_focus: boolean, gitpath: string, filepath: string, status: string, status_x: string, status_y: string, is_fully_staged: boolean, is_partially_staged: boolean, is_untracked: boolean, unstaged: boolean, has_merge_conflicts: boolean, worktree_clean: boolean, added: boolean, deleted: boolean, renamed: boolean, copied: boolean, type_changed: boolean, ignored: boolean }
   ---@return FzfGitStatusEntry[]
   local entries_getter = function()
-    local entries = utils.systemlist(
+    local entries = terminal_utils.systemlist_unsafe(
       ([[git -C '%s' -c color.status=false status -su]]):format(opts.git_dir), -- Show in short format and show all untracked files
       {
         keepempty = false,
@@ -42,9 +46,9 @@ return function(opts)
       }
     )
 
-    -- entries = utils.sort_by_files(entries, function(e) return e:sub(4) end)
+    -- entries = file_utils.sort(entries, function(e) return e:sub(4) end)
 
-    return utils.map(entries, function(i, e)
+    return tbl_utils.map(entries, function(i, e)
       local status = e:sub(1, 2)
       local gitpath = e:sub(4)
       local filepath = opts.git_dir .. "/" .. gitpath
@@ -57,10 +61,10 @@ return function(opts)
       local status_y = status:sub(2, 2)
 
       local display = ([[%s %s]]):format(
-        utils.ansi_codes.blue(status_x),
-        utils.switch(status_y, {
-          ["D"] = utils.ansi_codes.red,
-        }, utils.ansi_codes.yellow)(status_y)
+        terminal_utils.ansi.blue(status_x),
+        lang_utils.match(status_y, {
+          ["D"] = terminal_utils.ansi.red,
+        }, terminal_utils.ansi.yellow)(status_y)
       )
 
       display = fzf_utils.join_by_nbsp(display, gitpath)
@@ -120,13 +124,13 @@ return function(opts)
     local gitpath = focus.gitpath
 
     local get_last_commit = function()
-      return utils.systemlist(
+      return terminal_utils.systemlist_unsafe(
         ("git -C '%s' show HEAD:'%s'"):format(opts.git_dir, gitpath)
       )
     end
 
     local get_staged = function()
-      return utils.systemlist(
+      return terminal_utils.systemlist_unsafe(
         ("git -C '%s' show :'%s'"):format(opts.git_dir, gitpath)
       )
     end
@@ -172,7 +176,7 @@ return function(opts)
       popups.side.right:show_file_content(filepath)
     end
 
-    utils.diff_bufs(popups.side.left.bufnr, popups.side.right.bufnr)
+    vimdiff_utils.diff_bufs(popups.side.left.bufnr, popups.side.right.bufnr)
   end)
 
   popups.main:map("<C-y>", "Copy filepath", function()
@@ -189,7 +193,7 @@ return function(opts)
     if not controller.focus then return end
 
     local filepath = controller.focus.filepath
-    utils.system(([[git -C '%s' add '%s']]):format(opts.git_dir, filepath))
+    terminal_utils.system_unsafe(([[git -C '%s' add '%s']]):format(opts.git_dir, filepath))
     controller:refresh()
   end)
 
@@ -197,7 +201,7 @@ return function(opts)
     if not controller.focus then return end
 
     local filepath = controller.focus.filepath
-    utils.system(
+    terminal_utils.system_unsafe(
       ([[git -C '%s' restore --staged '%s']]):format(opts.git_dir, filepath)
     )
     controller:refresh()
@@ -215,11 +219,11 @@ return function(opts)
       return
     end
 
-    local _, exit_status, _ = utils.system_safe(
+    local _, status, _ = terminal_utils.system(
       ([[git -C '%s' restore '%s']]):format(opts.git_dir, filepath)
     )
-    if exit_status ~= 0 then
-      utils.system(([[rm '%s']]):format(filepath))
+    if status ~= 0 then
+      terminal_utils.system_unsafe(([[rm '%s']]):format(filepath))
     end
 
     controller:refresh()
@@ -229,12 +233,12 @@ return function(opts)
     controller:selections(function(entries)
       if not entries then return end
 
-      local paths = utils.join(entries, function(_, e)
+      local paths = str_utils.join(entries, function(_, e)
         ---@cast e FzfGitStatusEntry
         return "'" .. e.gitpath .. "'"
       end)
       -- TODO: make stash message customizable
-      utils.system(
+      terminal_utils.system_unsafe(
         ([[git -C '%s' stash push -m %s -- %s]]):format(
           opts.git_dir,
           "TODO",
@@ -247,7 +251,7 @@ return function(opts)
 
   popups.main:map("<C-d>", "Stash staged", function()
     -- TODO: make stash message customizable
-    utils.system(
+    terminal_utils.system_unsafe(
       ([[git -C '%s' stash push -m %s --staged]]):format(opts.git_dir, "TODO")
     )
     controller:refresh()

@@ -1,9 +1,10 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
+local tbl_utils = require("utils.table")
+local opts_utils = require("utils.opts")
+local terminal_utils = require("utils.terminal")
+local vimdiff_utils = require("utils.vimdiff")
 local git_utils = require("utils.git")
-local fzf_utils = require("fzf.utils")
-local uv_utils = require("utils.uv")
 local jumplist = require("jumplist")
 local config = require("fzf").config
 
@@ -18,7 +19,7 @@ local _error = config.notifier.error
 ---@param opts? FzfGitFileChangesOptions
 ---@return FzfController
 return function(ref, opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     git_dir = git_utils.current_dir(),
   }, opts)
   ---@cast opts FzfGitFileChangesOptions
@@ -37,11 +38,11 @@ return function(ref, opts)
       ref
     )
 
-    local entries = utils.systemlist(command, {
+    local entries = terminal_utils.systemlist_unsafe(command, {
       keepempty = false,
     })
 
-    return utils.map(entries, function(_, e)
+    return tbl_utils.map(entries, function(_, e)
       local gitpath = e
       return {
         display = gitpath,
@@ -62,14 +63,14 @@ return function(ref, opts)
 
     if not focus then return end
 
-    local before = utils.systemlist_safe(
+    local before = terminal_utils.systemlist(
       ([[git -C '%s' cat-file blob '%s'~1:'%s']]):format(
         opts.git_dir,
         ref,
         focus.gitpath
       )
     )
-    local after = utils.systemlist_safe(
+    local after = terminal_utils.systemlist(
       ([[git -C '%s' cat-file blob '%s':'%s']]):format(
         opts.git_dir,
         ref,
@@ -92,7 +93,7 @@ return function(ref, opts)
     popups.side.left:set_lines(before or {})
     popups.side.right:set_lines(after or {})
 
-    utils.diff_bufs(popups.side.left.bufnr, popups.side.right.bufnr)
+    vimdiff_utils.diff_bufs(popups.side.left.bufnr, popups.side.right.bufnr)
   end)
 
   popups.main:map("<C-y>", "Copy filepath", function()

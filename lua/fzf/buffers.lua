@@ -1,11 +1,11 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
-local git_utils = require("utils.git")
-local jumplist = require("jumplist")
 local config = require("fzf").config
 local fzf_utils = require("fzf.utils")
 local buffer_utils = require("utils.buffer")
+local opts_utils = require("utils.opts")
+local tbl_utils = require("utils.table")
+local terminal_utils = require("utils.terminal")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -17,7 +17,7 @@ local _error = config.notifier.error
 ---@param opts? FzfBuffersOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({}, opts)
+  opts = opts_utils.extend({}, opts)
   ---@cast opts FzfBuffersOptions
 
   local controller = Controller.new({
@@ -32,7 +32,7 @@ return function(opts)
   ---@alias FzfBuffersEntry { display: string, initial_focus: boolean, buf: VimBuffer }
   ---@return FzfBuffersEntry[]
   local entries_getter = function()
-    return utils.map(
+    return tbl_utils.map(
       buffer_utils.getbufsinfo({
         buflisted = true,
       }),
@@ -47,7 +47,7 @@ return function(opts)
         return {
           display = fzf_utils.join_by_nbsp(
             relative_filepath,
-            utils.ansi_codes.blue(table.concat(icons, " "))
+            terminal_utils.ansi.blue(table.concat(icons, " "))
           ),
           buf = buf,
           initial_focus = buf.bufnr == controller:prev_buf(),

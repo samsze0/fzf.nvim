@@ -1,9 +1,10 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
-local git_utils = require("utils.git")
-local jumplist = require("jumplist")
 local config = require("fzf").config
+local opts_utils = require("utils.opts")
+local tbl_utils = require("utils.table")
+local terminal_utils = require("utils.terminal")
+local str_utils = require("utils.string")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -15,7 +16,7 @@ local _error = config.notifier.error
 ---@param opts? FzfGrepFileOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     initial_query = "",
   }, opts)
   ---@cast opts FzfGrepFileOptions
@@ -45,9 +46,9 @@ return function(opts)
 
   ---@return FzfGrepFileEntry[]
   local entries_getter = function()
-    local entries, exit_status, err_msg = utils.systemlist_safe(
+    local entries, exit_status, err_msg = terminal_utils.systemlist(
       ([[rg %s "%s" %s]]):format(
-        utils.shell_opts_tostring(config.default_rg_args),
+        terminal_utils.shell_opts_tostring(config.default_rg_args),
         controller.query,
         current_filepath
       )
@@ -61,12 +62,14 @@ return function(opts)
       error(("rg exits with status %d\n%s"):format(exit_status, err_msg))
     end
 
-    return utils.map(entries, function(i, e)
-      local parts = utils.split_string_n(e, 1, ":", {
+    return tbl_utils.map(entries, function(i, e)
+      local parts = str_utils.split(e, {
+        count = 1,
+        sep = ":",
         discard_empty = false,
       })
 
-      local line = tonumber(utils.strip_ansi_codes(parts[1]))
+      local line = tonumber(terminal_utils.strip_ansi_codes(parts[1]))
       assert(line ~= nil)
 
       return {

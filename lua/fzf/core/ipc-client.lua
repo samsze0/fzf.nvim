@@ -1,7 +1,7 @@
-local utils = require("utils")
+local uuid_utils = require("utils.uuid")
+local terminal_utils = require("utils.terminal")
 local EventMap = require("fzf.core.event-map")
 local uv_utils = require("utils.uv")
-local json = require("utils.json")
 local os_utils = require("utils.os")
 local CallbackMap = require("fzf.core.callback-map")
 
@@ -12,9 +12,7 @@ local CLIENT_TYPE = {
   nvim_rpc = 3,
 }
 
-local FZF_API_KEY = utils.uuid()
-
-local FZF_BASE_PORT = 8839
+local FZF_API_KEY = uuid_utils.v4()
 
 ---@class FzfIpcClient
 ---@field client_type FzfIpcClientType
@@ -34,6 +32,8 @@ local FzfIpcClient = {
 }
 FzfIpcClient.__index = FzfIpcClient
 
+local random_port = function() return math.random(10000, 30000) end
+
 ---@param client_type FzfIpcClientType
 function FzfIpcClient.new(client_type)
   local obj = setmetatable({
@@ -41,13 +41,14 @@ function FzfIpcClient.new(client_type)
     host = "127.0.0.1",
     port = nil,
     fzf_host = "127.0.0.1",
-    fzf_port = os_utils.next_available_port(FZF_BASE_PORT),
+    -- TODO
+    fzf_port = random_port(),
     _event_map = EventMap.new(),
     _callback_map = CallbackMap.new(),
   }, FzfIpcClient)
 
   local function message_handler(message)
-    local json_obj = json.parse(message)
+    local json_obj = vim.json.decode(message)
     if not json_obj then error("Invalid message") end
 
     if not json_obj.key then error("Key missing in message") end
@@ -81,7 +82,7 @@ function FzfIpcClient.new(client_type)
         if opts.load_action_from_file then
           local tmpfile = vim.fn.tempname()
           vim.fn.writefile(vim.split(action, "\n"), tmpfile)
-          utils.system(
+          terminal_utils.system_unsafe(
             ([[curl -X POST --data-binary '@%s' -H 'x-api-key: %s' %s:%s]]):format(
               tmpfile,
               FZF_API_KEY,
@@ -91,7 +92,7 @@ function FzfIpcClient.new(client_type)
           )
           vim.fn.delete(tmpfile)
         else
-          utils.system(
+          terminal_utils.system_unsafe(
             ([[curl -X POST --data '%s' -H 'x-api-key: %s' %s:%s]]):format(
               action,
               FZF_API_KEY,
@@ -110,7 +111,7 @@ function FzfIpcClient.new(client_type)
     obj.ask = function(self, response_payload, callback)
       local key = self._callback_map:add(callback)
 
-      local message = json.stringify({
+      local message = vim.json.encode({
         key = key,
         message = response_payload,
       })
@@ -124,7 +125,7 @@ function FzfIpcClient.new(client_type)
     obj.subscribe = function(self, event, response_payload, callback)
       local key = self._callback_map:add(callback)
 
-      local message = json.stringify({
+      local message = vim.json.encode({
         key = key,
         message = response_payload,
         event = event,

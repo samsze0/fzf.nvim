@@ -1,10 +1,10 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
-local git_utils = require("utils.git")
 local jumplist = require("jumplist")
 local config = require("fzf").config
-local fzf_utils = require("fzf.utils")
+local opts_utils = require("utils.opts")
+local tbl_utils = require("utils.table")
+local terminal_utils = require("utils.terminal")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -16,7 +16,7 @@ local _error = config.notifier.error
 ---@param opts? { }
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({}, opts)
+  opts = opts_utils.extend({}, opts)
   ---@cast opts FzfJumpOptions
 
   local controller = Controller.new({
@@ -35,11 +35,11 @@ return function(opts)
   local entries_getter = function()
     local jumps, current_pos = jumplist.get_jumps_as_list(controller:prev_win())
 
-    return utils.map(
+    return tbl_utils.map(
       jumps,
       function(i, e)
         return {
-          display = ([[%s]]):format(utils.ansi_codes.grey(e.filename)),
+          display = ([[%s]]):format(terminal_utils.ansi.grey(e.filename)),
           jump = e,
           initial_focus = current_pos == i,
         }

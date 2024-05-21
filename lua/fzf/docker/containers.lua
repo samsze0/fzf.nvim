@@ -1,8 +1,9 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
-local git_utils = require("utils.git")
-local jumplist = require("jumplist")
+local tbl_utils = require("utils.table")
+local opts_utils = require("utils.opts")
+local lang_utils = require("utils.lang")
+local terminal_utils = require("utils.terminal")
 local config = require("fzf").config
 local fzf_utils = require("fzf.utils")
 local docker_utils = require("utils.docker")
@@ -19,7 +20,7 @@ local _error = config.notifier.error
 ---@param opts? FzfDockerContainerOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({}, opts)
+  opts = opts_utils.extend({}, opts)
   ---@cast opts FzfDockerContainerOptions
 
   local controller = Controller.new({
@@ -33,18 +34,18 @@ return function(opts)
   ---@alias FzfDockerContainersEntry { display: string, container: DockerContainer }
   ---@return FzfDockerContainersEntry[]
   local entries_getter = function()
-    return utils.map(
+    return tbl_utils.map(
       docker_utils.docker_containers({
         all = true,
       }),
       function(i, e)
         return {
           display = fzf_utils.join_by_nbsp(
-            utils.switch(e.Controller, {
-              ["exited"] = utils.ansi_codes.grey(" "),
-              ["running"] = utils.ansi_codes.blue(" "),
-            }, utils.ansi_codes.red("??")),
-            utils.ansi_codes.blue(e.Image),
+            lang_utils.match(e.Controller, {
+              ["exited"] = terminal_utils.ansi.grey(" "),
+              ["running"] = terminal_utils.ansi.blue(" "),
+            }, terminal_utils.ansi.red("??")),
+            terminal_utils.ansi.blue(e.Image),
             e.Names
           ),
           container = e,
@@ -76,7 +77,7 @@ return function(opts)
       return
     end
 
-    utils.system(([[docker container rm %s]]):format(focus.container.ID))
+    terminal_utils.system_unsafe(([[docker container rm %s]]):format(focus.container.ID))
     controller:refresh()
   end)
 
@@ -91,7 +92,7 @@ return function(opts)
       return
     end
 
-    utils.system(([[docker container start %s]]):format(focus.container.ID))
+    terminal_utils.system_unsafe(([[docker container start %s]]):format(focus.container.ID))
     controller:refresh()
   end)
 
@@ -106,7 +107,7 @@ return function(opts)
       return
     end
 
-    utils.system(([[docker container stop %s]]):format(focus.container.ID))
+    terminal_utils.system_unsafe(([[docker container stop %s]]):format(focus.container.ID))
     controller:refresh()
   end)
 

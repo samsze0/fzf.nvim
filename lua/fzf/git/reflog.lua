@@ -1,11 +1,10 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
-local git_utils = require("utils.git")
+local tbl_utils = require("utils.table")
+local terminal_utils = require("utils.terminal")
+local opts_utils = require("utils.opts")
 local fzf_utils = require("fzf.utils")
-local uv_utils = require("utils.uv")
-local jumplist = require("jumplist")
-local fzf_git_file_changes = require("fzf.git.file-changes")
+local git_utils = require("utils.git")
 local config = require("fzf").config
 local terminal_ft = require("terminal-filetype")
 
@@ -18,7 +17,7 @@ local _error = config.notifier.error
 ---@alias FzfGitReflogOptions { git_dir?: string }
 ---@param opts? FzfGitReflogOptions
 return function(opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     git_dir = git_utils.current_dir(),
   }, opts)
   ---@cast opts FzfGitReflogOptions
@@ -32,8 +31,8 @@ return function(opts)
   ---@alias FzfGitReflogEntry { display: string, sha: string, ref: string, action: string, description: string }
   ---@return FzfGitStashEntry[]
   local entries_getter = function()
-    return utils.map(
-      utils.systemlist(("git -C '%s' reflog"):format(opts.git_dir)),
+    return tbl_utils.map(
+      terminal_utils.systemlist_unsafe(("git -C '%s' reflog"):format(opts.git_dir)),
       function(i, e)
         local sha, ref, action, description =
           e:match("(%w+) (%w+@{%d+}): ([^:]+): (.+)")
@@ -45,7 +44,7 @@ return function(opts)
         return {
           display = fzf_utils.join_by_nbsp(
             -- ref, -- FIX: curly bracket causing line to not render
-            utils.ansi_codes.blue("[" .. action .. "]"),
+            terminal_utils.ansi.blue("[" .. action .. "]"),
             description
           ),
           sha = sha,
@@ -67,7 +66,7 @@ return function(opts)
 
     if not focus then return end
 
-    local reflog = utils.systemlist(
+    local reflog = terminal_utils.systemlist_unsafe(
       ([[git -C '%s' diff '%s' | delta %s]]):format(opts.git_dir, focus.ref, "")
     ) -- TODO: share delta config
     popups.side:set_lines(reflog)

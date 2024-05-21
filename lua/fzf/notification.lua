@@ -1,10 +1,13 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
 local timeago = require("utils.timeago")
 local notifier = require("notifier")
 local fzf_utils = require("fzf.utils")
 local config = require("fzf").config
+local opts_utils = require("utils.opts")
+local tbl_utils = require("utils.table")
+local terminal_utils = require("utils.terminal")
+local lang_utils = require("utils.lang")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -16,7 +19,7 @@ local _error = config.notifier.error
 ---@param opts? FzfNotificationsOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({}, opts)
+  opts = opts_utils.extend({}, opts)
   ---@cast opts FzfNotificationsOptions
 
   local controller = Controller.new({
@@ -41,14 +44,14 @@ return function(opts)
 
     local notifications = notifier.all()
 
-    return utils.map(notifications, function(i, e)
-      local icon = utils.switch(e.level, {
-        [vim.log.levels.INFO] = utils.ansi_codes.blue("󰋼 "),
-        [vim.log.levels.WARN] = utils.ansi_codes.yellow(" "),
-        [vim.log.levels.ERROR] = utils.ansi_codes.red(" "),
-        [vim.log.levels.DEBUG] = utils.ansi_codes.grey(" "),
-        [vim.log.levels.TRACE] = utils.ansi_codes.grey(" "),
-      }, utils.ansi_codes.grey(" "))
+    return tbl_utils.map(notifications, function(i, e)
+      local icon = lang_utils.match(e.level, {
+        [vim.log.levels.INFO] = terminal_utils.ansi.blue("󰋼 "),
+        [vim.log.levels.WARN] = terminal_utils.ansi.yellow(" "),
+        [vim.log.levels.ERROR] = terminal_utils.ansi.red(" "),
+        [vim.log.levels.DEBUG] = terminal_utils.ansi.grey(" "),
+        [vim.log.levels.TRACE] = terminal_utils.ansi.grey(" "),
+      }, terminal_utils.ansi.grey(" "))
 
       local parts = vim.split(e.message, "\n")
       local brief

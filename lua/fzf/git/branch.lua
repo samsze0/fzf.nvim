@@ -1,8 +1,9 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
+local tbl_utils = require("utils.table")
+local opts_utils = require("utils.opts")
+local terminal_utils = require("utils.terminal")
 local git_utils = require("utils.git")
-local jumplist = require("jumplist")
 local fzf_git_commits = require("fzf.git.commits")
 local fzf_utils = require("fzf.utils")
 local config = require("fzf").config
@@ -20,7 +21,7 @@ local _error = config.notifier.error
 ---@param opts? FzfGitBranchOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     git_dir = git_utils.current_dir(),
   }, opts)
   ---@cast opts FzfGitBranchOptions
@@ -38,16 +39,15 @@ return function(opts)
   ---@alias FzfGitBranchEntry { display: string, branch?: string, is_current_branch?: boolean, is_remote_branch?: boolean, detached_commit?: string }
   ---@return FzfFileEntry[]
   local entries_getter = function()
-    local output =
-      utils.systemlist(("git -C '%s' branch --all"):format(opts.git_dir))
+    local output = terminal_utils.systemlist_unsafe(("git -C '%s' branch --all"):format(opts.git_dir))
 
-    return utils.map(output, function(i, b)
+    return tbl_utils.map(output, function(i, b)
       local branch = vim.trim(b:sub(3))
 
       local deteched_commit = branch:match([[^%(HEAD detached at (.*)%)$]])
       if deteched_commit then
         return {
-          display = utils.ansi_codes.yellow(
+          display = terminal_utils.ansi.yellow(
             ("Detached commit %s"):format(deteched_commit)
           ),
           detached_commit = deteched_commit,
@@ -65,7 +65,7 @@ return function(opts)
 
       return {
         display = fzf_utils.join_by_nbsp(
-          is_current_branch and utils.ansi_codes.blue("") or " ",
+          is_current_branch and terminal_utils.ansi.blue("") or " ",
           branch
         ),
         branch = branch,
@@ -85,7 +85,7 @@ return function(opts)
 
     if not focus then return end
 
-    local git_log = utils.systemlist(
+    local git_log = terminal_utils.systemlist_unsafe(
       ("git -C '%s' log --color --decorate '%s'"):format(
         opts.git_dir,
         focus.branch or focus.detached_commit
@@ -126,7 +126,7 @@ return function(opts)
     end
 
     local branch = focus.branch
-    utils.system(("git -C '%s' branch -D '%s'"):format(opts.git_dir, branch))
+    terminal_utils.system_unsafe(("git -C '%s' branch -D '%s'"):format(opts.git_dir, branch))
     controller:refresh()
   end)
 
@@ -148,7 +148,7 @@ return function(opts)
 
     local branch_or_commit_hash = controller.focus.branch
       or controller.focus.detached_commit
-    utils.system(
+    terminal_utils.system_unsafe(
       ("git -C '%s' checkout '%s'"):format(opts.git_dir, branch_or_commit_hash)
     )
     _info(([[Checked out: %s]]):format(branch_or_commit_hash))

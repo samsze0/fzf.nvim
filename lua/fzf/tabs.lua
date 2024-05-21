@@ -1,11 +1,9 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
-local git_utils = require("utils.git")
-local jumplist = require("jumplist")
 local config = require("fzf").config
-local fzf_utils = require("fzf.utils")
 local tab_utils = require("utils.tab")
+local opts_utils = require("utils.opts")
+local tbl_utils = require("utils.table")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -17,7 +15,7 @@ local _error = config.notifier.error
 ---@param opts? FzfTabsOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({}, opts)
+  opts = opts_utils.extend({}, opts)
   ---@cast opts FzfTabsOptions
 
   local controller = Controller.new({
@@ -34,7 +32,7 @@ return function(opts)
   local entries_getter = function()
     local prev_tab = controller:prev_tab()
 
-    return utils.map(
+    return tbl_utils.map(
       tab_utils.gettabsinfo(),
       function(i, tab)
         return {

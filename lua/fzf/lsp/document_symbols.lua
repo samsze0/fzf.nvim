@@ -1,11 +1,10 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
-local git_utils = require("utils.git")
-local jumplist = require("jumplist")
 local config = require("fzf").config
 local fzf_utils = require("fzf.utils")
 local shared = require("fzf.lsp.shared")
+local opts_utils = require("utils.opts")
+local terminal_utils = require("utils.terminal")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -19,7 +18,7 @@ local _error = config.notifier.error
 ---@param opts? FzfLspDocumentSymbolsOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({}, opts)
+  opts = opts_utils.extend({}, opts)
   ---@cast opts FzfLspDocumentSymbolsOptions
 
   local controller = Controller.new({
@@ -62,7 +61,7 @@ return function(opts)
           table.insert(entries, {
             display = fzf_utils.join_by_nbsp(
               ("⋅"):rep(indent + 1),
-              utils.ansi_codes.blue(
+              terminal_utils.ansi.blue(
                 vim.lsp.protocol.SymbolKind[s.kind] or "Unknown"
               ),
               s.name

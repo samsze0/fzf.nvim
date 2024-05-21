@@ -2,9 +2,7 @@ local NuiLayout = require("nui.layout")
 local MainPopup = require("fzf.layouts.popup").MainPopup
 local SidePopup = require("fzf.layouts.popup").SidePopup
 local config = require("fzf").config
-local utils = require("utils")
-local jumplist = require("jumplist")
-local NuiEvent = require("nui.utils.autocmd").event
+local opts_utils = require("utils.opts")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -21,7 +19,7 @@ local M = {}
 ---@param opts? FzfLayoutSinglePaneOptions
 ---@return NuiLayout layout, { main: FzfMainPopup } popups
 M.single_pane = function(opts)
-  opts = utils.opts_deep_extend({
+  opts = opts_utils.deep_extend({
     main_popup = {
       class = MainPopup,
     },
@@ -53,7 +51,7 @@ end
 ---@param opts? FzfLayoutDualPaneOptions
 ---@return NuiLayout, { main: FzfMainPopup, side: FzfSidePopup }
 M.dual_pane = function(opts)
-  opts = utils.opts_deep_extend({
+  opts = opts_utils.deep_extend({
     main_popup = {
       class = MainPopup,
     },
@@ -103,7 +101,7 @@ end
 ---@param opts? FzfLayoutTriplePaneOptions
 ---@return NuiLayout layout, { main: FzfMainPopup, side: { left: FzfSidePopup, right: FzfSidePopup } } popups
 M.triple_pane = function(opts)
-  opts = utils.opts_deep_extend({
+  opts = opts_utils.deep_extend({
     main_popup = {
       class = MainPopup,
     },
@@ -174,7 +172,7 @@ end
 ---@param opts? FzfLayoutTriplePane2ColumnOptions
 ---@return NuiLayout, { main: FzfMainPopup, side: { top: FzfSidePopup, bottom: FzfSidePopup } }
 M.triple_pane_2_column = function(opts)
-  opts = utils.opts_deep_extend({
+  opts = opts_utils.deep_extend({
     main_popup = {
       class = MainPopup,
     },

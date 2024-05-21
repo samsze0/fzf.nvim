@@ -1,4 +1,4 @@
-local utils = require("utils")
+local uuid_utils = require("utils.uuid")
 
 ---@alias FzfCallback function
 
@@ -56,11 +56,11 @@ end
 --
 ---@return string key
 function CallbackMap:empty_slot()
-  local key = utils.uuid()
+  local key = uuid_utils.v4()
   local retry_count = 3
   while self:exists(key) and retry_count >= 1 do
     retry_count = retry_count - 1
-    key = utils.uuid()
+    key = uuid_utils.v4()
   end
   if self:exists(key) then error("Failed to find empty slot") end
   return key

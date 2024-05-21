@@ -1,10 +1,11 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
-local git_utils = require("utils.git")
-local jumplist = require("jumplist")
 local config = require("fzf").config
 local fzf_utils = require("fzf.utils")
+local opts_utils = require("utils.opts")
+local tbl_utils = require("utils.table")
+local terminal_utils = require("utils.terminal")
+local lang_utils = require("utils.lang")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -16,7 +17,7 @@ local _error = config.notifier.error
 ---@param opts? FzfDiagnosticsOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     severity = { min = vim.diagnostic.severity.WARN },
     current_buffer_only = false,
   }, opts)
@@ -40,19 +41,19 @@ return function(opts)
       { severity = opts.severity }
     )
 
-    return utils.map(entries, function(i, e)
+    return tbl_utils.map(entries, function(i, e)
       local filepath = opts.current_buffer_only and controller:prev_filepath()
         or vim.fn.fnamemodify(vim.api.nvim_buf_get_name(e.bufnr), ":.") ---@diagnostic disable-line: undefined-field
 
       return {
         display = fzf_utils.join_by_nbsp(
-          utils.switch(e.severity, {
-            [vim.diagnostic.severity.HINT] = utils.ansi_codes.blue("H"),
-            [vim.diagnostic.severity.INFO] = utils.ansi_codes.blue("I"),
-            [vim.diagnostic.severity.WARN] = utils.ansi_codes.yellow("W"),
-            [vim.diagnostic.severity.ERROR] = utils.ansi_codes.red("E"),
+          lang_utils.match(e.severity, {
+            [vim.diagnostic.severity.HINT] = terminal_utils.ansi.blue("H"),
+            [vim.diagnostic.severity.INFO] = terminal_utils.ansi.blue("I"),
+            [vim.diagnostic.severity.WARN] = terminal_utils.ansi.yellow("W"),
+            [vim.diagnostic.severity.ERROR] = terminal_utils.ansi.red("E"),
           }, "?"),
-          utils.ansi_codes.grey(e.source),
+          terminal_utils.ansi.grey(e.source),
           vim.split(e.message, "\n")[1]
         ),
         filepath = filepath,

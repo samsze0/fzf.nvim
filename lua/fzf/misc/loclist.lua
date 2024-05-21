@@ -2,7 +2,10 @@ local core = require("fzf.core")
 local fzf_utils = require("fzf.utils")
 local layouts = require("fzf.layouts")
 local helpers = require("fzf.helpers")
-local utils = require("utils")
+local config = require("fzf").config
+local opts_utils = require("utils.opts")
+local tbl_utils = require("utils.table")
+local terminal_utils = require("utils.terminal")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -12,7 +15,7 @@ local _error = config.notifier.error
 --
 ---@param opts? { }
 return function(opts)
-  opts = vim.tbl_extend("force", {}, opts or {})
+  opts = opts_utils.extend({}, opts)
 
   local current_win = vim.api.nvim_get_current_win()
   local current_buf = vim.api.nvim_get_current_buf()
@@ -20,12 +23,12 @@ return function(opts)
   local function get_entries()
     local ll = vim.fn.getloclist(current_win)
 
-    return utils.map(
+    return tbl_utils.map(
       ll,
       function(_, l)
         return fzf_utils.join_by_delim(
           l.bufnr,
-          utils.ansi_codes.grey(
+          terminal_utils.ansi.grey(
             vim.fn.fnamemodify(vim.api.nvim_buf_get_name(l.bufnr), ":~:.")
           ),
           l.lnum,
@@ -39,7 +42,7 @@ return function(opts)
   local entries = get_entries()
 
   local parse_entry = function(entry)
-    local bufnr, filepath, row, col = unpack(vim.split(entry, utils.nbsp))
+    local bufnr, filepath, row, col = unpack(vim.split(entry, terminal_utils.nbsp))
     return tonumber(bufnr), filepath, tonumber(row), tonumber(col)
   end
 
@@ -82,7 +85,7 @@ return function(opts)
         vim.cmd([[ldo update]]) -- Write all changes
       end,
     }),
-    extra_args = vim.tbl_extend("force", helpers.fzf_default_args, {
+    extra_args = opts_utils.extend(helpers.fzf_default_args, {
       ["--with-nth"] = "2,5",
     }),
   })

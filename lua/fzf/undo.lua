@@ -1,13 +1,11 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
-local git_utils = require("utils.git")
 local fzf_utils = require("fzf.utils")
-local uv_utils = require("utils.uv")
-local jumplist = require("jumplist")
+local opts_utils = require("utils.opts")
 local config = require("fzf").config
 local timeago = require("utils.timeago")
 local undo_utils = require("utils.undo")
+local vimdiff_utils = require("utils.vimdiff")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -19,7 +17,7 @@ local _error = config.notifier.error
 ---@param opts? FzfUndoOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({}, opts)
+  opts = opts_utils.extend({}, opts)
   ---@cast opts FzfUndoOptions
 
   local controller = Controller.new({
@@ -88,7 +86,7 @@ return function(opts)
     popups.side.left:set_lines(before)
     popups.side.right:set_lines(after)
 
-    utils.diff_bufs(popups.side.left.bufnr, popups.side.right.bufnr)
+    vimdiff_utils.diff_bufs(popups.side.left.bufnr, popups.side.right.bufnr)
   end)
 
   popups.main:map("<C-y>", "Copy undo nr", function()
@@ -110,7 +108,7 @@ return function(opts)
       focus.undo.seq
     )
 
-    utils.show_diff(
+    vimdiff_utils.show_diff(
       {
         filetype = vim.bo[controller:prev_buf()].filetype,
       },

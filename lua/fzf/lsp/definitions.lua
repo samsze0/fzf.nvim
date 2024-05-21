@@ -1,11 +1,10 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
-local git_utils = require("utils.git")
-local jumplist = require("jumplist")
 local config = require("fzf").config
 local fzf_utils = require("fzf.utils")
-local shared = require("fzf.lsp.shared")
+local opts_utils = require("utils.opts")
+local tbl_utils = require("utils.table")
+local terminal_utils = require("utils.terminal")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -17,7 +16,7 @@ local _error = config.notifier.error
 ---@param opts? FzfLspDefinitionsOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({}, opts)
+  opts = opts_utils.extend({}, opts)
   ---@cast opts FzfLspDefinitionsOptions
 
   local controller = Controller.new({
@@ -39,12 +38,12 @@ return function(opts)
       local context = list.context
       local title = list.title
 
-      local entries = utils.map(defs, function(_, e)
+      local entries = tbl_utils.map(defs, function(_, e)
         local relative_path = vim.fn.fnamemodify(e.filename, ":~:.")
 
         return {
           display = fzf_utils.join_by_nbsp(
-            utils.ansi_codes.grey(relative_path),
+            terminal_utils.ansi.grey(relative_path),
             vim.trim(e.text)
           ),
           filepath = e.filename,

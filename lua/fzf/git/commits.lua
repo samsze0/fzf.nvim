@@ -1,10 +1,10 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
+local tbl_utils = require("utils.table")
+local terminal_utils = require("utils.terminal")
 local git_utils = require("utils.git")
 local fzf_utils = require("fzf.utils")
-local uv_utils = require("utils.uv")
-local jumplist = require("jumplist")
+local opts_utils = require("utils.opts")
 local fzf_git_file_changes = require("fzf.git.file-changes")
 local config = require("fzf").config
 local terminal_ft = require("terminal-filetype")
@@ -23,7 +23,7 @@ local _error = config.notifier.error
 ---@param opts? FzfGitCommitsOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     git_dir = git_utils.current_dir(),
   }, opts)
   ---@cast opts FzfGitCommitsOptions
@@ -55,20 +55,20 @@ return function(opts)
       command = command .. ([[ -- %s]]):format(opts.filepaths) -- Be careful special chars must be escaped
     end
 
-    local entries = utils.systemlist(command, {
+    local entries = terminal_utils.systemlist_unsafe(command, {
       keepempty = false,
     })
 
-    return utils.map(entries, function(_, e)
-      local parts = vim.split(e, utils.nbsp)
+    return tbl_utils.map(entries, function(_, e)
+      local parts = vim.split(e, terminal_utils.nbsp)
       if #parts ~= 5 then error("Invalid git log entry: " .. e) end
 
       return {
         display = fzf_utils.join_by_nbsp(
-          utils.ansi_codes.blue(parts[1]),
-          utils.ansi_codes.white(parts[2]),
-          utils.ansi_codes.grey("| " .. parts[4]),
-          utils.ansi_codes.grey("| " .. parts[5]),
+          terminal_utils.ansi.blue(parts[1]),
+          terminal_utils.ansi.white(parts[2]),
+          terminal_utils.ansi.grey("| " .. parts[4]),
+          terminal_utils.ansi.grey("| " .. parts[5]),
           "| " .. parts[3]
         ),
         hash = parts[1],
@@ -91,7 +91,7 @@ return function(opts)
     if not focus then return end
 
     local git_show =
-      utils.systemlist(([[git -C '%s' show --color %s %s | delta %s]]):format(
+      terminal_utils.systemlist_unsafe(([[git -C '%s' show --color %s %s | delta %s]]):format(
         opts.git_dir,
         focus.hash,
         opts.filepaths and ("-- %s"):format(opts.filepaths) or "",

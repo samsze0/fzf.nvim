@@ -1,9 +1,11 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
 local git_utils = require("utils.git")
-local jumplist = require("jumplist")
 local config = require("fzf").config
+local opts_utils = require("utils.opts")
+local tbl_utils = require("utils.table")
+local terminal_utils = require("utils.terminal")
+local str_utils = require("utils.string")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -16,7 +18,7 @@ local _error = config.notifier.error
 ---@alias FzfGrepWorkspaceOptions { git_dir?: string, initial_query?: string }
 ---@param opts? FzfGrepWorkspaceOptions
 return function(opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     git_dir = git_utils.current_dir(),
     initial_query = "",
   }, opts)
@@ -43,12 +45,12 @@ return function(opts)
     if controller.query:len() == 0 then return {} end
 
     local command = ([[rg %s "%s" $(%s)]]):format(
-      utils.shell_opts_tostring(config.default_rg_args),
+      terminal_utils.shell_opts_tostring(config.default_rg_args),
       controller.query,
       git_utils.files_cmd(opts.git_dir)
     )
 
-    local entries, exit_status, err_msg = utils.systemlist(command)
+    local entries, exit_status, err_msg = terminal_utils.systemlist(command)
 
     if exit_status == 1 then
       return {}
@@ -58,13 +60,15 @@ return function(opts)
       error(("rg exits with status %d\n%s"):format(exit_status, err_msg))
     end
 
-    return utils.map(entries, function(i, e)
-      local parts = utils.split_string_n(e, 2, ":", {
+    return tbl_utils.map(entries, function(i, e)
+      local parts = str_utils.split(e, {
+        count = 2,
+        sep = ":",
         discard_empty = false,
       })
-      local full_path = utils.strip_ansi_codes(parts[1])
+      local full_path = terminal_utils.strip_ansi_codes(parts[1])
       local relative_path = vim.fn.fnamemodify(full_path, ":.")
-      local line = tonumber(utils.strip_ansi_codes(parts[2]))
+      local line = tonumber(terminal_utils.strip_ansi_codes(parts[2]))
       assert(line ~= nil)
 
       return {

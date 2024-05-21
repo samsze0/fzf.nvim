@@ -1,8 +1,8 @@
-local utils = require("utils")
+local uuid_utils = require("utils.uuid")
+local tbl_utils = require("utils.table")
+local opts_utils = require("utils.opts")
+local terminal_utils = require("utils.terminal")
 local CallbackMap = require("fzf.core.callback-map")
-local uv_utils = require("utils.uv")
-local json = require("utils.json")
-local os_utils = require("utils.os")
 local IpcClient = require("fzf.core.ipc-client")
 local config = require("fzf").config
 
@@ -30,13 +30,13 @@ local IPC_CLIENT_TYPE = IpcClient.CLIENT_TYPE.tcp
 ---@field query string The current query
 ---@field focus? any The currently focused entry
 ---@field _ipc_client FzfIpcClient The ipc client
----@field _extra_args? UtilsShellOpts Extra arguments to pass to fzf
+---@field _extra_args? TerminalShellOpts Extra arguments to pass to fzf
 ---@field _entries_getter? FzfEntriesGetter The function or the shell command to retrieve the entries
 ---@field _ui_hooks? FzfUIHooks UI hooks
 ---@field _entries? any[] Current entries
 ---@field _display_accessor FzfDisplayAccessor Function that retrieves the display string of an entry
 ---@field _initial_focus_accessor FzfInitialFocusAccessor Function that determines if an entry should be focused on initially
----@field _extra_env_vars? UtilsShellOpts Extra environment variables to pass to fzf
+---@field _extra_env_vars? TerminalShellOpts Extra environment variables to pass to fzf
 ---@field _prev_win? number Previous window before opening fzf
 ---@field _fetching_entries boolean
 ---@field _fetching_entries_subscribers FzfCallbackMap Map of subscribers of `fetching_entries`
@@ -76,11 +76,11 @@ end
 
 -- Create controller
 --
----@alias FzfCreateControllerOpts { name: string, extra_args?: UtilsShellOpts, extra_env_vars?: UtilsShellOpts, refetch_in_background_interval?: number }
+---@alias FzfCreateControllerOpts { name: string, extra_args?: TerminalShellOpts, extra_env_vars?: TerminalShellOpts, refetch_in_background_interval?: number }
 ---@param opts FzfCreateControllerOpts
 ---@return FzfController
 function ControllerMap.create(opts)
-  local controller_id = utils.uuid()
+  local controller_id = uuid_utils.v4()
   local controller = {
     name = opts.name,
     _id = controller_id,
@@ -184,7 +184,7 @@ function Controller:parent() return ControllerMap[self._parent_id] end
 ---@param entries_getter FzfEntriesGetter
 ---@param opts? { display_accessor?: FzfDisplayAccessor, initial_focus_accessor?: FzfInitialFocusAccessor }
 function Controller:set_entries_getter(entries_getter, opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     display_accessor = function(e) return e.display end,
     initial_focus_accessor = function(e) return e.initial_focus end,
   }, opts)
@@ -271,12 +271,12 @@ function Controller:start()
     ["--padding"] = "0,1",
     ["--margin"] = "0",
     ["--bind"] = "'" .. self._ipc_client:bindings() .. "'",
-    ["--delimiter"] = "'" .. utils.nbsp .. "'",
+    ["--delimiter"] = "'" .. terminal_utils.nbsp .. "'",
   }
-  args = utils.tbl_extend({ mode = "error" }, args, config.default_extra_args)
-  args = utils.tbl_extend({ mode = "error" }, args, self._extra_args)
+  args = tbl_utils.tbl_extend({ mode = "error" }, args, config.default_extra_args)
+  args = tbl_utils.tbl_extend({ mode = "error" }, args, self._extra_args)
 
-  local command = "fzf " .. utils.shell_opts_tostring(args)
+  local command = "fzf " .. terminal_utils.shell_opts_tostring(args)
 
   -- TODO: cater Windows
   command = [[printf "" | ]] .. command
@@ -285,15 +285,15 @@ function Controller:start()
     ["FZF_API_KEY"] = IpcClient.API_KEY,
     -- TODO: add warning about SHELL and how it can make the plugin sluggish/lag
   }
-  env_vars = utils.tbl_extend(
+  env_vars = tbl_utils.tbl_extend(
     { mode = "error" },
     env_vars,
     config.default_extra_env_vars
   )
   env_vars =
-    utils.tbl_extend({ mode = "error" }, env_vars, self._extra_env_vars)
+  tbl_utils.tbl_extend({ mode = "error" }, env_vars, self._extra_env_vars)
 
-  command = ("%s %s"):format(utils.shell_opts_tostring(env_vars), command)
+  command = ("%s %s"):format(terminal_utils.shell_opts_tostring(env_vars), command)
 
   if self._parent_id then self:parent():hide() end
   self:show_and_focus()
@@ -477,7 +477,7 @@ end
 ---@alias FzfControllerRefreshOpts { change_focus?: boolean, refetch?: boolean }
 ---@param opts? FzfControllerRefreshOpts
 function Controller:refresh(opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     refetch = true,
   }, opts)
   ---@cast opts FzfControllerRefreshOpts
@@ -505,7 +505,7 @@ function Controller:_load_fetched_entries(opts)
   end
 
   local initial_pos
-  local fzf_rows = utils.map(self._entries, function(i, e)
+  local fzf_rows = tbl_utils.map(self._entries, function(i, e)
     local display = self._display_accessor(e)
     if type(display) ~= "string" then error("Invalid entry " .. e) end
 
@@ -549,12 +549,12 @@ end
 ---@param callback fun(entries: any[])
 function Controller:selections(callback)
   self:ask("{+n}", function(payload)
-    local indices = utils.map(vim.split(payload, " "), function(_, i)
+    local indices = tbl_utils.map(vim.split(payload, " "), function(_, i)
       local index = tonumber(i) + 1
       assert(index ~= nil)
       return index
     end)
-    callback(utils.map(indices, function(_, i) return self._entries[i] end))
+    callback(tbl_utils.map(indices, function(_, i) return self._entries[i] end))
   end)
 end
 
@@ -628,7 +628,7 @@ end
 ---@alias FzfControllerSendSelectionsToLoclistOpts { filename_accessor?: (string | fun(entry: any): string), lnum_accessor?: (number | fun(entry: any): number), col_accessor?: (number | fun(entry: any): number), text_accessor?: (string | fun(entry: any): string), callback?: function }
 ---@param opts? FzfControllerSendSelectionsToLoclistOpts
 function Controller:send_selections_to_loclist(opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     filename_accessor = function(e) return e.filename end,
     col_accessor = function(e) return e.col end,
     lnum_accessor = function(e) return e.lnum end,
@@ -639,7 +639,7 @@ function Controller:send_selections_to_loclist(opts)
   -- TODO: having this extra callback opt is a bit cumbersome. Maybe impl something like async/await
 
   self:selections(function(entries)
-    utils.map(entries, function(_, e)
+    tbl_utils.map(entries, function(_, e)
       -- :h setqflist
       return {
         filename = type(opts.filename_accessor) == "string"

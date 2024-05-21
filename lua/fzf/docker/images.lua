@@ -1,8 +1,9 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
-local git_utils = require("utils.git")
-local jumplist = require("jumplist")
+local tbl_utils = require("utils.table")
+local opts_utils = require("utils.opts")
+local lang_utils = require("utils.lang")
+local terminal_utils = require("utils.terminal")
 local config = require("fzf").config
 local fzf_utils = require("fzf.utils")
 local docker_utils = require("utils.docker")
@@ -19,7 +20,7 @@ local _error = config.notifier.error
 ---@param opts? FzfDockerImageOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({}, opts)
+  opts = opts_utils.extend({}, opts)
   ---@cast opts FzfDockerImageOptions
 
   local controller = Controller.new({
@@ -33,7 +34,7 @@ return function(opts)
   ---@alias FzfDockerImagesEntry { display: string, image: DockerImage }
   ---@return FzfDockerImagesEntry[]
   local entries_getter = function()
-    return utils.map(
+    return tbl_utils.map(
       docker_utils.docker_images({
         all = true,
       }),
@@ -64,7 +65,7 @@ return function(opts)
 
     if not focus then return end
 
-    utils.system(([[docker image rm %s]]):format(focus.image.ID))
+    terminal_utils.system_unsafe(([[docker image rm %s]]):format(focus.image.ID))
     controller:refresh()
   end)
 

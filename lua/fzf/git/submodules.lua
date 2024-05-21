@@ -1,10 +1,9 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
 local git_utils = require("utils.git")
-local jumplist = require("jumplist")
-local fzf_git_commits = require("fzf.git.commits")
-local fzf_utils = require("fzf.utils")
+local tbl_utils = require("utils.table")
+local opts_utils = require("utils.opts")
+local terminal_utils = require("utils.terminal")
 local config = require("fzf").config
 local terminal_ft = require("terminal-filetype")
 local fzf_files = require("fzf.files")
@@ -22,7 +21,7 @@ local _error = config.notifier.error
 ---@param opts? FzfGitSubmodulesOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({}, opts)
+  opts = opts_utils.extend({}, opts)
   ---@cast opts FzfGitSubmodulesOptions
 
   local current_git_dir = git_utils.current_dir()
@@ -37,9 +36,9 @@ return function(opts)
   ---@return FzfGitSubmoduleEntry[]
   local entries_getter = function()
     local submodules =
-      utils.systemlist([[git submodule --quiet foreach 'echo $path']])
+      terminal_utils.systemlist_unsafe([[git submodule --quiet foreach 'echo $path']])
 
-    return utils.map(submodules, function(i, e)
+    return tbl_utils.map(submodules, function(i, e)
       local gitpath = vim.trim(e)
 
       return {
@@ -60,7 +59,7 @@ return function(opts)
 
     if not focus then return end
 
-    local git_log = utils.systemlist(
+    local git_log = terminal_utils.systemlist_unsafe(
       ("git -C '%s' log --color --decorate"):format(focus.path)
     )
     popups.side:set_lines(git_log)

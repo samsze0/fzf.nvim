@@ -1,4 +1,4 @@
-local utils = require("utils")
+local opts_utils = require("utils.opts")
 
 local M = {}
 
@@ -58,7 +58,7 @@ M.config = {
 
 ---@param opts? FzfOptions
 function M.setup(opts)
-  M.config = utils.opts_deep_extend(M.config, opts)
+  M.config = opts_utils.deep_extend(M.config, opts)
 end
 
 return M

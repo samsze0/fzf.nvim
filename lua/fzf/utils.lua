@@ -1,4 +1,4 @@
-local utils = require("utils")
+local terminal_utils = require("utils.terminal")
 
 local M = {}
 
@@ -30,7 +30,7 @@ M.join_by_nbsp = function(...)
   local args = { ... }
   local size = #args
 
-  return (("%s"):rep(size, utils.nbsp)):format(...)
+  return (("%s"):rep(size, terminal_utils.nbsp)):format(...)
 end
 
 -- Write content to a temporary file and return its path

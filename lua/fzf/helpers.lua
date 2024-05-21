@@ -1,7 +1,6 @@
-local utils = require("utils")
-local NuiLayout = require("nui.layout")
-local MainPopup = require("fzf.layouts.popup").MainPopup
-local SidePopup = require("fzf.layouts.popup").SidePopup
+local opts_utils = require("utils.opts")
+local tbl_utils = require("utils.table")
+local terminal_utils = require("utils.terminal")
 local config = require("fzf").config
 local jumplist = require("jumplist")
 local NuiEvent = require("nui.utils.autocmd").event
@@ -46,7 +45,7 @@ end
 ---@param controller FzfController
 ---@param opts { highlight_pos: boolean, filepath_accessor: (fun(focus: any): string), row_accessor?: (fun(focus: any): number), col_accessor?: (fun(focus: any): number) }
 M.configure_file_open_keymaps = function(main_popup, controller, opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     filepath_accessor = function(focus) return focus.filepath end,
     row_accessor = function(focus) return focus.row end,
     col_accessor = function(focus) return focus.col end,
@@ -106,7 +105,7 @@ end
 ---@param controller FzfController
 ---@param opts { setup_file_open_keymaps?: boolean, highlight_pos: boolean, filepath_accessor: (fun(focus: any): string), row_accessor?: (fun(focus: any): number), col_accessor?: (fun(focus: any): number) }
 M.configure_filepreview = function(main_popup, preview_popup, controller, opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     filepath_accessor = function(focus) return focus.filepath end,
     row_accessor = function(focus) return focus.row end,
     col_accessor = function(focus) return focus.col end,
@@ -161,7 +160,7 @@ M.configure_main_popup_top_border_text = function(main_popup, controller)
     end
 
     local selector_breadcrumbs = table.concat(
-      utils.map(controller_stack, function(_, e) return e.name end),
+      tbl_utils.map(controller_stack, function(_, e) return e.name end),
       " > "
     )
 
@@ -186,7 +185,7 @@ end
 ---@param controller FzfController
 M.configure_main_popup_bottom_border_text = function(main_popup, controller)
   local keymap_helper = table.concat(
-    utils.map(
+    tbl_utils.map(
       main_popup:keymaps(),
       function(key, name) return key .. " " .. name end
     ),
@@ -201,7 +200,7 @@ end
 ---@param controller FzfController
 ---@param opts? { display_accessor: (fun(focus: any): string) }
 M.configure_side_popup_top_border_text = function(side_popup, controller, opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     display_accessor = function(focus) return focus.display end,
   }, opts)
 
@@ -211,7 +210,7 @@ M.configure_side_popup_top_border_text = function(side_popup, controller, opts)
     side_popup.border:set_text(
       "top",
       " "
-        .. utils.strip_ansi_codes(opts.display_accessor(controller.focus))
+        .. terminal_utils.strip_ansi_codes(opts.display_accessor(controller.focus))
         .. " "
     )
   end)
@@ -237,7 +236,7 @@ end
 ---@param opts? FzfLayoutDualPaneTerminalPreviewOptions
 ---@return NuiLayout, { main: FzfMainPopup, side: FzfSidePopup }
 M.dual_pane_terminal_preview = function(controller, opts)
-  opts = utils.opts_deep_extend({
+  opts = opts_utils.deep_extend({
     side_popup = {
       extra_options = {
         buf_options = {
@@ -277,7 +276,7 @@ end
 ---@param opts FzfLayoutDualPaneCodePreviewOptions
 ---@return NuiLayout, { main: FzfMainPopup, side: FzfSidePopup }
 M.dual_pane_code_preview = function(controller, opts)
-  opts = utils.opts_deep_extend({
+  opts = opts_utils.deep_extend({
     side_popup = {
       extra_options = {
         win_options = {
@@ -320,7 +319,7 @@ end
 ---@param opts FzfLayoutDualPaneLuaObjectPreviewOptions
 ---@return NuiLayout, { main: FzfMainPopup, side: FzfSidePopup }
 M.dual_pane_lua_object_preview = function(controller, opts)
-  opts = utils.opts_deep_extend({}, opts)
+  opts = opts_utils.deep_extend({}, opts)
   ---@cast opts FzfLayoutDualPaneLuaObjectPreviewOptions
 
   local layout, popups = layouts.dual_pane({
@@ -360,7 +359,7 @@ end
 ---@param opts FzfLayoutTriplePane2ColumnGrepOptions
 ---@return NuiLayout, { main: FzfMainPopup, side: { textarea: FzfSidePopup, preview: FzfSidePopup } }
 M.triple_pane_2_column_grep = function(controller, opts)
-  opts = utils.opts_deep_extend({
+  opts = opts_utils.deep_extend({
     textarea_popup = {
       extra_options = {
         win_options = {
@@ -412,7 +411,7 @@ M.triple_pane_2_column_grep = function(controller, opts)
 
     if #replacement > 0 then
       popups.side.bottom:set_lines(
-        utils.systemlist(
+        terminal_utils.systemlist_unsafe(
           ([[cat "%s" | sed -E "%ss/%s/%s/g"]]):format(
             filepath,
             opts.filepath_accessor(focus),
@@ -478,7 +477,7 @@ end
 ---@param opts? FzfLayoutTriplePaneCodeDiffOptions
 ---@return NuiLayout, { main: FzfMainPopup, side: { left: FzfSidePopup, right: FzfSidePopup } }
 M.triple_pane_code_diff = function(controller, opts)
-  opts = utils.opts_deep_extend({
+  opts = opts_utils.deep_extend({
     left_preview_popup = {
       extra_options = {
         win_options = {

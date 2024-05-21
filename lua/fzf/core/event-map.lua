@@ -1,4 +1,5 @@
-local utils = require("utils")
+local tbl_utils = require("utils.table")
+local lang_utils = require("utils.lang")
 
 ---@alias FzfAction string
 
@@ -39,13 +40,13 @@ end
 ---@param opts { prepend: boolean }
 ---@return FzfEventMap self
 function EventMap:_add(event, binds, opts)
-  utils.switch_with_func(type(self.value[event]), {
+  lang_utils.switch(type(self.value[event]), {
     ["nil"] = function() self.value[event] = binds end,
     ["table"] = function()
       if opts.prepend then
-        self.value[event] = utils.list_extend(binds, self.value[event])
+        self.value[event] = tbl_utils.list_extend(binds, self.value[event])
       else
-        self.value[event] = utils.list_extend(self.value[event], binds)
+        self.value[event] = tbl_utils.list_extend(self.value[event], binds)
       end
     end,
   }, function() error("Invalid value") end)
@@ -84,7 +85,7 @@ end
 
 function EventMap:__tostring()
   return table.concat(
-    utils.map(
+    tbl_utils.map(
       self.value,
       function(ev, actions)
         return ("%s:%s"):format(ev, table.concat(actions, "+"))

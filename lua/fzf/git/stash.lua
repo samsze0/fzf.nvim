@@ -1,10 +1,11 @@
 local Controller = require("fzf.core.controllers").Controller
 local helpers = require("fzf.helpers")
-local utils = require("utils")
 local git_utils = require("utils.git")
 local fzf_utils = require("fzf.utils")
-local uv_utils = require("utils.uv")
-local jumplist = require("jumplist")
+local tbl_utils = require("utils.table")
+local opts_utils = require("utils.opts")
+local str_utils = require("utils.string")
+local terminal_utils = require("utils.terminal")
 local fzf_git_file_changes = require("fzf.git.file-changes")
 local config = require("fzf").config
 local terminal_ft = require("terminal-filetype")
@@ -19,7 +20,7 @@ local _error = config.notifier.error
 ---@param opts? FzfGitStashOptions
 ---@return FzfController
 return function(opts)
-  opts = utils.opts_extend({
+  opts = opts_utils.extend({
     git_dir = git_utils.current_dir(),
   }, opts)
   ---@cast opts FzfGitStashOptions
@@ -37,12 +38,12 @@ return function(opts)
 
     local command = ([[git -C '%s' stash list]]):format(opts.git_dir)
 
-    local entries = utils.systemlist(command, {
+    local entries = terminal_utils.systemlist_unsafe(command, {
       keepempty = false,
     })
 
-    return utils.map(entries, function(_, e)
-      local parts = utils.split_string_n(e, 2, ":", { trim = true })
+    return tbl_utils.map(entries, function(_, e)
+      local parts = str_utils.split_string(e, { count = 2, sep = ":", trim = true })
 
       local ref = parts[1]
       local wip
@@ -60,8 +61,8 @@ return function(opts)
       return {
         display = fzf_utils.join_by_nbsp(
           -- utils.ansi_codes.blue(ref), -- FIX: curly brackets are causing lines to fail to render because fzf will evaluate them
-          utils.ansi_codes.white(message),
-          utils.ansi_codes.grey("| " .. branch)
+          terminal_utils.ansi.white(message),
+          terminal_utils.ansi.grey("| " .. branch)
         ),
         ref = ref,
         branch = branch,
@@ -81,7 +82,7 @@ return function(opts)
 
     if not focus then return end
 
-    local git_show = utils.systemlist(
+    local git_show = terminal_utils.systemlist_unsafe(
       ([[git -C '%s' stash show --full-index --color '%s' | delta %s]]):format(
         opts.git_dir,
         focus.ref,
