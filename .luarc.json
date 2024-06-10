@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "runtime.version": "LuaJIT",
+  "workspace": {
+    "library": [
+      "lua",
+      "$VIMRUNTIME/lua",
+      "${3rd}/luv/library",
+      ".test/external-dep/pathlib.nvim/lua",
+      ".test/external-dep/nvim-nio/lua",
+      "../utils.nvim/lua",
+      "../terminal-filetype.nvim/lua",
+      "../jumplist.nvim/lua",
+      ".test/lua"
+    ],
+    "checkThirdParty": false
+  },
+  "diagnostics": {
+    "groupseverity": {
+      "await": "warning",
+      "strong": "warning"
+    }
+  }
+}

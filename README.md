@@ -22,6 +22,12 @@ An extensible neovim plugin that integrates fzf into the editor
 }
 ```
 
+## TODO
+
+- Remote scrolling should scroll whichever buffer is "longer"
+- Help menu
+- True "workspace" diagnostics
+
 ## License
 
 MIT

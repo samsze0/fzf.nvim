@@ -6,7 +6,6 @@ local CallbackMap = require("fzf.core.callback-map")
 local IpcClient = require("fzf.core.ipc-client")
 local config = require("fzf").config
 
--- TODO: prefix private methods with _
 -- TODO: generics on entry
 -- TODO: generics on FzfController
 -- TODO: keep most recent controller stack and destroy them when a new one is spawned
@@ -80,6 +79,8 @@ end
 ---@param opts FzfCreateControllerOpts
 ---@return FzfController
 function ControllerMap.create(opts)
+  if vim.fn.executable("fzf") == 0 then error("fzf is not installed") end
+
   local controller_id = uuid_utils.v4()
   local controller = {
     name = opts.name,
@@ -273,7 +274,8 @@ function Controller:start()
     ["--bind"] = "'" .. self._ipc_client:bindings() .. "'",
     ["--delimiter"] = "'" .. terminal_utils.nbsp .. "'",
   }
-  args = tbl_utils.tbl_extend({ mode = "error" }, args, config.default_extra_args)
+  args =
+    tbl_utils.tbl_extend({ mode = "error" }, args, config.default_extra_args)
   args = tbl_utils.tbl_extend({ mode = "error" }, args, self._extra_args)
 
   local command = "fzf " .. terminal_utils.shell_opts_tostring(args)
@@ -291,9 +293,12 @@ function Controller:start()
     config.default_extra_env_vars
   )
   env_vars =
-  tbl_utils.tbl_extend({ mode = "error" }, env_vars, self._extra_env_vars)
+    tbl_utils.tbl_extend({ mode = "error" }, env_vars, self._extra_env_vars)
 
-  command = ("%s %s"):format(terminal_utils.shell_opts_tostring(env_vars), command)
+  command = ("%s %s"):format(
+    terminal_utils.shell_opts_tostring(env_vars),
+    command
+  )
 
   if self._parent_id then self:parent():hide() end
   self:show_and_focus()
@@ -308,7 +313,7 @@ function Controller:start()
       if self._parent_id then self:parent():show_and_focus() end
 
       if code == 0 then
-        -- Pass
+      -- Pass
       elseif code == 1 then
         error("No match")
       elseif code == 2 then

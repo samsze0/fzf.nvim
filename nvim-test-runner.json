@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/samsze0/test.nvim/main/nvim-test-runner.schema.json",
+  "testDependencies": [
+    {
+      "uri": "https://github.com/pysan3/pathlib.nvim"
+    },
+    {
+      "uri": "https://github.com/nvim-neotest/nvim-nio"
+    },
+    {
+      "uri": "file:../utils.nvim"
+    },
+    {
+      "uri": "file:../terminal-filetype.nvim"
+    },
+    {
+      "uri": "file:../jumplist.nvim"
+    }
+  ]
+}
