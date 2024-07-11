@@ -1,4 +1,5 @@
 local terminal_utils = require("utils.terminal")
+local opts_utils = require("utils.opts")
 
 local M = {}
 
@@ -8,10 +9,10 @@ local M = {}
 ---@param opts? { fixed_header?: number, center?: boolean }
 ---@return string
 M.preview_offset = function(offset, opts)
-  opts = vim.tbl_extend("force", {
+  opts = opts_utils.extend({
     fixed_header = 0,
     center = true,
-  }, opts or {})
+  }, opts)
 
   return ([[~%s,+%s%s,+%s%s]]):format(
     tostring(opts.fixed_header),
@@ -35,7 +36,7 @@ end
 
 -- Write content to a temporary file and return its path
 --
----@param content string|string[]
+---@param content string | string[]
 ---@return string
 M.write_to_tmpfile = function(content)
   local tmp = vim.fn.tempname()

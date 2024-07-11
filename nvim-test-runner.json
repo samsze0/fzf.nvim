@@ -15,6 +15,9 @@
     },
     {
       "uri": "file:../jumplist.nvim"
+    },
+    {
+      "uri": "file:../tui.nvim"
     }
   ]
 }

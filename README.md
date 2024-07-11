@@ -13,6 +13,7 @@ An extensible neovim plugin that integrates fzf into the editor
         require("fzf").setup({})
     end,
     dependencies = {
+        "samsze0/tui.nvim",
         "samsze0/utils.nvim",
         "samsze0/jumplist.nvim",
         "samsze0/terminal-filetype.nvim",
@@ -25,8 +26,9 @@ An extensible neovim plugin that integrates fzf into the editor
 ## TODO
 
 - Remote scrolling should scroll whichever buffer is "longer"
-- Help menu
 - True "workspace" diagnostics
+- Keep only the most recent controller stack and destroy the others when they go stale
+- Add support for shell command entries getter
 
 ## License
 

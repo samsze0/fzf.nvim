@@ -1,17 +1,15 @@
-local Controller = require("fzf.core.controllers").Controller
-local helpers = require("fzf.helpers")
+local FzfDualPanelNvimPreviewInstance = require("fzf.instance.dual-pane-nvim-preview")
 local tbl_utils = require("utils.table")
 local opts_utils = require("utils.opts")
 local terminal_utils = require("utils.terminal")
 local git_utils = require("utils.git")
-local config = require("fzf").config
+local config = require("fzf.core.config").value
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
 local _error = config.notifier.error
 
 -- TODO: remove delete files and submodules from git files
--- TODO: use git ls-tree and display as tree?
 
 -- Fzf all files in the given git directory.
 -- If git_dir is nil, then fzf all files in the current directory.
@@ -24,15 +22,6 @@ return function(opts)
     git_dir = git_utils.current_dir(),
   }, opts)
   ---@cast opts FzfFilesOptions
-
-  local controller = Controller.new({
-    name = "Files",
-  })
-
-  local layout, popups = helpers.dual_pane_code_preview(controller, {
-    highlight_pos = false,
-    filepath_accessor = function(focus) return focus.path end,
-  })
 
   ---@alias FzfFileEntry { display: string, path: string, git_path?: string }
   ---@return FzfFileEntry[]
@@ -57,6 +46,7 @@ return function(opts)
       else
         path = file
       end
+
       return {
         display = file,
         path = path,
@@ -65,7 +55,11 @@ return function(opts)
     end)
   end
 
-  controller:set_entries_getter(entries_getter)
-
-  return controller
+  return FzfDualPanelNvimPreviewInstance.new({
+    name = "Files",
+    entries_getter = entries_getter,
+    filepath_accessor = function(entry)
+      return entry.path
+    end,
+  })
 end

@@ -11,7 +11,8 @@
       "../utils.nvim/lua",
       "../terminal-filetype.nvim/lua",
       "../jumplist.nvim/lua",
-      ".test/lua"
+      ".test/lua",
+      "../tui.nvim/lua"
     ],
     "checkThirdParty": false
   },
