@@ -1,181 +1,78 @@
 local uuid_utils = require("utils.uuid")
 local terminal_utils = require("utils.terminal")
-local EventMap = require("fzf.core.event-map")
+local TUIEventMap = require("tui.event-map")
 local uv_utils = require("utils.uv")
 local os_utils = require("utils.os")
-local CallbackMap = require("fzf.core.callback-map")
+local TUICallbackMap = require("tui.callback-map")
+local config = require("fzf.core.config").value
+local oop_utils = require("utils.oop")
+
+local _info = config.notifier.info
+---@cast _info -nil
+local _warn = config.notifier.warn
+---@cast _warn -nil
+local _error = config.notifier.error
+---@cast _error -nil
 
 ---@enum FzfIpcClientType
 local CLIENT_TYPE = {
   tcp = 1,
-  named_pipe = 2,
-  nvim_rpc = 3,
+  websocket = 2,
 }
 
 local FZF_API_KEY = uuid_utils.v4()
 
 ---@class FzfIpcClient
----@field client_type FzfIpcClientType
----@field host string The host of which the server that listens to incoming messages from fzf is running on
----@field port number The port of which the server that listens to incoming messages from fzf is running on
 ---@field fzf_host string
 ---@field fzf_port number
----@field _event_map FzfEventMap Map of events to fzf action(s). I.e. the list of Fzf bindings
----@field _callback_map FzfCallbackMap Map of keys to lua callbacks
----@field execute fun(self: FzfIpcClient, action: string, opts?: { load_action_from_file?: boolean }) Send an action to fzf to execute
----@field ask fun(self: FzfIpcClient, response_payload?: string, callback: function) Retrieve information from fzf
----@field subscribe fun(self: FzfIpcClient, event: string, response_payload?: string, callback?: function): (fun(): nil) Subscribe to a fzf event
----@field destroy fun(self: FzfIpcClient): nil Destroy the fzf client by freeing up any occupied resources
-local FzfIpcClient = {
-  CLIENT_TYPE = CLIENT_TYPE,
-  API_KEY = FZF_API_KEY,
-}
-FzfIpcClient.__index = FzfIpcClient
+---@field _event_map TUIEventMap Map of events to fzf action(s)
+---@field _callback_map TUICallbackMap Map of keys to lua callbacks
+local IpcClient = oop_utils.new_class()
 
-local random_port = function() return math.random(10000, 30000) end
+---@param action string
+---@param opts? { load_action_from_file?: boolean }
+function IpcClient:execute(action, opts) error("Not implemented") end
 
----@param client_type FzfIpcClientType
-function FzfIpcClient.new(client_type)
-  local obj = setmetatable({
-    client_type = client_type,
-    host = "127.0.0.1",
-    port = nil,
-    fzf_host = "127.0.0.1",
-    -- TODO
-    fzf_port = random_port(),
-    _event_map = EventMap.new(),
-    _callback_map = CallbackMap.new(),
-  }, FzfIpcClient)
+---@param body? string
+---@param callback function
+function IpcClient:ask(body, callback) error("Not implemented") end
 
-  local function message_handler(message)
-    local json_obj = vim.json.decode(message)
-    if not json_obj then error("Invalid message") end
+---@param event string
+---@param body? string
+---@param callback function
+function IpcClient:subscribe(event, body, callback) error("Not implemented") end
 
-    if not json_obj.key then error("Key missing in message") end
-    obj._callback_map:invoke_if_exists(json_obj.key, json_obj.message)
-  end
+function IpcClient:on_focus(payload) error("Not implemented") end
 
-  if client_type == CLIENT_TYPE.tcp then
-    local tcp_server = uv_utils.create_tcp_server(obj.host, message_handler)
+---@param rows string[]
+function IpcClient:reload(rows) error("Not implemented") end
 
-    -- TODO: support HTTP
-    --   local command = (
-    --     -- Adding space between quoted string breaks fzf
-    --     [[cat <<EOF | curl -H 'Content-Type:application/json' -X POST --data-binary @- %s:%s
-    -- %s
-    -- EOF
-    -- ]]):format(
-    --     fzf_nvim_server.host,
-    --     fzf_nvim_server.port,
-    --     payload
-    --   )
+function IpcClient:destroy() error("Not implemented") end
 
-    obj.port = tcp_server.port
+---@param message string
+function IpcClient:on_message(message)
+  local json_obj = vim.json.decode(message)
+  if not json_obj then error("Invalid message") end
 
-    ---@param action string
-    ---@param opts? { load_action_from_file?: boolean }
-    local to_fzf = function(action, opts)
-      opts = opts or {}
-
-      local fn = function()
-        -- TODO: optimise this. Action is concatenated and then splited again
-        if opts.load_action_from_file then
-          local tmpfile = vim.fn.tempname()
-          vim.fn.writefile(vim.split(action, "\n"), tmpfile)
-          terminal_utils.system_unsafe(
-            ([[curl -X POST --data-binary '@%s' -H 'x-api-key: %s' %s:%s]]):format(
-              tmpfile,
-              FZF_API_KEY,
-              obj.fzf_host,
-              obj.fzf_port
-            )
-          )
-          vim.fn.delete(tmpfile)
-        else
-          terminal_utils.system_unsafe(
-            ([[curl -X POST --data '%s' -H 'x-api-key: %s' %s:%s]]):format(
-              action,
-              FZF_API_KEY,
-              obj.fzf_host,
-              obj.fzf_port
-            )
-          )
-        end
-      end
-
-      uv_utils.schedule_if_needed(fn)
-    end
-
-    obj.execute = function(self, action, opts) to_fzf(action, opts) end
-
-    obj.ask = function(self, response_payload, callback)
-      local key = self._callback_map:add(callback)
-
-      local message = vim.json.encode({
-        key = key,
-        message = response_payload,
-      })
-      local command = os_utils.write_to_tcp_cmd(obj.host, obj.port, message)
-
-      local action = ("execute-silent(%s)"):format(command)
-
-      to_fzf(action)
-    end
-
-    obj.subscribe = function(self, event, response_payload, callback)
-      local key = self._callback_map:add(callback)
-
-      local message = vim.json.encode({
-        key = key,
-        message = response_payload,
-        event = event,
-      })
-
-      local command = os_utils.write_to_tcp_cmd(obj.host, obj.port, message)
-
-      local action = ("execute-silent(%s)"):format(command)
-
-      self:bind(event, action)
-
-      return function() self._callback_map:remove(key) end
-    end
-
-    obj.destroy = function(self) tcp_server.close() end
-  elseif client_type == CLIENT_TYPE.nvim_rpc then
-    error("Not implemented")
-  elseif client_type == CLIENT_TYPE.named_pipe then
-    error("Not implemented")
-
-    -- local pipe_server = uv_utils.create_named_pipe_server(message_handler)
-
-    -- local pipe_name = ("nvim.fzf-%s"):format(utils.uuid())
-    -- utils.system("mkfifo " .. pipe_name)
-
-    -- obj.receive_message_cmd = function(self, message)
-    --   return os_utils.write_to_named_pipe_cmd(pipe.name, message)
-    -- end
-  else
-    error("Invalid client type")
-  end
-
-  return obj
+  if not json_obj.key then error("Key missing in message") end
+  self._callback_map:invoke_if_exists(json_obj.key, json_obj.message)
 end
 
--- Return the fzf bindings string
+-- Return the fzf bindings
 --
 ---@return string
-function FzfIpcClient:bindings() return tostring(self._event_map) end
+function IpcClient:bindings() return tostring(self._event_map) end
 
 -- Bind a fzf event to a fzf action
 --
 ---@param event string
 ---@param action string
-function FzfIpcClient:bind(event, action) self._event_map:append(event, action) end
+function IpcClient:bind(event, action) self._event_map:append(event, action) end
 
 -- Manually trigger a fzf event
 --
 ---@param event string
-function FzfIpcClient:trigger_event(event)
+function IpcClient:trigger_event(event)
   local actions = self._event_map:get(event)
 
   for _, action in ipairs(actions) do
@@ -183,4 +80,162 @@ function FzfIpcClient:trigger_event(event)
   end
 end
 
-return FzfIpcClient
+---@return ShellOpts
+function IpcClient:args() error("Not implemented") end
+
+---@return ShellOpts
+function IpcClient:env_vars() error("Not implemented") end
+
+-- TODO: tcp server typing
+
+---@class FzfTcpIpcClient : FzfIpcClient
+---@field host string Host of the server that listens to incoming messages from fzf
+---@field port number Port of the server that listens to incoming messages from fzf
+---@field _tcp_server any
+---@field _rows_tmp_file string Path to the temporary file that stores the rows for fzf to load
+local TcpIpcClient = oop_utils.new_class(IpcClient)
+
+function TcpIpcClient.new()
+  local obj = setmetatable({
+    host = "127.0.0.1",
+    port = nil,
+    fzf_host = "127.0.0.1",
+    fzf_port = os_utils.find_available_port(),
+    _event_map = TUIEventMap.new(),
+    _callback_map = TUICallbackMap.new(),
+    _rows_tmp_file = vim.fn.tempname(),
+  }, TcpIpcClient)
+  ---@cast obj FzfTcpIpcClient
+
+  local tcp_server = uv_utils.create_tcp_server(obj.host, function(message)
+    xpcall(
+      function() obj:on_message(message) end,
+      function(err) _error(debug.traceback("Error in on_message: " .. err)) end
+    )
+  end)
+  obj.port = tcp_server.port
+  obj._tcp_server = tcp_server
+
+  return obj
+end
+
+---@param rows string[]
+function TcpIpcClient:reload(rows)
+  if #rows == 0 then
+    self:execute("reload()")
+  else
+    vim.fn.writefile(rows, self._rows_tmp_file)
+    self:execute(
+      "reload(cat " .. vim.fn.shellescape(self._rows_tmp_file) .. ")"
+    )
+  end
+end
+
+---@param action string
+---@param opts? { load_action_from_file?: boolean }
+function TcpIpcClient:execute(action, opts)
+  opts = opts or {}
+
+  local fn = function()
+    local curl_output
+    if opts.load_action_from_file then
+      local tmpfile = vim.fn.tempname()
+      vim.fn.writefile(vim.split(action, "\n"), tmpfile)
+      curl_output = terminal_utils.system_unsafe(
+        ([[curl --include --silent -X POST --data-binary '@%s' -H 'x-api-key: %s' %s:%s]]):format(
+          tmpfile,
+          FZF_API_KEY,
+          self.fzf_host,
+          self.fzf_port
+        ),
+        { trim_endline = true }
+      )
+      vim.fn.delete(tmpfile)
+    else
+      curl_output = terminal_utils.system_unsafe(
+        ([[curl --include --silent -X POST --data '%s' -H 'x-api-key: %s' %s:%s]]):format(
+          action,
+          FZF_API_KEY,
+          self.fzf_host,
+          self.fzf_port
+        ),
+        { trim_endline = true }
+      )
+    end
+
+    local status_code = curl_output:match("^HTTP/1%.1 (%d+)")
+    if not status_code then
+      error(
+        "Failed to get status code from curl output: "
+          .. vim.inspect(curl_output)
+      )
+    end
+
+    if status_code ~= "200" then
+      error("Failed to send message to fzf: " .. vim.inspect(curl_output))
+    end
+  end
+
+  uv_utils.schedule_if_needed(fn)
+end
+
+---@param body? string
+---@param callback function
+function TcpIpcClient:ask(body, callback)
+  local key = self._callback_map:add(callback)
+
+  local message = vim.json.encode({
+    key = key,
+    message = body,
+  })
+  local command = os_utils.write_to_tcp_cmd(self.host, self.port, message)
+
+  local action = ("execute-silent(%s)"):format(command)
+  self:execute(action)
+end
+
+---@param event string
+---@param body? string
+---@param callback function
+function TcpIpcClient:subscribe(event, body, callback)
+  local key = self._callback_map:add(callback)
+
+  local message = vim.json.encode({
+    key = key,
+    message = body,
+    event = event,
+  })
+
+  local command = os_utils.write_to_tcp_cmd(self.host, self.port, message)
+
+  local action = ("execute-silent(%s)"):format(command)
+
+  self:bind(event, action)
+end
+
+function TcpIpcClient:destroy()
+  -- TCP server would shutdown itself once connection to fzf is lost
+  -- self._tcp_server.close()
+
+  vim.fn.delete(self._rows_tmp_file)
+end
+
+---@return ShellOpts
+function TcpIpcClient:args()
+  return {
+    ["--listen"] = ("%s:%s"):format(self.fzf_host, self.fzf_port),
+    ["--bind"] = "'" .. self:bindings() .. "'",
+  }
+end
+
+---@return ShellOpts
+function TcpIpcClient:env_vars()
+  return {
+    ["FZF_API_KEY"] = FZF_API_KEY,
+  }
+end
+
+return {
+  AbstractIpcClient = IpcClient,
+  TcpIpcClient = TcpIpcClient,
+}
