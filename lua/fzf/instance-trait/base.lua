@@ -60,9 +60,16 @@ function FzfBaseInstanceTrait:setup_main_popup_top_border()
     local icons = {}
     if self:fetching_entries() then table.insert(icons, "󱥸") end
     if self:is_entries_stale() then table.insert(icons, "") end
+
+    local border_text = selector_breadcrumbs
+    if #icons > 0 then
+      border_text = border_text .. " " .. table.concat(icons, " ")
+    end
+
     self.layout.main_popup.border:set_text(
       "top",
-      ([[ %s %s ]]):format(selector_breadcrumbs, table.concat(icons, " "))
+      " " .. border_text .. " ",
+      "left"
     )
   end
 

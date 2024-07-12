@@ -76,8 +76,8 @@ function FzfController.new(opts)
   local obj = Controller.new(opts)
   ---@cast obj FzfController
 
+  obj.name = opts.name
   obj.query = ""
-
   obj._ipc_client = match(config.ipc_client_type, {
     [1] = function()
       return TcpIpcClient.new()

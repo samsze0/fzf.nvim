@@ -5,6 +5,7 @@ local FzfController = require("fzf.core.controller")
 local DualPaneLayout = require("tui.layout").DualPaneLayout
 local config = require("fzf.core.config").value
 local opts_utils = require("utils.opts")
+local MainPopup = require("tui.popup").MainPopup
 local SidePopup = require("tui.popup").SidePopup
 local lang_utils = require("utils.lang")
 local terminal_utils = require("utils.terminal")
