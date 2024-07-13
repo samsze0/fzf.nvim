@@ -98,7 +98,6 @@ function FzfController.new(opts)
   end
 
   setmetatable(obj, FzfController)
-  fzf_controller_map:add(obj)
 
   -- Make sure fzf is load up before sending reload action to it
   obj:on_start(function(payload)
@@ -170,6 +169,13 @@ function FzfController:start()
     self:hide()
     if self._parent_id then self:parent():show_and_focus() end
   end)
+
+  -- Remove previously stack if a new stack is spawned
+  if self._parent_id == nil then
+    for _, c in ipairs(fzf_controller_map:all()) do
+      c:_destroy()
+    end
+  end
 
   self:_start({
     command = command,

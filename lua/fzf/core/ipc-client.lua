@@ -80,6 +80,16 @@ function IpcClient:trigger_event(event)
   end
 end
 
+---@return ShellOpts
+function IpcClient:args()
+  error("Not implemented")
+end
+
+---@return ShellOpts
+function IpcClient:env_vars()
+  error("Not implemented")
+end
+
 -- TODO: tcp server typing
 
 ---@class FzfTcpIpcClient : FzfIpcClient
