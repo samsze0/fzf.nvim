@@ -21,6 +21,7 @@ local _error = config.notifier.error
 ---@field changed? string
 ---@field deleted? string
 ---@field normal? string
+---@field git_status? string
 
 ---@class FzfGitStatusOptions.hl_groups
 ---@field border_text? FzfGitStatusOptions.hl_groups.border_text
@@ -43,6 +44,7 @@ return function(opts)
         changed = "FzfGitStatusBorderChanged",
         deleted = "FzfGitStatusBorderDeleted",
         normal = "FzfGitStatusBorderNormal",
+        git_status = "FzfGitStatusBorderGitStatus",
       }
     },
   }, opts)
@@ -155,9 +157,9 @@ return function(opts)
 
   instance:set_entries_getter(entries_getter)
 
-  local main_border_component = instance.layout.main_popup.top_border_text:append("right")
-  local a_border_component = instance.layout.side_popups.left.top_border_text:prepend("left")
-  local b_border_component = instance.layout.side_popups.right.top_border_text:prepend("left")
+  local border_component_git_status = instance.layout.main_popup.bottom_border_text:append("left")
+  local border_component_a = instance.layout.side_popups.left.top_border_text:prepend("left")
+  local border_component_b = instance.layout.side_popups.right.top_border_text:prepend("left")
 
   local set_border = function(text, hl_group, popup, border_component)
     local hl_group = match(hl_group, {
@@ -173,14 +175,14 @@ return function(opts)
   ---@param hl_group? "added" | "changed" | "deleted"
   local set_a_border = function(text, hl_group)
     local a_popup = instance.layout.side_popups.left
-    set_border(text, hl_group, a_popup, a_border_component)
+    set_border(text, hl_group, a_popup, border_component_a)
   end
 
   ---@param text string
   ---@param hl_group? "added" | "changed" | "deleted"
   local set_b_border = function(text, hl_group)
     local b_popup = instance.layout.side_popups.right
-    set_border(text, hl_group, b_popup, b_border_component)
+    set_border(text, hl_group, b_popup, border_component_b)
   end
 
   instance._a_accessor = function(entry)
@@ -275,6 +277,13 @@ return function(opts)
     else
       FzfBaseInstanceTrait.setup_scroll_keymaps(instance, instance.layout.side_popups.right, { force = true })
     end
+  end)
+
+  instance:on_reloaded(function(payload)
+    local short_status = git_utils.show_stat_short({
+      git_dir = opts.git_dir,
+    })
+    border_component_git_status:render(NuiText(short_status, opts.hl_groups.border_text.git_status))
   end)
 
   instance.layout.main_popup:map("<Left>", "Stage", function()
