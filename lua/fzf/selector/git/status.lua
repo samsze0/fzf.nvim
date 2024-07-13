@@ -17,7 +17,7 @@ local _error = config.notifier.error
 
 -- Fzf git status
 --
----@alias FzfGitStatusOptions { git_dir?: string }
+---@alias FzfGitStatusOptions { git_dir?: string, show_diff_between_head_and_staged_when_file_is_partially_staged?: boolean }
 ---@param opts? FzfGitStatusOptions
 ---@return FzfController
 return function(opts)
@@ -133,40 +133,82 @@ return function(opts)
 
   instance:set_entries_getter(entries_getter)
 
+  local set_border = function(text, popup)
+    popup.border:set_text("top", text == "" and "" or " " .. text .. " ", "left")
+  end
+  local set_a_border = function(text)
+    local a_popup = instance.layout.side_popups.left
+    set_border(text, a_popup)
+  end
+  local set_b_border = function(text)
+    local b_popup = instance.layout.side_popups.right
+    set_border(text, b_popup)
+  end
+
   instance._a_accessor = function(entry)
     ---@cast entry FzfGitStatusEntry
 
     if entry.added or entry.is_untracked then
+      set_a_border("")
       return {}
     end
 
     if entry.renamed then
+      set_a_border("")
       return {
         filepath = entry.filepath,
       }
     end
 
-    if entry.deleted or entry.is_fully_staged then
+    if entry.deleted then
+      set_a_border("Deleted")
       return {
         filetype = files_utils.get_filetype(entry.filepath),
         lines = git_utils.show_head(entry.gitpath, { git_dir = opts.git_dir })
       }
     end
 
-    -- Not fully staged
-    return {
-      filetype = files_utils.get_filetype(entry.filepath),
-      lines = git_utils.show_staged(entry.gitpath, { git_dir = opts.git_dir })
-    }
+    if entry.is_fully_staged then
+      set_a_border("HEAD")
+      return {
+        filetype = files_utils.get_filetype(entry.filepath),
+        lines = git_utils.show_head(entry.gitpath, { git_dir = opts.git_dir })
+      }
+    end
+
+    -- Partially staged
+    if opts.show_diff_between_head_and_staged_when_file_is_partially_staged then
+      set_a_border("HEAD")
+      return {
+        filetype = files_utils.get_filetype(entry.filepath),
+        lines = git_utils.show_head(entry.gitpath, { git_dir = opts.git_dir })
+      }
+    else
+      set_a_border("Staged")
+      return {
+        filetype = files_utils.get_filetype(entry.filepath),
+        lines = git_utils.show_staged(entry.gitpath, { git_dir = opts.git_dir })
+      }
+    end
   end
 
   instance._b_accessor = function(entry)
     ---@cast entry FzfGitStatusEntry
 
     if entry.deleted then
+      set_b_border("")
       return {}
     end
 
+    if opts.show_diff_between_head_and_staged_when_file_is_partially_staged and entry.is_partially_staged then
+      set_b_border("Staged")
+      return {
+        filetype = files_utils.get_filetype(entry.filepath),
+        lines = git_utils.show_staged(entry.gitpath, { git_dir = opts.git_dir })
+      }
+    end
+
+    set_b_border("Worktree")
     return {
       filepath = entry.filepath,
     }
