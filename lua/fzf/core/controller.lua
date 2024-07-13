@@ -6,6 +6,7 @@ local opts_utils = require("utils.opts")
 local terminal_utils = require("utils.terminal")
 local CallbackMap = require("tui.callback-map")
 local TcpIpcClient = require("fzf.core.ipc-client").TcpIpcClient
+local fzf_utils = require("fzf.utils")
 local config = require("fzf.core.config").value
 local Controller = require("tui.controller")
 local ControllerMap = require("tui.controller-map")
@@ -17,7 +18,7 @@ local _error = config.notifier.error
 -- TODO: keep most recent controller stack and destroy them when a new one is spawned
 
 ---@alias FzfEntry any
----@alias FzfDisplayAccessor fun(entry: FzfEntry): string
+---@alias FzfDisplayAccessor fun(entry: FzfEntry): string | string[]
 ---@alias FzfInitialFocusAccessor fun(entry: FzfEntry): boolean
 ---@alias FzfEntriesGetter
 --- | fun(): FzfEntry[]
@@ -316,6 +317,14 @@ function FzfController:_load_fetched_entries(opts)
   local initial_pos
   local rows = tbl_utils.map(self._entries, function(i, e)
     local display = self._display_accessor(e)
+    if type(display) == "table" then
+      display = tbl_utils.map(display, function(_, d) return fzf_utils.replace_curly_braces(d) end)
+      display = fzf_utils.join_by_nbsp(unpack(display))
+    elseif type(display) == "string" then
+      display = fzf_utils.replace_curly_braces(display)
+    else
+      error("Invalid display", display)
+    end
 
     local initial_focus = self._initial_focus_accessor(e)
     if initial_focus then initial_pos = i end

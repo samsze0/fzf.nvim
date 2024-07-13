@@ -2,7 +2,7 @@ local FzfController = require("fzf.core.controller")
 local config = require("fzf.core.config").value
 local opts_utils = require("utils.opts")
 local jumplist = require("jumplist")
-local fzf_utils = require("fzf.utils")
+local file_utils = require("utils.files")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -71,7 +71,7 @@ function FzfCodePreviewInstanceTrait:setup_fileopen_keymaps()
     if x.filepath then
       filepath = x.filepath
     else
-      filepath = fzf_utils.write_to_tmpfile(x.lines)
+      filepath = file_utils.write_to_tmpfile(x.lines)
     end
 
     self:hide()

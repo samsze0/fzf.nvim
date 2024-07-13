@@ -1,4 +1,4 @@
-local FzfDualPanelNvimPreviewInstance = require("fzf.instance.dual-pane-nvim-preview")
+local FzfDualPaneNvimPreviewInstance = require("fzf.instance.dual-pane-nvim-preview")
 local tbl_utils = require("utils.table")
 local opts_utils = require("utils.opts")
 local terminal_utils = require("utils.terminal")
@@ -26,9 +26,8 @@ local _error = config.notifier.error
 -- Fzf all files in the given git directory.
 -- If git_dir is nil, then fzf all files in the current directory.
 --
----@alias FzfFilesOptions { git_dir?: string }
 ---@param opts? FzfFilesOptions
----@return FzfController
+---@return FzfDualPaneNvimPreviewInstance
 return function(opts)
   opts = opts_utils.deep_extend({
     git_dir = git_utils.current_dir(),
@@ -40,7 +39,7 @@ return function(opts)
   }, opts)
   ---@cast opts FzfFilesOptions
 
-  local instance = FzfDualPanelNvimPreviewInstance.new({
+  local instance = FzfDualPaneNvimPreviewInstance.new({
     name = "Files"
   })
 

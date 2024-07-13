@@ -34,17 +34,15 @@ M.join_by_nbsp = function(...)
   return (("%s"):rep(size, terminal_utils.nbsp)):format(...)
 end
 
--- Write content to a temporary file and return its path
+-- Replace curly braces with square brackets
 --
----@param content string | string[]
+-- Curly brackets would cause render failure because fzf will try evaluating them
+--
+---@param str string
 ---@return string
-M.write_to_tmpfile = function(content)
-  local tmp = vim.fn.tempname()
-  vim.fn.writefile(
-    type(content) == "string" and vim.split(content, "\n") or content,
-    tmp
-  )
-  return tmp
+M.replace_curly_braces = function(str)
+  local v, _ = str:gsub("{", "["):gsub("}", "]")
+  return v
 end
 
 return M

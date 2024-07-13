@@ -46,7 +46,7 @@ function DualPaneTerminalPreviewInstance.new(opts)
           synmaxcol = 0,
         },
         win_options = {
-          number = true,
+          number = false,
           conceallevel = 3,
           concealcursor = "nvic",
         },

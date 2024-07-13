@@ -10,6 +10,7 @@ local opts_utils = require("utils.opts")
 ---@class FzfConfig.config : TUIConfig.config
 ---@field ipc_client_type? FzfIpcClientType
 ---@field default_rg_args? ShellOpts
+---@field default_delta_args? ShellOpts
 ---@field highlight_groups? FzfHighlightGroupsConfig
 
 ---@class FzfConfig: TUIConfig
@@ -45,12 +46,13 @@ function FzfConfig.new()
             ["--line-number"] = true,
             ["--no-heading"] = true,
         },
+        default_delta_args = {
+        },
         highlight_groups = {
             border_text = {
                 selector_breadcrumbs = "FzfSelectorBreadcrumbs",
             },
         },
-
     })
 
     return obj

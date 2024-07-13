@@ -1,7 +1,6 @@
 local FzfTriplePaneCodeDiffInstance = require("fzf.instance.triple-pane-code-diff")
 local FzfBaseInstanceTrait = require("fzf.instance-trait.base")
 local git_utils = require("utils.git")
-local fzf_utils = require("fzf.utils")
 local tbl_utils = require("utils.table")
 local opts_utils = require("utils.opts")
 local lang_utils = require("utils.lang")
@@ -21,7 +20,7 @@ local _error = config.notifier.error
 ---@field changed? string
 ---@field deleted? string
 ---@field normal? string
----@field git_status? string
+---@field diff_status? string
 
 ---@class FzfGitStatusOptions.hl_groups
 ---@field border_text? FzfGitStatusOptions.hl_groups.border_text
@@ -34,7 +33,7 @@ local _error = config.notifier.error
 -- Fzf git status
 --
 ---@param opts? FzfGitStatusOptions
----@return FzfController
+---@return FzfTriplePaneCodeDiffInstance
 return function(opts)
   opts = opts_utils.deep_extend({
     git_dir = git_utils.current_dir(),
@@ -44,7 +43,7 @@ return function(opts)
         changed = "FzfGitStatusBorderChanged",
         deleted = "FzfGitStatusBorderDeleted",
         normal = "FzfGitStatusBorderNormal",
-        git_status = "FzfGitStatusBorderGitStatus",
+        diff_status = "FzfGitStatusBorderDiffStatus",
       }
     },
   }, opts)
@@ -58,7 +57,7 @@ return function(opts)
     git_utils.convert_filepath_to_gitpath(instance:prev_filepath())
 
   ---@class FzfGitStatusEntry
-  ---@field display string
+  ---@field display string[]
   ---@field initial_focus boolean
   ---@field gitpath string
   ---@field filepath string
@@ -107,14 +106,15 @@ return function(opts)
       local status_x = status:sub(1, 1)
       local status_y = status:sub(2, 2)
 
-      local display = ([[%s %s]]):format(
-        terminal_utils.ansi.blue(status_x),
-        match(status_y, {
-          ["D"] = terminal_utils.ansi.red,
-        }, terminal_utils.ansi.yellow)(status_y)
-      )
-
-      display = fzf_utils.join_by_nbsp(display, gitpath)
+      local display = {
+        ([[%s %s]]):format(
+          terminal_utils.ansi.blue(status_x),
+          match(status_y, {
+            ["D"] = terminal_utils.ansi.red,
+          }, terminal_utils.ansi.yellow)(status_y)
+        ),
+        gitpath
+      }
 
       local is_fully_staged = status_x == "M" and status_y == " "
       local is_partially_staged = status_x == "M" and status_y == "M"
@@ -280,10 +280,10 @@ return function(opts)
   end)
 
   instance:on_reloaded(function(payload)
-    local short_status = git_utils.show_stat({
+    local short_status = git_utils.diff_stat({
       git_dir = opts.git_dir,
     })
-    border_component_git_status:render(NuiText(short_status, opts.hl_groups.border_text.git_status))
+    border_component_git_status:render(NuiText(short_status, opts.hl_groups.border_text.diff_status))
   end)
 
   instance.layout.main_popup:map("<Left>", "Stage", function()
@@ -316,7 +316,7 @@ return function(opts)
     local filepath = focus.filepath
 
     if focus.has_merge_conflicts then
-      _error("Cannot restore/delete file with merge conflicts", filepath)
+      _error("Cannot restore/delete file with merge conflicts " .. filepath)
       return
     end
 
