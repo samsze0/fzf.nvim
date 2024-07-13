@@ -96,8 +96,7 @@ function TcpIpcClient.new()
     host = "127.0.0.1",
     port = nil,
     fzf_host = "127.0.0.1",
-    -- TODO
-    fzf_port = "8204",
+    fzf_port = os_utils.find_available_port(),
     _event_map = EventMap.new(),
     _callback_map = CallbackMap.new(),
   }, TcpIpcClient)
