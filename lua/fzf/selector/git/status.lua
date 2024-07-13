@@ -155,28 +155,32 @@ return function(opts)
 
   instance:set_entries_getter(entries_getter)
 
-  local set_border = function(text, hl_group, popup)
+  local main_border_component = instance.layout.main_popup.top_border_text:append("right")
+  local a_border_component = instance.layout.side_popups.left.top_border_text:prepend("left")
+  local b_border_component = instance.layout.side_popups.right.top_border_text:prepend("left")
+
+  local set_border = function(text, hl_group, popup, border_component)
     local hl_group = match(hl_group, {
       ["added"] = opts.hl_groups.border_text.added,
       ["changed"] = opts.hl_groups.border_text.changed,
       ["deleted"] = opts.hl_groups.border_text.deleted
     }, opts.hl_groups.border_text.normal)
     local nui_text = NuiText(text == "" and "" or " " .. text .. " ", hl_group)
-    popup.border:set_text("top", nui_text, "left")
+    border_component:render(nui_text)
   end
 
   ---@param text string
   ---@param hl_group? "added" | "changed" | "deleted"
   local set_a_border = function(text, hl_group)
     local a_popup = instance.layout.side_popups.left
-    set_border(text, hl_group, a_popup)
+    set_border(text, hl_group, a_popup, a_border_component)
   end
 
   ---@param text string
   ---@param hl_group? "added" | "changed" | "deleted"
   local set_b_border = function(text, hl_group)
     local b_popup = instance.layout.side_popups.right
-    set_border(text, hl_group, b_popup)
+    set_border(text, hl_group, b_popup, b_border_component)
   end
 
   instance._a_accessor = function(entry)

@@ -1,6 +1,7 @@
 local config = require("fzf.core.config").value
 local FzfController = require("fzf.core.controller")
 local tbl_utils = require("utils.table")
+local NuiText = require("nui.text")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -48,6 +49,8 @@ function FzfBaseInstanceTrait:setup_scroll_keymaps(preview_popup, opts)
 end
 
 function FzfBaseInstanceTrait:setup_main_popup_top_border()
+  local border_component = self.layout.main_popup.top_border_text:prepend("left")
+
   local refresh = function()
     ---@type FzfController[]
     local controller_stack = {}
@@ -73,11 +76,7 @@ function FzfBaseInstanceTrait:setup_main_popup_top_border()
       border_text = border_text .. " " .. table.concat(icons, " ")
     end
 
-    self.layout.main_popup.border:set_text(
-      "top",
-      " " .. border_text .. " ",
-      "left"
-    )
+    border_component:render(NuiText(" " .. border_text .. " ", config.highlight_groups.border_text.selector_breadcrumbs))
   end
 
   self:on_fetching_entries_change(refresh)
