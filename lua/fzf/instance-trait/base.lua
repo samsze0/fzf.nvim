@@ -76,7 +76,7 @@ function FzfBaseInstanceTrait:setup_main_popup_top_border()
       border_text = border_text .. " " .. table.concat(icons, " ")
     end
 
-    border_component:render(NuiText(" " .. border_text .. " ", config.highlight_groups.border_text.selector_breadcrumbs))
+    border_component:render(NuiText(border_text, config.highlight_groups.border_text.selector_breadcrumbs))
   end
 
   self:on_fetching_entries_change(refresh)

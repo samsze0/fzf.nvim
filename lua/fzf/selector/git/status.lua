@@ -165,7 +165,7 @@ return function(opts)
       ["changed"] = opts.hl_groups.border_text.changed,
       ["deleted"] = opts.hl_groups.border_text.deleted
     }, opts.hl_groups.border_text.normal)
-    local nui_text = NuiText(text == "" and "" or " " .. text .. " ", hl_group)
+    local nui_text = NuiText(text, hl_group)
     border_component:render(nui_text)
   end
 
