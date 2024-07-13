@@ -20,7 +20,7 @@ local _error = config.notifier.error
 ---@field changed? string
 ---@field deleted? string
 ---@field normal? string
----@field diff_status? string
+---@field diff_stat? string
 
 ---@class FzfGitStatusOptions.hl_groups
 ---@field border_text? FzfGitStatusOptions.hl_groups.border_text
@@ -43,7 +43,7 @@ return function(opts)
         changed = "FzfGitStatusBorderChanged",
         deleted = "FzfGitStatusBorderDeleted",
         normal = "FzfGitStatusBorderNormal",
-        diff_status = "FzfGitStatusBorderDiffStatus",
+        diff_stat = "FzfGitStatusBorderDiffStat",
       }
     },
   }, opts)
@@ -283,7 +283,7 @@ return function(opts)
     local short_status = git_utils.diff_stat({
       git_dir = opts.git_dir,
     })
-    border_component_git_status:render(NuiText(short_status, opts.hl_groups.border_text.diff_status))
+    border_component_git_status:render(NuiText(short_status, opts.hl_groups.border_text.diff_stat))
   end)
 
   instance.layout.main_popup:map("<Left>", "Stage", function()

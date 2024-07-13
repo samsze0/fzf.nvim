@@ -70,6 +70,7 @@ function TriplePaneCodeDiffInstance.new(opts)
   TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)
 
   FzfBaseInstanceTrait.setup_main_popup_top_border(obj)
+  FzfBaseInstanceTrait.setup_maximise_popup_keymaps(obj)
 
   FzfCodeDiffInstanceTrait.setup_fileopen_keymaps(obj)
   FzfCodeDiffInstanceTrait.setup_filepreview(obj)

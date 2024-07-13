@@ -23,25 +23,18 @@ M.preview_offset = function(offset, opts)
   )
 end
 
--- Join several string parts by the nbsp character
+-- Escape fzf special characters
 --
----@vararg string
----@return string
-M.join_by_nbsp = function(...)
-  local args = { ... }
-  local size = #args
-
-  return (("%s"):rep(size, terminal_utils.nbsp)):format(...)
-end
-
 -- Replace curly braces with square brackets
---
 -- Curly brackets would cause render failure because fzf will try evaluating them
 --
 ---@param str string
 ---@return string
-M.replace_curly_braces = function(str)
-  local v, _ = str:gsub("{", "["):gsub("}", "]")
+M.fzf_escape = function(str)
+  local v, _ = str:gsub("{", "\\{"):gsub("}", "\\}")
+  -- local v, _ = v:gsub("%$", "\\$")
+  -- local v, _ = v:gsub("%(", "\\(")
+  -- local v, _ = v:gsub("%)", "\\)")
   return v
 end
 

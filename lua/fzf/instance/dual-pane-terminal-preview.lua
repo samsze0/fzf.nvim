@@ -59,6 +59,7 @@ function DualPaneTerminalPreviewInstance.new(opts)
 
   FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popup)
   FzfBaseInstanceTrait.setup_main_popup_top_border(obj)
+  FzfBaseInstanceTrait.setup_maximise_popup_keymaps(obj)
 
   return obj
 end

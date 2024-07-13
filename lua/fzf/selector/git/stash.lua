@@ -34,7 +34,7 @@ return function(opts)
     git_dir = git_utils.current_dir(),
     hl_groups = {
       border_text = {
-        diff_stat = "FzfGitStashBorderDiffStatus",
+        diff_stat = "FzfGitStashBorderDiffStat",
       }
     }
   }, opts)
@@ -100,13 +100,10 @@ return function(opts)
     ---@cast focus FzfGitStashEntry
 
     -- Because there can be more than 1 file changes in a stash, we need to show the diff with delta
-    local output = terminal_utils.systemlist_unsafe(
-      ([[git -C '%s' stash show --full-index --color '%s' | delta %s]]):format(
-        opts.git_dir,
-        focus.ref,
-        terminal_utils.shell_opts_tostring(config.default_delta_args)
-      )
-    )
+    local output = git_utils.show_stash_with_delta(focus.ref, {
+      git_dir = opts.git_dir,
+      delta_args = config.default_delta_args,
+    })
     instance.layout.side_popup:set_lines(output, { filetype = "terminal" })
     terminal_filetype.refresh_highlight(instance.layout.side_popup.bufnr)
 

@@ -66,6 +66,7 @@ function DualPaneNvimPreviewInstance.new(opts)
 
   FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popup)
   FzfBaseInstanceTrait.setup_main_popup_top_border(obj)
+  FzfBaseInstanceTrait.setup_maximise_popup_keymaps(obj)
 
   FzfCodePreviewInstanceTrait.setup_fileopen_keymaps(obj)
   FzfCodePreviewInstanceTrait.setup_filepreview(obj)
