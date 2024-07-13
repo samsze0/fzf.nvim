@@ -57,10 +57,13 @@ function TriplePaneCodeDiffInstance.new(opts)
   obj.layout = TriplePaneLayout.new({
     config = obj._config,
     side_popup = SidePopup.new({
-      win_options = {
-        number = true,
-        cursorline = true,
+      buf_options = {
+        win_options = {
+          number = true,
+          cursorline = true,
+        },
       },
+      config = obj._config,
     })
   })
 

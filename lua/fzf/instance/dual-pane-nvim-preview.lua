@@ -52,10 +52,13 @@ function DualPaneNvimPreviewInstance.new(opts)
   obj.layout = DualPaneLayout.new({
     config = obj._config,
     side_popup = SidePopup.new({
-      win_options = {
-        number = true,
-        cursorline = true,
+      popup_opts = {
+        win_options = {
+          number = true,
+          cursorline = true,
+        },
       },
+      config = obj._config,
     })
   })
 

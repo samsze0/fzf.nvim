@@ -44,9 +44,12 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
   obj.layout = DualPaneLayout.new({
     config = obj._config,
     side_popup = SidePopup.new({
-      buf_options = {
-        filetype = "lua"
-      }
+      popup_opts = {
+        buf_options = {
+          filetype = "lua"
+        },
+      },
+      config = obj._config,
     })
   })
 

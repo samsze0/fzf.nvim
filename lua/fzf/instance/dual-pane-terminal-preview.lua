@@ -40,15 +40,18 @@ function DualPaneTerminalPreviewInstance.new(opts)
   obj.layout = DualPaneLayout.new({
     config = obj._config,
     side_popup = SidePopup.new({
-      buf_options = {
-        filetype = "terminal",
-        synmaxcol = 0,
+      popup_opts = {
+        buf_options = {
+          filetype = "terminal",
+          synmaxcol = 0,
+        },
+        win_options = {
+          number = true,
+          conceallevel = 3,
+          concealcursor = "nvic",
+        },
       },
-      win_options = {
-        number = true,
-        conceallevel = 3,
-        concealcursor = "nvic",
-      },
+      config = obj._config,
     })
   })
 

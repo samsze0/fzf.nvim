@@ -10,19 +10,41 @@ local str_utils = require("utils.string")
 local terminal_utils = require("utils.terminal")
 local config = require("fzf.core.config").value
 local files_utils = require("utils.files")
+local NuiText = require("nui.text")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
 local _error = config.notifier.error
 
+---@class FzfGitStatusOptions.hl_groups.border_text
+---@field added? string
+---@field changed? string
+---@field deleted? string
+---@field normal? string
+
+---@class FzfGitStatusOptions.hl_groups
+---@field border_text? FzfGitStatusOptions.hl_groups.border_text
+
+---@class FzfGitStatusOptions
+---@field git_dir? string
+---@field show_diff_between_head_and_staged_when_file_is_partially_staged? boolean
+---@field hl_groups? FzfGitStatusOptions.hl_groups
+
 -- Fzf git status
 --
----@alias FzfGitStatusOptions { git_dir?: string, show_diff_between_head_and_staged_when_file_is_partially_staged?: boolean }
 ---@param opts? FzfGitStatusOptions
 ---@return FzfController
 return function(opts)
-  opts = opts_utils.extend({
+  opts = opts_utils.deep_extend({
     git_dir = git_utils.current_dir(),
+    hl_groups = {
+      border_text = {
+        added = "FzfGitStatusBorderAdded",
+        changed = "FzfGitStatusBorderChanged",
+        deleted = "FzfGitStatusBorderDeleted",
+        normal = "FzfGitStatusBorderNormal",
+      }
+    },
   }, opts)
   ---@cast opts FzfGitStatusOptions
 
@@ -133,16 +155,28 @@ return function(opts)
 
   instance:set_entries_getter(entries_getter)
 
-  local set_border = function(text, popup)
-    popup.border:set_text("top", text == "" and "" or " " .. text .. " ", "left")
+  local set_border = function(text, hl_group, popup)
+    local hl_group = match(hl_group, {
+      ["added"] = opts.hl_groups.border_text.added,
+      ["changed"] = opts.hl_groups.border_text.changed,
+      ["deleted"] = opts.hl_groups.border_text.deleted
+    }, opts.hl_groups.border_text.normal)
+    local nui_text = NuiText(text == "" and "" or " " .. text .. " ", hl_group)
+    popup.border:set_text("top", nui_text, "left")
   end
-  local set_a_border = function(text)
+
+  ---@param text string
+  ---@param hl_group? "added" | "changed" | "deleted"
+  local set_a_border = function(text, hl_group)
     local a_popup = instance.layout.side_popups.left
-    set_border(text, a_popup)
+    set_border(text, hl_group, a_popup)
   end
-  local set_b_border = function(text)
+
+  ---@param text string
+  ---@param hl_group? "added" | "changed" | "deleted"
+  local set_b_border = function(text, hl_group)
     local b_popup = instance.layout.side_popups.right
-    set_border(text, b_popup)
+    set_border(text, hl_group, b_popup)
   end
 
   instance._a_accessor = function(entry)
@@ -161,7 +195,7 @@ return function(opts)
     end
 
     if entry.deleted then
-      set_a_border("Deleted")
+      set_a_border("Deleted", "deleted")
       return {
         filetype = files_utils.get_filetype(entry.filepath),
         lines = git_utils.show_head(entry.gitpath, { git_dir = opts.git_dir })
@@ -208,7 +242,12 @@ return function(opts)
       }
     end
 
-    set_b_border("Worktree")
+    if entry.added or entry.is_untracked then
+      set_b_border("Worktree", "added")
+    else
+      set_b_border("Worktree")
+    end
+
     return {
       filepath = entry.filepath,
     }
