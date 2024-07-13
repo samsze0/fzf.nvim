@@ -189,7 +189,8 @@ function TcpIpcClient:subscribe(event, body, callback)
 end
 
 function TcpIpcClient:destroy()
-  self._tcp_server:close()
+  -- TCP server would shutdown itself once connection to fzf is lost
+  -- self._tcp_server.close()
 end
 
 ---@return ShellOpts

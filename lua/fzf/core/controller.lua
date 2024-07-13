@@ -172,7 +172,12 @@ function FzfController:start()
 
   -- Remove previously stack if a new stack is spawned
   if self._parent_id == nil then
+    _info("Clearing selectors : " .. vim.inspect(tbl_utils.map(fzf_controller_map:all(), function(_, c)
+      ---@cast c FzfController
+      return c.name
+    end)))
     for _, c in ipairs(fzf_controller_map:all()) do
+      ---@cast c FzfController
       c:_destroy()
     end
   end
@@ -181,9 +186,9 @@ function FzfController:start()
     command = command,
     exit_code_handler = function(code)
       if code == 0 then
-        -- Pass
+        -- Match
       elseif code == 1 then
-        error("No match")
+        -- No match
       elseif code == 2 then
         -- TODO: Check stdout if this error occurs
         error("Unexpected error")
