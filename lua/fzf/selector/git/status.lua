@@ -280,7 +280,7 @@ return function(opts)
   end)
 
   instance:on_reloaded(function(payload)
-    local short_status = git_utils.show_stat_short({
+    local short_status = git_utils.show_stat({
       git_dir = opts.git_dir,
     })
     border_component_git_status:render(NuiText(short_status, opts.hl_groups.border_text.git_status))
