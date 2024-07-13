@@ -58,8 +58,10 @@ return function(opts)
   return FzfDualPanelNvimPreviewInstance.new({
     name = "Files",
     entries_getter = entries_getter,
-    filepath_accessor = function(entry)
-      return entry.path
+    accessor = function(entry)
+      return {
+        filepath = entry.path
+      }
     end,
   })
 end

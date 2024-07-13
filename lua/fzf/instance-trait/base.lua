@@ -17,26 +17,33 @@ setmetatable(FzfBaseInstanceTrait, { __index = FzfController })
 
 -- TODO: move to private config
 ---@param preview_popup TUISidePopup
-function FzfBaseInstanceTrait:setup_scroll_keymaps(preview_popup)
+---@param opts? { force?: boolean }
+function FzfBaseInstanceTrait:setup_scroll_keymaps(preview_popup, opts)
+  opts = opts or {}
+
   self.layout.main_popup:map_remote(
     preview_popup,
     "Scroll preview up",
-    "<S-Up>"
+    "<S-Up>",
+    { force = opts.force }
   )
   self.layout.main_popup:map_remote(
     preview_popup,
     "Scroll preview left",
-    "<S-Left>"
+    "<S-Left>",
+    { force = opts.force }
   )
   self.layout.main_popup:map_remote(
     preview_popup,
     "Scroll preview down",
-    "<S-Down>"
+    "<S-Down>",
+    { force = opts.force }
   )
   self.layout.main_popup:map_remote(
     preview_popup,
     "Scroll preview right",
-    "<S-Right>"
+    "<S-Right>",
+    { force = opts.force }
   )
 end
 

@@ -17,8 +17,7 @@ local _error = config.notifier.error
 
 ---@class FzfDualPaneNvimPreviewInstance : FzfController
 ---@field layout TUIDualPaneLayout
----@field _filepath_accessor? fun(entry: FzfEntry): string
----@field _content_accessor fun(entry: FzfEntry): string[]
+---@field _accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _row_accessor? fun(entry: FzfEntry): number
 ---@field _col_accessor? fun(entry: FzfEntry): number
 local DualPaneNvimPreviewInstance = {}
@@ -27,8 +26,7 @@ DualPaneNvimPreviewInstance.__is_class = true
 setmetatable(DualPaneNvimPreviewInstance, { __index = FzfController })
 
 ---@class FzfCreateDualPaneNvimPreviewInstanceOptions : FzfCreateControllerOptions
----@field filepath_accessor? fun(entry: FzfEntry): string
----@field content_accessor? fun(entry: FzfEntry): string[]
+---@field accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field row_accessor? fun(entry: FzfEntry): number
 ---@field col_accessor? fun(entry: FzfEntry): number
 
@@ -36,8 +34,8 @@ setmetatable(DualPaneNvimPreviewInstance, { __index = FzfController })
 ---@return FzfDualPaneNvimPreviewInstance
 function DualPaneNvimPreviewInstance.new(opts)
   opts = opts_utils.extend({
-    filepath_accessor = function(entry)
-      return entry.url
+    accessor = function(entry)
+      return {}
     end,
   }, opts)
   ---@cast opts FzfCreateDualPaneNvimPreviewInstanceOptions
@@ -47,8 +45,7 @@ function DualPaneNvimPreviewInstance.new(opts)
   ---@diagnostic disable-next-line: cast-type-mismatch
   ---@cast obj FzfDualPaneNvimPreviewInstance
 
-  obj._filepath_accessor = opts.filepath_accessor
-  obj._content_accessor = opts.content_accessor
+  obj._accessor = opts.accessor
   obj._row_accessor = opts.row_accessor
   obj._col_accessor = opts.col_accessor
 

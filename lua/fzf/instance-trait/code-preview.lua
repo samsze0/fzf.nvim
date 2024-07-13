@@ -10,8 +10,7 @@ local _error = config.notifier.error
 
 ---@class FzfCodePreviewInstanceTrait : FzfController
 ---@field layout TUIDualPaneLayout
----@field _filepath_accessor? fun(entry: FzfEntry): string
----@field _content_accessor fun(entry: FzfEntry): string[]
+---@field _accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _row_accessor? fun(entry: FzfEntry): number
 ---@field _col_accessor? fun(entry: FzfEntry): number
 local FzfCodePreviewInstanceTrait = {}
@@ -36,13 +35,15 @@ function FzfCodePreviewInstanceTrait:setup_filepreview(opts)
       self._col_accessor(self.focus),
     } or nil
 
-    if self._filepath_accessor then
-      self.layout.side_popup:show_file_content(self._filepath_accessor(self.focus), {
+    local x = self._accessor(self.focus)
+    if x.filepath then
+      self.layout.side_popup:show_file_content(x.filepath, {
         cursor_pos = cursor_pos,
       })
-    elseif self._content_accessor then
-      self.layout.side_popup:set_lines(self._content_accessor(self.focus), {
+    elseif x.lines then
+      self.layout.side_popup:set_lines(x.lines, {
         cursor_pos = cursor_pos,
+        filetype = x.filetype,
       })
     end
   end)
@@ -66,10 +67,11 @@ function FzfCodePreviewInstanceTrait:setup_fileopen_keymaps()
 
     local filepath
     
-    if self._filepath_accessor then
-      filepath = self._filepath_accessor(self.focus)
+    local x = self._accessor(self.focus)
+    if x.filepath then
+      filepath = x.filepath
     else
-      filepath = fzf_utils.write_to_tmpfile(self._content_accessor(self.focus))
+      filepath = fzf_utils.write_to_tmpfile(x.lines)
     end
 
     self:hide()
@@ -99,12 +101,13 @@ function FzfCodePreviewInstanceTrait:setup_copy_filepath_keymap()
   self.layout.main_popup:map("<C-y>", "Copy filepath", function()
     if not self.focus then return end
 
-    if not self._filepath_accessor then
+    local x = self._accessor(self.focus)
+    if not x.filepath then
       _warn("No filepath accessor provided")
       return
     end
 
-    local filepath = self._filepath_accessor(self.focus)
+    local filepath = x.filepath
     vim.fn.setreg("+", filepath)
     _info(([[Copied %s to clipboard]]):format(filepath))
   end)

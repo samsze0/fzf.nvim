@@ -11,22 +11,13 @@ local _error = config.notifier.error
 
 ---@class FzfCodeDiffInstanceTrait : FzfController
 ---@field layout TUITriplePaneLayout
----@field _a_filepath_accessor? fun(entry: FzfEntry): string
----@field _b_filepath_accessor? fun(entry: FzfEntry): string
----@field _a_content_accessor? fun(entry: FzfEntry): string[]
----@field _b_content_accessor? fun(entry: FzfEntry): string[]
+---@field _a_accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
+---@field _b_accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _picker fun(entry: FzfEntry): ("a" | "b")
 local FzfCodeDiffInstanceTrait = {}
 FzfCodeDiffInstanceTrait.__index = FzfCodeDiffInstanceTrait
 FzfCodeDiffInstanceTrait.__is_class = true
 setmetatable(FzfCodeDiffInstanceTrait, { __index = FzfController })
-
-function FzfCodeDiffInstanceTrait:setup_vimdiff()
-  vimdiff_utils.diff_bufs(
-    self.layout.side_popups.left.bufnr,
-    self.layout.side_popups.right.bufnr
-  )
-end
 
 -- Configure file preview
 --
@@ -35,23 +26,34 @@ function FzfCodeDiffInstanceTrait:setup_filepreview(opts)
   opts = opts_utils.extend({}, opts)
 
   self:on_focus(function(payload)
+    print("change focus", vim.inspect(payload.entry))
+
     self.layout.side_popups.left:set_lines({})
     self.layout.side_popups.right:set_lines({})
 
     local focus = self.focus
     if not focus then return end
 
-    if self._a_filepath_accessor then
-      self.layout.side_popups.left:show_file_content(self._a_filepath_accessor(self.focus))
-    elseif self._a_content_accessor then
-      self.layout.side_popups.left:set_lines(self._a_content_accessor(self.focus))
+    local function show(x, popup)
+      if x.filepath then
+        popup:show_file_content(x.filepath)
+      elseif x.lines then
+        popup:set_lines(x.lines, {
+          filetype = x.filetype,
+        })
+      end
     end
 
-    if self._b_filepath_accessor then
-      self.layout.side_popups.right:show_file_content(self._b_filepath_accessor(self.focus))
-    elseif self._b_content_accessor then
-      self.layout.side_popups.right:set_lines(self._b_content_accessor(self.focus))
-    end
+    local a = self._a_accessor(self.focus)
+    show(a, self.layout.side_popups.left)
+
+    local b = self._b_accessor(self.focus)
+    show(b, self.layout.side_popups.right)
+
+    vimdiff_utils.diff_bufs(
+      self.layout.side_popups.left.bufnr,
+      self.layout.side_popups.right.bufnr
+    )
   end)
 end
 
@@ -64,19 +66,21 @@ function FzfCodeDiffInstanceTrait:setup_fileopen_keymaps()
 
     local a_or_b = self._picker(self.focus)
 
+    local function get_path(x)
+      if x.filepath then
+        return x.filepath
+      else
+        return fzf_utils.write_to_temp_file(x.lines)
+      end
+    end
+
     local filepath
     if a_or_b == "a" then
-      if self._a_filepath_accessor then
-        filepath = self._a_filepath_accessor(self.focus)
-      else
-        filepath = fzf_utils.write_to_temp_file(self._a_content_accessor(self.focus))
-      end
+      local a = self._a_accessor(self.focus)
+      filepath = get_path(a)
     else
-      if self._b_filepath_accessor then
-        filepath = self._b_filepath_accessor(self.focus)
-      else
-        filepath = fzf_utils.write_to_temp_file(self._b_content_accessor(self.focus))
-      end
+      local b = self._b_accessor(self.focus)
+      filepath = get_path(b)
     end
 
     self:hide()
@@ -107,17 +111,19 @@ function FzfCodeDiffInstanceTrait:setup_copy_filepath_keymap()
     local a_or_b = self._picker(self.focus)
     local filepath
     if a_or_b == "a" then
-      if not self._a_filepath_accessor then
+      local a = self._a_accessor(self.focus)
+      if not a.filepath then
         _warn("No filepath accessor for a")
         return
       end
-      filepath = self._a_filepath_accessor(self.focus)
+      filepath = a.filepath
     else
-      if not self._b_filepath_accessor then
+      local b = self._b_accessor(self.focus)
+      if not b.filepath then
         _warn("No filepath accessor for b")
         return
       end
-      filepath = self._b_filepath_accessor(self.focus)
+      filepath = b.filepath
     end
 
     vim.fn.setreg("+", filepath)

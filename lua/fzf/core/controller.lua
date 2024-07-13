@@ -206,6 +206,17 @@ function FzfController:subscribe(event, body, callback)
   return self._ipc_client:subscribe(event, body, callback)
 end
 
+---@param entries_getter FzfEntriesGetter
+function FzfController:set_entries_getter(entries_getter)
+  self._entries_getter = entries_getter
+
+  if self:started() then
+    self:refresh({
+      refetch = true,
+    })
+  end
+end
+
 -- Bind a fzf event to a fzf action
 --
 ---@param event string
@@ -231,17 +242,18 @@ function FzfController:pos(index) self:execute(("pos(%d)"):format(index)) end
 function FzfController:reload(rows)
   if #rows == 0 then
     self:execute("reload()")
-  else
-    -- Using $ as the delimiter
-    -- TODO: make delimiter configurable
-    local action = ("reload$%s$"):format(
-      ([[cat <<"EOF"
+    return
+  end
+
+  -- Using $ as the delimiter
+  -- TODO: make delimiter configurable
+  local action = ("reload$%s$"):format(
+    ([[cat <<"EOF"
 %s
 EOF
 ]]):format(table.concat(rows, "\n"))
-    )
-    self:execute(action, { load_action_from_file = true })
-  end
+  )
+  self:execute(action, { load_action_from_file = true })
 end
 
 -- Fetch entries and check if they are stale
