@@ -26,8 +26,6 @@ function FzfCodeDiffInstanceTrait:setup_filepreview(opts)
   opts = opts_utils.extend({}, opts)
 
   self:on_focus(function(payload)
-    print("change focus", vim.inspect(payload.entry))
-
     self.layout.side_popups.left:set_lines({})
     self.layout.side_popups.right:set_lines({})
 
