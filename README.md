@@ -29,6 +29,17 @@ An extensible neovim plugin that integrates fzf into the editor
 - True "workspace" diagnostics
 - Keep only the most recent controller stack and destroy the others when they go stale
 - Add support for shell command entries getter
+- TODO comments selector
+- Backups selector (integrate with persist.nvim)
+- Integration with syncthing & tailscale
+- Migrate to the "job system"
+- Integrate with watchman to watch for filetree / gittree changes
+- Support entry streaming (`reload` asynchronously)
+- Integrate with linux commands e.g. `lsof`, `lsblk`
+- Integrate with homebrew
+- Integrate with k8s
+- Integrate with git worktree
+- Error handling and reporting. Error occured in "fast lane" is slienced?
 
 ## License
 
