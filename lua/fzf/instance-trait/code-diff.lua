@@ -4,6 +4,8 @@ local opts_utils = require("utils.opts")
 local jumplist = require("jumplist")
 local vimdiff_utils = require("utils.vimdiff")
 local file_utils = require("utils.files")
+local NuiEvent = require("nui.utils.autocmd").event
+local winhighlight_utils = require("utils.winhighlight")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -18,6 +20,30 @@ local FzfCodeDiffInstanceTrait = {}
 FzfCodeDiffInstanceTrait.__index = FzfCodeDiffInstanceTrait
 FzfCodeDiffInstanceTrait.__is_class = true
 setmetatable(FzfCodeDiffInstanceTrait, { __index = FzfController })
+
+-- Vim's default diff highlights doesn't align with the one used by git
+--
+---@param opts? { }
+---@return WinHighlights, WinHighlights
+function FzfCodeDiffInstanceTrait:setup_diff_highlights(opts)
+  opts = opts_utils.extend({}, opts)
+
+  local a_win_hl = {
+    DiffAdd = "FzfDiffAddAsDelete",
+    DiffDelete = "FzfDiffPadding",
+    DiffChange = "FzfDiffChange",
+    DiffText = "FzfDiffText",
+  }
+
+  local b_win_hl = {
+    DiffAdd = "FzfDiffAdd",
+    DiffDelete = "FzfDiffPadding",
+    DiffChange = "FzfDiffChange",
+    DiffText = "FzfDiffText",
+  }
+  
+  return a_win_hl, b_win_hl
+end
 
 -- Configure file preview
 --

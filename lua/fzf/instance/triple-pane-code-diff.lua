@@ -9,6 +9,7 @@ local SidePopup = require("tui.popup").SidePopup
 local lang_utils = require("utils.lang")
 local terminal_utils = require("utils.terminal")
 local tbl_utils = require("utils.table")
+local winhighlight_utils = require("utils.winhighlight")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -48,17 +49,36 @@ function TriplePaneCodeDiffInstance.new(opts)
   obj._b_accessor = opts.b_accessor
   obj._picker = opts.picker
 
+  local a_win_hl, b_win_hl = FzfCodeDiffInstanceTrait.setup_diff_highlights(obj)
+
+  ---@type nui_popup_opts
+  local side_popup_opts = {
+    win_options = {
+      number = true,
+      cursorline = true,
+    },
+  }
+
   obj.layout = TriplePaneLayout.new({
     config = obj._config,
-    side_popup = SidePopup.new({
-      buf_options = {
-        win_options = {
-          number = true,
-          cursorline = true,
-        },
-      },
-      config = obj._config,
-    }),
+    side_popups = {
+      left = SidePopup.new({
+        config = obj._config,
+        popup_opts = opts_utils.deep_extend({
+          win_options = {
+            winhighlight = winhighlight_utils.to_str(a_win_hl),
+          }
+        }, side_popup_opts),
+      }),
+      right = SidePopup.new({
+        config = obj._config,
+        popup_opts = opts_utils.deep_extend({
+          win_options = {
+            winhighlight = winhighlight_utils.to_str(b_win_hl),
+          }
+        }, side_popup_opts),
+      }),
+    },
   })
 
   TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)
