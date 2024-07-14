@@ -56,102 +56,33 @@ return function(opts)
   local current_gitpath =
     git_utils.convert_filepath_to_gitpath(instance:prev_filepath())
 
-  ---@class FzfGitStatusEntry
+  ---@class FzfGitStatusEntry : GitStatus
   ---@field display string[]
   ---@field initial_focus boolean
-  ---@field gitpath string
-  ---@field filepath string
-  ---@field status string
-  ---@field status_x string
-  ---@field status_y string
-  ---@field is_fully_staged boolean
-  ---@field is_partially_staged boolean
-  ---@field is_untracked boolean
-  ---@field unstaged boolean
-  ---@field has_merge_conflicts boolean
-  ---@field worktree_clean boolean
-  ---@field added boolean
-  ---@field deleted boolean
-  ---@field renamed boolean
-  ---@field copied boolean
-  ---@field type_changed boolean
-  ---@field ignored boolean
 
   ---@return FzfGitStatusEntry[]
   local entries_getter = function()
-    local entries = terminal_utils.systemlist_unsafe(
-      ([[git -C '%s' -c color.status=false status -su]]):format(opts.git_dir), -- Show in short format and show all untracked files
-      {
-        keepempty = false,
-        trim = false, -- Can mess up status
-      }
-    )
+    local status = git_utils.list_status({
+      git_dir = opts.git_dir,
+    })
 
-    -- entries = file_utils.sort(entries, function(e) return e:sub(4) end)
-
-    return tbl_utils.map(entries, function(i, e)
-      local status = e:sub(1, 2)
-      local gitpath = e:sub(4)
-      local filepath = opts.git_dir .. "/" .. gitpath
-
-      -- Cater "rename" i.e. xxx -> xxx
-      if gitpath:find(" -> ") then
-        local parts = str_utils.split(gitpath, " -> ")
-        gitpath = parts[2]
-        filepath = opts.git_dir .. "/" .. gitpath
-      end
-
-      if status == "??" then status = " ?" end
-
-      local status_x = status:sub(1, 1)
-      local status_y = status:sub(2, 2)
+    return tbl_utils.map(status, function(i, e)
+      ---@cast e FzfGitStatusEntry
 
       local display = {
         ([[%s %s]]):format(
-          terminal_utils.ansi.blue(status_x),
-          match(status_y, {
+          terminal_utils.ansi.blue(e.status_x),
+          match(e.status_y, {
             ["D"] = terminal_utils.ansi.red,
-          }, terminal_utils.ansi.yellow)(status_y)
+          }, terminal_utils.ansi.yellow)(e.status_y)
         ),
-        gitpath
+        e.gitpath
       }
 
-      local is_fully_staged = status_x == "M" and status_y == " "
-      local is_partially_staged = status_x == "M" and status_y == "M"
-      local is_untracked = status_y == "?"
-      local unstaged = status_x == " " and not is_untracked
-      local has_merge_conflicts = status_x == "U"
-      local worktree_clean = status_y == " "
+      e.display = display
+      e.initial_focus = current_gitpath == e.gitpath
 
-      local added = status_x == "A" and worktree_clean
-      local deleted = status_x == "D" or status_y == "D"
-      local renamed = status_x == "R" and worktree_clean
-      local copied = status_x == "C" and worktree_clean
-      local type_changed = status_x == "T" and worktree_clean
-
-      local ignored = status_x == "!" and status_y == "!"
-
-      return {
-        display = display,
-        initial_focus = current_gitpath == gitpath,
-        gitpath = gitpath,
-        filepath = filepath,
-        status = status,
-        status_x = status_x,
-        status_y = status_y,
-        is_fully_staged = is_fully_staged,
-        is_partially_staged = is_partially_staged,
-        is_untracked = is_untracked,
-        unstaged = unstaged,
-        worktree_clean = worktree_clean,
-        has_merge_conflicts = has_merge_conflicts,
-        added = added,
-        deleted = deleted,
-        renamed = renamed,
-        copied = copied,
-        type_changed = type_changed,
-        ignored = ignored,
-      }
+      return e
     end)
   end
 
@@ -189,19 +120,19 @@ return function(opts)
     ---@cast entry FzfGitStatusEntry
 
     if entry.added or entry.is_untracked then
-      set_a_border("")
+      set_a_border("Staging")
       return {}
     end
 
     if entry.renamed then
-      set_a_border("")
+      set_a_border("Staging")
       return {
         filepath = entry.filepath,
       }
     end
 
     if entry.deleted then
-      set_a_border("Deleted", "deleted")
+      set_a_border("HEAD")
       return {
         filetype = files_utils.get_filetype(entry.filepath),
         lines = git_utils.show_head(entry.gitpath, { git_dir = opts.git_dir })
@@ -224,7 +155,7 @@ return function(opts)
         lines = git_utils.show_head(entry.gitpath, { git_dir = opts.git_dir })
       }
     else
-      set_a_border("Staged")
+      set_a_border("Staging")
       return {
         filetype = files_utils.get_filetype(entry.filepath),
         lines = git_utils.show_staged(entry.gitpath, { git_dir = opts.git_dir })
@@ -236,12 +167,12 @@ return function(opts)
     ---@cast entry FzfGitStatusEntry
 
     if entry.deleted then
-      set_b_border("")
+      set_b_border("Worktree (deleted)", "deleted")
       return {}
     end
 
     if opts.show_diff_between_head_and_staged_when_file_is_partially_staged and entry.is_partially_staged then
-      set_b_border("Staged")
+      set_b_border("Staging")
       return {
         filetype = files_utils.get_filetype(entry.filepath),
         lines = git_utils.show_staged(entry.gitpath, { git_dir = opts.git_dir })
@@ -249,7 +180,7 @@ return function(opts)
     end
 
     if entry.added or entry.is_untracked then
-      set_b_border("Worktree", "added")
+      set_b_border("Worktree (added)", "added")
     else
       set_b_border("Worktree")
     end

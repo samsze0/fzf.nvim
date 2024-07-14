@@ -10,6 +10,7 @@ local config = require("fzf.core.config").value
 local files_utils = require("utils.files")
 local NuiText = require("nui.text")
 local terminal_filetype = require("terminal-filetype")
+local file_changes_selector = require("fzf.selector.git.file-changes")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -130,7 +131,12 @@ return function(opts)
 
     ---@cast focus FzfGitStashEntry
 
-    error("Not implemented")  -- TODO
+    local selector = file_changes_selector({
+      git_dir = opts.git_dir,
+      ref = focus.ref
+    })
+    selector._parent_id = instance._id
+    selector:start()
   end)
 
   return instance
