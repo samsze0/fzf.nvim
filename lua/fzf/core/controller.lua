@@ -202,6 +202,9 @@ function FzfController:start()
   })
 end
 
+---@return integer
+function FzfController:prev_win() return self:root()._prev_win end
+
 -- Send an action to fzf to execute
 --
 ---@param action string
