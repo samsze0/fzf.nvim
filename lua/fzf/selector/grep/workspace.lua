@@ -25,6 +25,7 @@ local _error = config.notifier.error
 ---@field git_dir? string
 ---@field initial_query? string
 ---@field hl_groups? FzfGrepWorkspaceOptions.hl_groups
+---@field debounce? number Debounce time in ms
 
 -- Fzf all lines in current workspace
 --
@@ -36,7 +37,8 @@ return function(opts)
     hl_groups = {
       border_text = {
       }
-    }
+    },
+    debounce = 200,
   }, opts)
   ---@cast opts FzfGrepWorkspaceOptions
 
@@ -101,15 +103,16 @@ return function(opts)
     }
   end
 
-  -- Change event is muted when --disabled flag is passed
-  -- TODO: add debounce to avoid performance issues
-  -- instance:on_change(function(payload)
-  --   instance:refresh()
-  -- end)
-
-  instance.layout.main_popup:map("<CR>", "Search", function()
+  -- Only run rg/fd when query has not been modified for x ms
+  -- TODO: kill ongoing rg/fd process when query is modified
+  local debounced_refresh = uv_utils.debounce(function()
     instance:refresh()
-  end, { force = true })
+  end, opts.debounce, { run_in_main_loop = true })
+
+  -- Change event is muted when --disabled flag is passed
+  instance:on_change(function(payload)
+    debounced_refresh()
+  end)
 
   return instance
 end
