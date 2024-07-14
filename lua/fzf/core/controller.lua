@@ -173,10 +173,10 @@ function FzfController:start()
 
   -- Remove previously stack if a new stack is spawned
   if self._parent_id == nil then
-    _info("Clearing selectors : " .. vim.inspect(tbl_utils.map(fzf_controller_map:all(), function(_, c)
-      ---@cast c FzfController
-      return c.name
-    end)))
+    -- _info("Clearing selectors : " .. vim.inspect(tbl_utils.map(fzf_controller_map:all(), function(_, c)
+    --   ---@cast c FzfController
+    --   return c.name
+    -- end)))
     for _, c in ipairs(fzf_controller_map:all()) do
       ---@cast c FzfController
       c:_destroy()
