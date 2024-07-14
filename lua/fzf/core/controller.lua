@@ -80,9 +80,7 @@ function FzfController.new(opts)
   obj.name = opts.name
   obj.query = ""
   obj._ipc_client = match(config.ipc_client_type, {
-    [1] = function()
-      return TcpIpcClient.new()
-    end,
+    [1] = function() return TcpIpcClient.new() end,
   })()
   obj._display_accessor = function(e) return e.display end
   obj._initial_focus_accessor = function(e) return e.initial_focus end
@@ -94,26 +92,22 @@ function FzfController.new(opts)
   obj._display_accessor = opts.display_accessor
   obj._initial_focus_accessor = opts.initial_focus_accessor
 
-  if opts.parent then
-    obj._parent_id = opts.parent._id
-  end
+  if opts.parent then obj._parent_id = opts.parent._id end
 
   setmetatable(obj, FzfController)
 
   -- Make sure fzf is load up before sending reload action to it
-  obj:on_start(function(payload)
-    obj:refresh({
-      refetch = true,
-    })
-  end)
+  obj:on_start(
+    function(payload)
+      obj:refresh({
+        refetch = true,
+      })
+    end
+  )
 
-  obj:on_focus(function(payload)
-    obj.focus = payload.entry
-  end)
+  obj:on_focus(function(payload) obj.focus = payload.entry end)
 
-  obj:on_change(function(payload)
-    obj.query = payload.query
-  end)
+  obj:on_change(function(payload) obj.query = payload.query end)
 
   return obj
 end
@@ -131,7 +125,7 @@ end
 ---@return FzfController?
 function FzfController:parent()
   if self._parent_id then
-    return fzf_controller_map:get(self._parent_id)  ---@diagnostic disable-line: return-type-mismatch
+    return fzf_controller_map:get(self._parent_id) ---@diagnostic disable-line: return-type-mismatch
   end
 end
 
@@ -161,7 +155,9 @@ function FzfController:start()
 
   -- TODO: cater Windows
   -- Start fzf without any entries
-  local command = terminal_utils.shell_opts_tostring(env_vars) .. [[ printf "" | fzf ]] .. terminal_utils.shell_opts_tostring(args)
+  local command = terminal_utils.shell_opts_tostring(env_vars)
+    .. [[ printf "" | fzf ]]
+    .. terminal_utils.shell_opts_tostring(args)
 
   if self._parent_id then self:parent():hide() end
 
@@ -198,7 +194,7 @@ function FzfController:start()
       else
         error("Unexpected exit code: " .. code)
       end
-    end
+    end,
   })
 end
 
@@ -225,11 +221,9 @@ end
 function FzfController:set_entries_getter(entries_getter)
   self._entries_getter = entries_getter
 
-  if self:started() then
-    self:refresh({
-      refetch = true,
-    })
-  end
+  if self:started() then self:refresh({
+    refetch = true,
+  }) end
 end
 
 -- Bind a fzf event to a fzf action
@@ -241,7 +235,9 @@ function FzfController:bind(event, action) self._ipc_client:bind(event, action) 
 -- Manually trigger a fzf event
 --
 ---@param event string
-function FzfController:trigger_event(event) self._ipc_client:trigger_event(event) end
+function FzfController:trigger_event(event)
+  self._ipc_client:trigger_event(event)
+end
 
 -- Abort controller
 function FzfController:abort() self:execute("abort") end
@@ -262,12 +258,10 @@ function FzfController:reload(rows)
 
   -- Using $ as the delimiter
   -- TODO: make delimiter configurable
-  local action = ("reload$%s$"):format(
-    ([[cat <<"EOF"
+  local action = ("reload$%s$"):format(([[cat <<"EOF"
 %s
 EOF
-]]):format(table.concat(rows, "\n"))
-  )
+]]):format(table.concat(rows, "\n")))
   self:execute(action, { load_action_from_file = true })
 end
 
@@ -321,7 +315,10 @@ function FzfController:_load_fetched_entries(opts)
   local rows = tbl_utils.map(self._entries, function(i, e)
     local display = self._display_accessor(e)
     if type(display) == "table" then
-      display = tbl_utils.map(display, function(_, d) return fzf_utils.fzf_escape(d) end)
+      display = tbl_utils.map(
+        display,
+        function(_, d) return fzf_utils.fzf_escape(d) end
+      )
       display = terminal_utils.join_by_nbsp(unpack(display))
     elseif type(display) == "string" then
       display = fzf_utils.fzf_escape(display)
@@ -426,9 +423,7 @@ end
 ---@alias FzfControllerOnStartCallbackPayload {}
 ---@param callback fun(payload: FzfControllerOnStartCallbackPayload)
 function FzfController:on_start(callback)
-  self:subscribe("start", nil, function(payload)
-    callback({})
-  end)
+  self:subscribe("start", nil, function(payload) callback({}) end)
 end
 
 -- Subscribe to the event "focus"

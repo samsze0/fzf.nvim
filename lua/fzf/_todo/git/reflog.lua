@@ -32,7 +32,9 @@ return function(opts)
   ---@return FzfGitStashEntry[]
   local entries_getter = function()
     return tbl_utils.map(
-      terminal_utils.systemlist_unsafe(("git -C '%s' reflog"):format(opts.git_dir)),
+      terminal_utils.systemlist_unsafe(
+        ("git -C '%s' reflog"):format(opts.git_dir)
+      ),
       function(i, e)
         local sha, ref, action, description =
           e:match("(%w+) (%w+@{%d+}): ([^:]+): (.+)")

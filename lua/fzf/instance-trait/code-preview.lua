@@ -30,10 +30,12 @@ function FzfCodePreviewInstanceTrait:setup_filepreview(opts)
     local focus = self.focus
     if not focus then return end
 
-    local cursor_pos = self._row_accessor and {
-      self._row_accessor(self.focus),
-      self._col_accessor(self.focus),
-    } or nil
+    local cursor_pos = self._row_accessor
+        and {
+          self._row_accessor(self.focus),
+          self._col_accessor(self.focus),
+        }
+      or nil
 
     local x = self._accessor(self.focus)
     if x.filepath then
@@ -67,7 +69,7 @@ function FzfCodePreviewInstanceTrait:setup_fileopen_keymaps()
 
     local filepath
     local filetype
-    
+
     local x = self._accessor(self.focus)
     if x.filepath then
       filepath = x.filepath
@@ -77,29 +79,31 @@ function FzfCodePreviewInstanceTrait:setup_fileopen_keymaps()
     filetype = x.filetype
 
     self:hide()
-    if save_in_jumplist then
-      jumplist.save()
-    end
+    if save_in_jumplist then jumplist.save() end
     vim.cmd(([[%s %s]]):format(open_command, filepath))
 
-    if filetype then
-      vim.bo.filetype = filetype
-    end
+    if filetype then vim.bo.filetype = filetype end
 
     highlight_row()
   end
 
-  self.layout.main_popup:map("<C-w>", "Open in new window", function()
-    open_file(false, "vsplit")
-  end)
+  self.layout.main_popup:map(
+    "<C-w>",
+    "Open in new window",
+    function() open_file(false, "vsplit") end
+  )
 
-  self.layout.main_popup:map("<C-t>", "Open in new tab", function()
-    open_file(false, "tabnew")
-  end)
+  self.layout.main_popup:map(
+    "<C-t>",
+    "Open in new tab",
+    function() open_file(false, "tabnew") end
+  )
 
-  self.layout.main_popup:map("<CR>", "Open", function()
-    open_file(true, "edit")
-  end)
+  self.layout.main_popup:map(
+    "<CR>",
+    "Open",
+    function() open_file(true, "edit") end
+  )
 end
 
 -- TODO: move to private config

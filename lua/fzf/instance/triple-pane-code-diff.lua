@@ -33,15 +33,9 @@ setmetatable(TriplePaneCodeDiffInstance, { __index = FzfController })
 ---@return FzfTriplePaneCodeDiffInstance
 function TriplePaneCodeDiffInstance.new(opts)
   opts = opts_utils.extend({
-    picker = function(entry)
-      return "a"
-    end,
-    a_accessor = function(entry)
-      return {}
-    end,
-    b_accessor = function(entry)
-      return {}
-    end,
+    picker = function(entry) return "a" end,
+    a_accessor = function(entry) return {} end,
+    b_accessor = function(entry) return {} end,
   }, opts)
   ---@cast opts FzfCreateTriplePaneCodeDiffInstanceOptions
 
@@ -64,7 +58,7 @@ function TriplePaneCodeDiffInstance.new(opts)
         },
       },
       config = obj._config,
-    })
+    }),
   })
 
   TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)

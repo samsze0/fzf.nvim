@@ -26,9 +26,7 @@ setmetatable(DualPaneTerminalPreviewInstance, { __index = FzfController })
 ---@return FzfDualPaneTerminalPreviewInstance
 function DualPaneTerminalPreviewInstance.new(opts)
   opts = opts_utils.extend({
-    filepath_accessor = function(entry)
-      return entry.url
-    end,
+    filepath_accessor = function(entry) return entry.url end,
   }, opts)
   ---@cast opts FzfCreateDualPaneTerminalPreviewInstanceOptions
 
@@ -52,7 +50,7 @@ function DualPaneTerminalPreviewInstance.new(opts)
         },
       },
       config = obj._config,
-    })
+    }),
   })
 
   TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)

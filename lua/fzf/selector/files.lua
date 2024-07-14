@@ -1,4 +1,5 @@
-local FzfDualPaneNvimPreviewInstance = require("fzf.instance.dual-pane-nvim-preview")
+local FzfDualPaneNvimPreviewInstance =
+  require("fzf.instance.dual-pane-nvim-preview")
 local tbl_utils = require("utils.table")
 local opts_utils = require("utils.opts")
 local terminal_utils = require("utils.terminal")
@@ -34,13 +35,13 @@ return function(opts)
     hl_groups = {
       border_text = {
         filetype = "FzfFilesBorderFiletype",
-      }
-    }
+      },
+    },
   }, opts)
   ---@cast opts FzfFilesOptions
 
   local instance = FzfDualPaneNvimPreviewInstance.new({
-    name = "Files"
+    name = "Files",
   })
 
   ---@alias FzfFileEntry { display: string, path: string, git_path?: string }
@@ -78,11 +79,12 @@ return function(opts)
   instance:set_entries_getter(entries_getter)
   instance._accessor = function(entry)
     return {
-      filepath = entry.path
+      filepath = entry.path,
     }
   end
 
-  local border_component = instance.layout.side_popup.bottom_border_text:append("right")
+  local border_component =
+    instance.layout.side_popup.bottom_border_text:append("right")
 
   instance:on_focus(function(payload)
     local entry = payload.entry

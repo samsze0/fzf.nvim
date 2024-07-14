@@ -49,13 +49,16 @@ function FzfBaseInstanceTrait:setup_scroll_keymaps(preview_popup, opts)
 end
 
 function FzfBaseInstanceTrait:setup_maximise_popup_keymaps()
-  self.layout.main_popup:map("<C-z>", "Maximise", function()
-    self.layout:maximise_popup("main")
-  end)
+  self.layout.main_popup:map(
+    "<C-z>",
+    "Maximise",
+    function() self.layout:maximise_popup("main") end
+  )
 end
 
 function FzfBaseInstanceTrait:setup_main_popup_top_border()
-  local border_component = self.layout.main_popup.top_border_text:prepend("left")
+  local border_component =
+    self.layout.main_popup.top_border_text:prepend("left")
 
   local refresh = function()
     ---@type FzfController[]
@@ -82,7 +85,12 @@ function FzfBaseInstanceTrait:setup_main_popup_top_border()
       border_text = border_text .. " " .. table.concat(icons, " ")
     end
 
-    border_component:render(NuiText(border_text, config.highlight_groups.border_text.selector_breadcrumbs))
+    border_component:render(
+      NuiText(
+        border_text,
+        config.highlight_groups.border_text.selector_breadcrumbs
+      )
+    )
   end
 
   self:on_fetching_entries_change(refresh)

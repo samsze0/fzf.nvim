@@ -1,4 +1,5 @@
-local FzfDualPaneTerminalPreviewInstance = require("fzf.instance.dual-pane-terminal-preview")
+local FzfDualPaneTerminalPreviewInstance =
+  require("fzf.instance.dual-pane-terminal-preview")
 local git_utils = require("utils.git")
 local tbl_utils = require("utils.table")
 local opts_utils = require("utils.opts")
@@ -36,8 +37,8 @@ return function(opts)
     hl_groups = {
       border_text = {
         diff_stat = "FzfGitStashBorderDiffStat",
-      }
-    }
+      },
+    },
   }, opts)
   ---@cast opts FzfGitStashOptions
 
@@ -78,7 +79,7 @@ return function(opts)
         display = {
           terminal_utils.ansi.blue(ref),
           terminal_utils.ansi.white(message),
-          terminal_utils.ansi.grey(branch)
+          terminal_utils.ansi.grey(branch),
         },
         ref = ref,
         branch = branch,
@@ -90,7 +91,8 @@ return function(opts)
 
   instance:set_entries_getter(entries_getter)
 
-  local border_component = instance.layout.side_popup.bottom_border_text:append("left")
+  local border_component =
+    instance.layout.side_popup.bottom_border_text:append("left")
 
   instance:on_focus(function(payload)
     instance.layout.side_popup:set_lines({})
@@ -111,7 +113,9 @@ return function(opts)
     local diff_stat = git_utils.stash_diff_stat(focus.ref, {
       git_dir = opts.git_dir,
     })
-    border_component:render(NuiText(diff_stat, opts.hl_groups.border_text.diff_stat))
+    border_component:render(
+      NuiText(diff_stat, opts.hl_groups.border_text.diff_stat)
+    )
   end)
 
   instance.layout.main_popup:map("<C-y>", "Copy ref", function()
@@ -133,7 +137,7 @@ return function(opts)
 
     local selector = file_changes_selector({
       git_dir = opts.git_dir,
-      ref = focus.ref
+      ref = focus.ref,
     })
     selector._parent_id = instance._id
     selector:start()

@@ -42,7 +42,8 @@ return function(opts)
   local entries = get_entries()
 
   local parse_entry = function(entry)
-    local bufnr, filepath, row, col = unpack(vim.split(entry, terminal_utils.nbsp))
+    local bufnr, filepath, row, col =
+      unpack(vim.split(entry, terminal_utils.nbsp))
     return tonumber(bufnr), filepath, tonumber(row), tonumber(col)
   end
 

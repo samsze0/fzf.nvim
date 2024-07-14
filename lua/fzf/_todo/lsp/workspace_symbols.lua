@@ -56,7 +56,7 @@ return function(opts)
         return {
           display = fzf_utils.join_by_nbsp(
             terminal_utils.ansi.blue(
-            terminal_utils.ansi.grey(filepath),
+              terminal_utils.ansi.grey(filepath),
               vim.lsp.protocol.SymbolKind[s.kind] or "Unknown"
             ),
             s.name

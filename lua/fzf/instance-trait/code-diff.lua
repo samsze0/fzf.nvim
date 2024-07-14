@@ -85,27 +85,29 @@ function FzfCodeDiffInstanceTrait:setup_fileopen_keymaps()
     end
 
     self:hide()
-    if save_in_jumplist then
-      jumplist.save()
-    end
+    if save_in_jumplist then jumplist.save() end
     vim.cmd(([[%s %s]]):format(open_command, filepath))
 
-    if filetype then
-      vim.bo.filetype = filetype
-    end
+    if filetype then vim.bo.filetype = filetype end
   end
 
-  self.layout.main_popup:map("<C-w>", "Open in new window", function()
-    open_file(false, "vsplit")
-  end)
+  self.layout.main_popup:map(
+    "<C-w>",
+    "Open in new window",
+    function() open_file(false, "vsplit") end
+  )
 
-  self.layout.main_popup:map("<C-t>", "Open in new tab", function()
-    open_file(false, "tabnew")
-  end)
+  self.layout.main_popup:map(
+    "<C-t>",
+    "Open in new tab",
+    function() open_file(false, "tabnew") end
+  )
 
-  self.layout.main_popup:map("<CR>", "Open", function()
-    open_file(true, "edit")
-  end)
+  self.layout.main_popup:map(
+    "<CR>",
+    "Open",
+    function() open_file(true, "edit") end
+  )
 end
 
 -- TODO: move to private config

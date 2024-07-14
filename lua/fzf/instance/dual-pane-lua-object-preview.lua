@@ -28,9 +28,7 @@ setmetatable(DualPaneLuaObjectPreviewInstance, { __index = FzfController })
 ---@return FzfDualPaneLuaObjectPreviewInstance
 function DualPaneLuaObjectPreviewInstance.new(opts)
   opts = opts_utils.extend({
-    filepath_accessor = function(entry)
-      return entry.url
-    end,
+    filepath_accessor = function(entry) return entry.url end,
   }, opts)
   ---@cast opts FzfCreateDualPaneLuaObjectPreviewInstanceOptions
 
@@ -46,11 +44,11 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
     side_popup = SidePopup.new({
       popup_opts = {
         buf_options = {
-          filetype = "lua"
+          filetype = "lua",
         },
       },
       config = obj._config,
-    })
+    }),
   })
 
   TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)
@@ -73,9 +71,7 @@ function DualPaneLuaObjectPreviewInstance:_setup_lua_object_preview()
     if not focus then return end
 
     local lua_obj = self._lua_object_accessor(focus)
-    self.layout.side_popup:set_lines(
-      vim.split(vim.inspect(lua_obj), "\n")
-    )
+    self.layout.side_popup:set_lines(vim.split(vim.inspect(lua_obj), "\n"))
   end)
 end
 

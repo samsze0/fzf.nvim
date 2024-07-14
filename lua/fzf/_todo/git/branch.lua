@@ -39,7 +39,9 @@ return function(opts)
   ---@alias FzfGitBranchEntry { display: string, branch?: string, is_current_branch?: boolean, is_remote_branch?: boolean, detached_commit?: string }
   ---@return FzfFileEntry[]
   local entries_getter = function()
-    local output = terminal_utils.systemlist_unsafe(("git -C '%s' branch --all"):format(opts.git_dir))
+    local output = terminal_utils.systemlist_unsafe(
+      ("git -C '%s' branch --all"):format(opts.git_dir)
+    )
 
     return tbl_utils.map(output, function(i, b)
       local branch = vim.trim(b:sub(3))
@@ -126,7 +128,9 @@ return function(opts)
     end
 
     local branch = focus.branch
-    terminal_utils.system_unsafe(("git -C '%s' branch -D '%s'"):format(opts.git_dir, branch))
+    terminal_utils.system_unsafe(
+      ("git -C '%s' branch -D '%s'"):format(opts.git_dir, branch)
+    )
     controller:refresh()
   end)
 

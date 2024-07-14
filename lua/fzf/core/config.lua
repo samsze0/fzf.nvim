@@ -22,45 +22,44 @@ setmetatable(FzfConfig, { __index = Config })
 
 ---@return FzfConfig
 function FzfConfig.new()
-    local obj = setmetatable(Config.new(), FzfConfig)
-    ---@cast obj FzfConfig
+  local obj = setmetatable(Config.new(), FzfConfig)
+  ---@cast obj FzfConfig
 
-    obj.value = opts_utils.deep_extend(obj.value, {
-        ipc_client_type = 1,
-        default_extra_args = {
-            -- TODO: move to private usage
-            ["--scroll-off"] = "2",
-        },
-        default_rg_args = {
-            ["--smart-case"] = true,
-            ["--no-ignore"] = true,
-            ["--hidden"] = true,
-            ["--trim"] = true,
-            ["--color"] = "always",
-            ["--colors"] = {
-            "'match:fg:blue'",
-            "'path:none'",
-            "'line:none'",
-            },
-            ["--no-column"] = true,
-            ["--line-number"] = true,
-            ["--no-heading"] = true,
-        },
-        default_delta_args = {
-        },
-        highlight_groups = {
-            border_text = {
-                selector_breadcrumbs = "FzfSelectorBreadcrumbs",
-            },
-        },
-    })
+  obj.value = opts_utils.deep_extend(obj.value, {
+    ipc_client_type = 1,
+    default_extra_args = {
+      -- TODO: move to private usage
+      ["--scroll-off"] = "2",
+    },
+    default_rg_args = {
+      ["--smart-case"] = true,
+      ["--no-ignore"] = true,
+      ["--hidden"] = true,
+      ["--trim"] = true,
+      ["--color"] = "always",
+      ["--colors"] = {
+        "'match:fg:blue'",
+        "'path:none'",
+        "'line:none'",
+      },
+      ["--no-column"] = true,
+      ["--line-number"] = true,
+      ["--no-heading"] = true,
+    },
+    default_delta_args = {},
+    highlight_groups = {
+      border_text = {
+        selector_breadcrumbs = "FzfSelectorBreadcrumbs",
+      },
+    },
+  })
 
-    return obj
+  return obj
 end
 
 ---@param config? FzfConfig.config
 function FzfConfig:setup(config)
-    self.value = opts_utils.deep_extend(self.value, config)
+  self.value = opts_utils.deep_extend(self.value, config)
 end
 
 return FzfConfig.new()

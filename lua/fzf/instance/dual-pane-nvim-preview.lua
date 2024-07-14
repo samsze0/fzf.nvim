@@ -34,9 +34,7 @@ setmetatable(DualPaneNvimPreviewInstance, { __index = FzfController })
 ---@return FzfDualPaneNvimPreviewInstance
 function DualPaneNvimPreviewInstance.new(opts)
   opts = opts_utils.extend({
-    accessor = function(entry)
-      return {}
-    end,
+    accessor = function(entry) return {} end,
   }, opts)
   ---@cast opts FzfCreateDualPaneNvimPreviewInstanceOptions
 
@@ -59,7 +57,7 @@ function DualPaneNvimPreviewInstance.new(opts)
         },
       },
       config = obj._config,
-    })
+    }),
   })
 
   TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)

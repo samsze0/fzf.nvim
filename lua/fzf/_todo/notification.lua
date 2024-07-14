@@ -62,11 +62,7 @@ return function(opts)
       end
 
       return {
-        display = ([[%s %s %s]]):format(
-          icon,
-          timeago(e.time),
-          brief
-        ),
+        display = ([[%s %s %s]]):format(icon, timeago(e.time), brief),
         notification = e,
       }
     end)

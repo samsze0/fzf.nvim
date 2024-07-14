@@ -1,4 +1,5 @@
-local FzfTriplePaneCodeDiffInstance = require("fzf.instance.triple-pane-code-diff")
+local FzfTriplePaneCodeDiffInstance =
+  require("fzf.instance.triple-pane-code-diff")
 local FzfBaseInstanceTrait = require("fzf.instance-trait.base")
 local git_utils = require("utils.git")
 local tbl_utils = require("utils.table")
@@ -44,7 +45,7 @@ return function(opts)
         deleted = "FzfGitStatusBorderDeleted",
         normal = "FzfGitStatusBorderNormal",
         diff_stat = "FzfGitStatusBorderDiffStat",
-      }
+      },
     },
   }, opts)
   ---@cast opts FzfGitStatusOptions
@@ -76,7 +77,7 @@ return function(opts)
             ["D"] = terminal_utils.ansi.red,
           }, terminal_utils.ansi.yellow)(e.status_y)
         ),
-        e.gitpath
+        e.gitpath,
       }
 
       e.display = display
@@ -88,15 +89,18 @@ return function(opts)
 
   instance:set_entries_getter(entries_getter)
 
-  local border_component_git_status = instance.layout.main_popup.bottom_border_text:append("left")
-  local border_component_a = instance.layout.side_popups.left.top_border_text:prepend("left")
-  local border_component_b = instance.layout.side_popups.right.top_border_text:prepend("left")
+  local border_component_git_status =
+    instance.layout.main_popup.bottom_border_text:append("left")
+  local border_component_a =
+    instance.layout.side_popups.left.top_border_text:prepend("left")
+  local border_component_b =
+    instance.layout.side_popups.right.top_border_text:prepend("left")
 
   local set_border = function(text, hl_group, popup, border_component)
     local hl_group = match(hl_group, {
       ["added"] = opts.hl_groups.border_text.added,
       ["changed"] = opts.hl_groups.border_text.changed,
-      ["deleted"] = opts.hl_groups.border_text.deleted
+      ["deleted"] = opts.hl_groups.border_text.deleted,
     }, opts.hl_groups.border_text.normal)
     local nui_text = NuiText(text, hl_group)
     border_component:render(nui_text)
@@ -135,7 +139,7 @@ return function(opts)
       set_a_border("HEAD")
       return {
         filetype = files_utils.get_filetype(entry.filepath),
-        lines = git_utils.show_head(entry.gitpath, { git_dir = opts.git_dir })
+        lines = git_utils.show_head(entry.gitpath, { git_dir = opts.git_dir }),
       }
     end
 
@@ -143,7 +147,7 @@ return function(opts)
       set_a_border("HEAD")
       return {
         filetype = files_utils.get_filetype(entry.filepath),
-        lines = git_utils.show_head(entry.gitpath, { git_dir = opts.git_dir })
+        lines = git_utils.show_head(entry.gitpath, { git_dir = opts.git_dir }),
       }
     end
 
@@ -152,13 +156,16 @@ return function(opts)
       set_a_border("HEAD")
       return {
         filetype = files_utils.get_filetype(entry.filepath),
-        lines = git_utils.show_head(entry.gitpath, { git_dir = opts.git_dir })
+        lines = git_utils.show_head(entry.gitpath, { git_dir = opts.git_dir }),
       }
     else
       set_a_border("Staging")
       return {
         filetype = files_utils.get_filetype(entry.filepath),
-        lines = git_utils.show_staged(entry.gitpath, { git_dir = opts.git_dir })
+        lines = git_utils.show_staged(
+          entry.gitpath,
+          { git_dir = opts.git_dir }
+        ),
       }
     end
   end
@@ -171,11 +178,17 @@ return function(opts)
       return {}
     end
 
-    if opts.show_diff_between_head_and_staged_when_file_is_partially_staged and entry.is_partially_staged then
+    if
+      opts.show_diff_between_head_and_staged_when_file_is_partially_staged
+      and entry.is_partially_staged
+    then
       set_b_border("Staging")
       return {
         filetype = files_utils.get_filetype(entry.filepath),
-        lines = git_utils.show_staged(entry.gitpath, { git_dir = opts.git_dir })
+        lines = git_utils.show_staged(
+          entry.gitpath,
+          { git_dir = opts.git_dir }
+        ),
       }
     end
 
@@ -191,9 +204,7 @@ return function(opts)
   end
 
   instance._picker = function(entry)
-    if entry.deleted then
-      return "a"
-    end
+    if entry.deleted then return "a" end
 
     return "b"
   end
@@ -204,9 +215,17 @@ return function(opts)
     ---@cast focus FzfGitStatusEntry
 
     if focus.deleted then
-      FzfBaseInstanceTrait.setup_scroll_keymaps(instance, instance.layout.side_popups.left, { force = true })
+      FzfBaseInstanceTrait.setup_scroll_keymaps(
+        instance,
+        instance.layout.side_popups.left,
+        { force = true }
+      )
     else
-      FzfBaseInstanceTrait.setup_scroll_keymaps(instance, instance.layout.side_popups.right, { force = true })
+      FzfBaseInstanceTrait.setup_scroll_keymaps(
+        instance,
+        instance.layout.side_popups.right,
+        { force = true }
+      )
     end
   end)
 
@@ -214,7 +233,9 @@ return function(opts)
     local short_status = git_utils.diff_stat({
       git_dir = opts.git_dir,
     })
-    border_component_git_status:render(NuiText(short_status, opts.hl_groups.border_text.diff_stat))
+    border_component_git_status:render(
+      NuiText(short_status, opts.hl_groups.border_text.diff_stat)
+    )
   end)
 
   instance.layout.main_popup:map("<Left>", "Stage", function()
@@ -223,7 +244,9 @@ return function(opts)
     ---@cast focus FzfGitStatusEntry
 
     local filepath = focus.filepath
-    terminal_utils.system_unsafe(([[git -C '%s' add '%s']]):format(opts.git_dir, filepath))
+    terminal_utils.system_unsafe(
+      ([[git -C '%s' add '%s']]):format(opts.git_dir, filepath)
+    )
     instance:refresh()
   end)
 
@@ -268,9 +291,7 @@ return function(opts)
       ---@cast entries FzfGitStatusEntry[]
       git_utils.stash({
         git_dir = opts.git_dir,
-        gitpaths = tbl_utils.map(entries, function(_, e)
-          return e.gitpath
-        end)
+        gitpaths = tbl_utils.map(entries, function(_, e) return e.gitpath end),
       })
       instance:refresh()
     end)
@@ -279,7 +300,7 @@ return function(opts)
   instance.layout.main_popup:map("<C-d>", "Stash staged", function()
     git_utils.stash({
       git_dir = opts.git_dir,
-      stash_staged = true
+      stash_staged = true,
     })
     instance:refresh()
   end)

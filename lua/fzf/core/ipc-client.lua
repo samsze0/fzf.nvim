@@ -8,7 +8,7 @@ local CallbackMap = require("tui.callback-map")
 ---@enum FzfIpcClientType
 local CLIENT_TYPE = {
   tcp = 1,
-  websocket = 2
+  websocket = 2,
 }
 
 local FZF_API_KEY = uuid_utils.v4()
@@ -24,30 +24,20 @@ IpcClient.__is_class = true
 
 ---@param action string
 ---@param opts? { load_action_from_file?: boolean }
-function IpcClient:execute(action, opts)
-  error("Not implemented")
-end
+function IpcClient:execute(action, opts) error("Not implemented") end
 
 ---@param body? string
 ---@param callback function
-function IpcClient:ask(body, callback)
-  error("Not implemented")
-end
+function IpcClient:ask(body, callback) error("Not implemented") end
 
 ---@param event string
 ---@param body? string
 ---@param callback function
-function IpcClient:subscribe(event, body, callback)
-  error("Not implemented")
-end
+function IpcClient:subscribe(event, body, callback) error("Not implemented") end
 
-function IpcClient:on_focus(payload)
-  error("Not implemented")
-end
+function IpcClient:on_focus(payload) error("Not implemented") end
 
-function IpcClient:destroy()
-  error("Not implemented")
-end
+function IpcClient:destroy() error("Not implemented") end
 
 ---@param message string
 function IpcClient:on_message(message)
@@ -81,14 +71,10 @@ function IpcClient:trigger_event(event)
 end
 
 ---@return ShellOpts
-function IpcClient:args()
-  error("Not implemented")
-end
+function IpcClient:args() error("Not implemented") end
 
 ---@return ShellOpts
-function IpcClient:env_vars()
-  error("Not implemented")
-end
+function IpcClient:env_vars() error("Not implemented") end
 
 -- TODO: tcp server typing
 
@@ -112,9 +98,10 @@ function TcpIpcClient.new()
   }, TcpIpcClient)
   ---@cast obj FzfTcpIpcClient
 
-  local tcp_server = uv_utils.create_tcp_server(obj.host, function(message)
-    obj:on_message(message)
-  end)
+  local tcp_server = uv_utils.create_tcp_server(
+    obj.host,
+    function(message) obj:on_message(message) end
+  )
   obj.port = tcp_server.port
   obj._tcp_server = tcp_server
 
@@ -196,10 +183,7 @@ end
 ---@return ShellOpts
 function TcpIpcClient:args()
   return {
-    ["--listen"] = ("%s:%s"):format(
-      self.fzf_host,
-      self.fzf_port
-    ),
+    ["--listen"] = ("%s:%s"):format(self.fzf_host, self.fzf_port),
     ["--bind"] = "'" .. self:bindings() .. "'",
   }
 end

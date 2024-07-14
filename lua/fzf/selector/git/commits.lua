@@ -1,4 +1,5 @@
-local FzfDualPaneTerminalPreviewInstance = require("fzf.instance.dual-pane-terminal-preview")
+local FzfDualPaneTerminalPreviewInstance =
+  require("fzf.instance.dual-pane-terminal-preview")
 local git_utils = require("utils.git")
 local tbl_utils = require("utils.table")
 local opts_utils = require("utils.opts")
@@ -40,10 +41,10 @@ return function(opts)
     hl_groups = {
       border_text = {
         diff_stat = "FzfGitCommitsBorderDiffStat",
-      }
+      },
     },
     -- FIX: if the limit is set too high, then it might hit luajit's table size limit?
-    limit = 200  -- For performance reasons
+    limit = 200, -- For performance reasons
   }, opts)
   ---@cast opts FzfGitCommitsOptions
 
@@ -70,7 +71,7 @@ return function(opts)
         terminal_utils.ansi.white(e.subject),
         terminal_utils.ansi.grey("| " .. e.author),
         terminal_utils.ansi.grey("| " .. e.commit_date),
-        "| " .. e.ref_names
+        "| " .. e.ref_names,
       }
       return e
     end)
@@ -78,7 +79,8 @@ return function(opts)
 
   instance:set_entries_getter(entries_getter)
 
-  local border_component = instance.layout.side_popup.bottom_border_text:append("left")
+  local border_component =
+    instance.layout.side_popup.bottom_border_text:append("left")
 
   instance:on_focus(function(payload)
     instance.layout.side_popup:set_lines({})
@@ -101,9 +103,11 @@ return function(opts)
     -- FIX: diff stat
     local diff_stat = git_utils.diff_stat({
       git_dir = opts.git_dir,
-      ref = focus.hash
+      ref = focus.hash,
     })
-    border_component:render(NuiText(diff_stat, opts.hl_groups.border_text.diff_stat))
+    border_component:render(
+      NuiText(diff_stat, opts.hl_groups.border_text.diff_stat)
+    )
   end)
 
   instance.layout.main_popup:map("<C-y>", "Copy hash", function()
@@ -125,7 +129,7 @@ return function(opts)
 
     local selector = file_changes_selector({
       git_dir = opts.git_dir,
-      ref = focus.hash
+      ref = focus.hash,
     })
     selector._parent_id = instance._id
     selector:start()

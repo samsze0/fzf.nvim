@@ -1,4 +1,5 @@
-local FzfTriplePaneCodeDiffInstance = require("fzf.instance.triple-pane-code-diff")
+local FzfTriplePaneCodeDiffInstance =
+  require("fzf.instance.triple-pane-code-diff")
 local FzfBaseInstanceTrait = require("fzf.instance-trait.base")
 local tbl_utils = require("utils.table")
 local opts_utils = require("utils.opts")
@@ -44,8 +45,8 @@ return function(opts)
         deleted = "FzfGitFileChangesBorderDeleted",
         normal = "FzfGitFileChangesBorderNormal",
         diff_stat = "FzfGitFileChangesBorderDiffStat",
-      }
-    }
+      },
+    },
   }, opts)
   ---@cast opts FzfGitFileChangesOptions
 
@@ -72,7 +73,7 @@ return function(opts)
           ["M"] = terminal_utils.ansi.yellow,
           ["D"] = terminal_utils.ansi.red,
         }, terminal_utils.ansi.yellow)(e.status),
-        e.gitpath
+        e.gitpath,
       }
 
       e.display = display
@@ -83,16 +84,19 @@ return function(opts)
 
   instance:set_entries_getter(entries_getter)
 
-  local border_component_git_status = instance.layout.main_popup.bottom_border_text:append("left")
-  local border_component_a = instance.layout.side_popups.left.top_border_text:prepend("left")
-  local border_component_b = instance.layout.side_popups.right.top_border_text:prepend("left")
+  local border_component_git_status =
+    instance.layout.main_popup.bottom_border_text:append("left")
+  local border_component_a =
+    instance.layout.side_popups.left.top_border_text:prepend("left")
+  local border_component_b =
+    instance.layout.side_popups.right.top_border_text:prepend("left")
 
   -- TODO: Reuse this function from status.lua
   local set_border = function(text, hl_group, popup, border_component)
     local hl_group = match(hl_group, {
       ["added"] = opts.hl_groups.border_text.added,
       ["changed"] = opts.hl_groups.border_text.changed,
-      ["deleted"] = opts.hl_groups.border_text.deleted
+      ["deleted"] = opts.hl_groups.border_text.deleted,
     }, opts.hl_groups.border_text.normal)
     local nui_text = NuiText(text, hl_group)
     border_component:render(nui_text)
@@ -134,13 +138,9 @@ return function(opts)
       return {}
     end
 
-    if entry.modified then
-      set_a_border("")
-    end
+    if entry.modified then set_a_border("") end
 
-    if entry.deleted then
-      set_a_border("Deleted", "deleted")
-    end
+    if entry.deleted then set_a_border("Deleted", "deleted") end
 
     local before = git_utils.show_file(entry.gitpath, {
       ref = opts.ref,
@@ -150,7 +150,7 @@ return function(opts)
 
     return {
       filetype = files_utils.get_filetype(entry.filepath),
-      lines = before or {}
+      lines = before or {},
     }
   end
 
@@ -162,13 +162,9 @@ return function(opts)
       return {}
     end
 
-    if entry.modified then
-      set_b_border("")
-    end
+    if entry.modified then set_b_border("") end
 
-    if entry.added then
-      set_b_border("Added", "added")
-    end
+    if entry.added then set_b_border("Added", "added") end
 
     local after = git_utils.show_file(entry.gitpath, {
       ref = opts.ref,
@@ -178,7 +174,7 @@ return function(opts)
 
     return {
       filetype = files_utils.get_filetype(entry.filepath),
-      lines = after or {}
+      lines = after or {},
     }
   end
 
@@ -186,9 +182,7 @@ return function(opts)
   instance._picker = function(entry)
     ---@cast entry FzfGitFileChangeEntry
 
-    if entry.deleted then
-      return "a"
-    end
+    if entry.deleted then return "a" end
 
     return "b"
   end
@@ -200,9 +194,17 @@ return function(opts)
     ---@cast focus FzfGitFileChangeEntry
 
     if focus.deleted then
-      FzfBaseInstanceTrait.setup_scroll_keymaps(instance, instance.layout.side_popups.left, { force = true })
+      FzfBaseInstanceTrait.setup_scroll_keymaps(
+        instance,
+        instance.layout.side_popups.left,
+        { force = true }
+      )
     else
-      FzfBaseInstanceTrait.setup_scroll_keymaps(instance, instance.layout.side_popups.right, { force = true })
+      FzfBaseInstanceTrait.setup_scroll_keymaps(
+        instance,
+        instance.layout.side_popups.right,
+        { force = true }
+      )
     end
   end)
 

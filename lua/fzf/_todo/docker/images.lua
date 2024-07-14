@@ -65,7 +65,9 @@ return function(opts)
 
     if not focus then return end
 
-    terminal_utils.system_unsafe(([[docker image rm %s]]):format(focus.image.ID))
+    terminal_utils.system_unsafe(
+      ([[docker image rm %s]]):format(focus.image.ID)
+    )
     controller:refresh()
   end)
 

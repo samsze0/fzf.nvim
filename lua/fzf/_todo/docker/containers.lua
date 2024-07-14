@@ -77,7 +77,9 @@ return function(opts)
       return
     end
 
-    terminal_utils.system_unsafe(([[docker container rm %s]]):format(focus.container.ID))
+    terminal_utils.system_unsafe(
+      ([[docker container rm %s]]):format(focus.container.ID)
+    )
     controller:refresh()
   end)
 
@@ -92,7 +94,9 @@ return function(opts)
       return
     end
 
-    terminal_utils.system_unsafe(([[docker container start %s]]):format(focus.container.ID))
+    terminal_utils.system_unsafe(
+      ([[docker container start %s]]):format(focus.container.ID)
+    )
     controller:refresh()
   end)
 
@@ -107,7 +111,9 @@ return function(opts)
       return
     end
 
-    terminal_utils.system_unsafe(([[docker container stop %s]]):format(focus.container.ID))
+    terminal_utils.system_unsafe(
+      ([[docker container stop %s]]):format(focus.container.ID)
+    )
     controller:refresh()
   end)
 

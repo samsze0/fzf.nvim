@@ -52,9 +52,7 @@ return function(opts)
 
     local entries, exit_status, err_msg = terminal_utils.systemlist(command)
 
-    if exit_status == 1 then
-      return {}
-    end
+    if exit_status == 1 then return {} end
 
     if exit_status ~= 0 then
       error(("rg exits with status %d\n%s"):format(exit_status, err_msg))

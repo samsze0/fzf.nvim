@@ -35,8 +35,9 @@ return function(opts)
   ---@alias FzfGitSubmoduleEntry { display: string, path: string, gitpath: string }
   ---@return FzfGitSubmoduleEntry[]
   local entries_getter = function()
-    local submodules =
-      terminal_utils.systemlist_unsafe([[git submodule --quiet foreach 'echo $path']])
+    local submodules = terminal_utils.systemlist_unsafe(
+      [[git submodule --quiet foreach 'echo $path']]
+    )
 
     return tbl_utils.map(submodules, function(i, e)
       local gitpath = vim.trim(e)
