@@ -66,6 +66,7 @@ function FzfCodePreviewInstanceTrait:setup_fileopen_keymaps()
     if not self.focus then return end
 
     local filepath
+    local filetype
     
     local x = self._accessor(self.focus)
     if x.filepath then
@@ -73,12 +74,17 @@ function FzfCodePreviewInstanceTrait:setup_fileopen_keymaps()
     else
       filepath = file_utils.write_to_tmpfile(x.lines)
     end
+    filetype = x.filetype
 
     self:hide()
     if save_in_jumplist then
       jumplist.save()
     end
     vim.cmd(([[%s %s]]):format(open_command, filepath))
+
+    if filetype then
+      vim.bo.filetype = filetype
+    end
 
     highlight_row()
   end

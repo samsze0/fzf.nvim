@@ -73,12 +73,15 @@ function FzfCodeDiffInstanceTrait:setup_fileopen_keymaps()
     end
 
     local filepath
+    local filetype
     if a_or_b == "a" then
       local a = self._a_accessor(self.focus)
       filepath = get_path(a)
+      filetype = a.filetype
     else
       local b = self._b_accessor(self.focus)
       filepath = get_path(b)
+      filetype = b.filetype
     end
 
     self:hide()
@@ -86,6 +89,10 @@ function FzfCodeDiffInstanceTrait:setup_fileopen_keymaps()
       jumplist.save()
     end
     vim.cmd(([[%s %s]]):format(open_command, filepath))
+
+    if filetype then
+      vim.bo.filetype = filetype
+    end
   end
 
   self.layout.main_popup:map("<C-w>", "Open in new window", function()
