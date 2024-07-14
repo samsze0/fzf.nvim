@@ -3,6 +3,8 @@ local config = require("fzf.core.config").value
 local opts_utils = require("utils.opts")
 local jumplist = require("jumplist")
 local file_utils = require("utils.files")
+local NuiText = require("nui.text")
+local str_utils = require("utils.string")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -120,6 +122,22 @@ function FzfCodePreviewInstanceTrait:setup_copy_filepath_keymap()
     local filepath = x.filepath
     vim.fn.setreg("+", filepath)
     _info(([[Copied %s to clipboard]]):format(filepath))
+  end)
+end
+
+function FzfCodePreviewInstanceTrait:setup_filetype_border_component()
+  local border_component =
+    self.layout.side_popup.bottom_border_text:append("right")
+
+  self:on_focus(function(payload)
+    local entry = payload.entry
+    if not entry then return end
+
+    ---@cast entry FzfFileEntry
+
+    local filetype = vim.bo[self.layout.side_popup.bufnr].filetype
+    ---@cast filetype string
+    border_component:render(NuiText(str_utils.title_case(filetype), config.highlight_groups.border_text.filetype))
   end)
 end
 

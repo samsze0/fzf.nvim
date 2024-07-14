@@ -3,6 +3,7 @@ local opts_utils = require("utils.opts")
 
 ---@class FzfHighlightGroupsConfig.border_text
 ---@field selector_breadcrumbs? string
+---@field filetype? string
 
 ---@class FzfHighlightGroupsConfig : TUIHighlightGroupsConfig
 ---@field border_text FzfHighlightGroupsConfig.border_text
@@ -49,7 +50,8 @@ function FzfConfig.new()
     default_delta_args = {},
     highlight_groups = {
       border_text = {
-        selector_breadcrumbs = "FzfSelectorBreadcrumbs",
+        selector_breadcrumbs = "FzfBorderSelectorBreadcrumbs",
+        filetype = "FzfBorderFiletype",
       },
     },
   })

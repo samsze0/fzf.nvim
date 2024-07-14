@@ -306,7 +306,7 @@ function FzfController:_load_fetched_entries(opts)
   opts = opts or {}
 
   if not self:is_entries_stale() then
-    _warn("Entries are up to date. Ignoring refresh request")
+    _info("No changes")
     return
   end
 

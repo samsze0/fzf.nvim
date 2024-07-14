@@ -69,6 +69,7 @@ function DualPaneNvimPreviewInstance.new(opts)
   FzfCodePreviewInstanceTrait.setup_fileopen_keymaps(obj)
   FzfCodePreviewInstanceTrait.setup_filepreview(obj)
   FzfCodePreviewInstanceTrait.setup_copy_filepath_keymap(obj)
+  FzfCodePreviewInstanceTrait.setup_filetype_border_component(obj)
 
   return obj
 end

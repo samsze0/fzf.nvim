@@ -15,7 +15,6 @@ local _error = config.notifier.error
 -- TODO: remove delete files and submodules from git files
 
 ---@class FzfFilesOptions.hl_groups.border_text
----@field filetype? string
 
 ---@class FzfFilesOptions.hl_groups
 ---@field border_text? FzfFilesOptions.hl_groups.border_text
@@ -33,9 +32,7 @@ return function(opts)
   opts = opts_utils.deep_extend({
     git_dir = git_utils.current_dir(),
     hl_groups = {
-      border_text = {
-        filetype = "FzfFilesBorderFiletype",
-      },
+      border_text = {},
     },
   }, opts)
   ---@cast opts FzfFilesOptions
@@ -84,20 +81,6 @@ return function(opts)
       filepath = entry.path,
     }
   end
-
-  local border_component =
-    instance.layout.side_popup.bottom_border_text:append("right")
-
-  instance:on_focus(function(payload)
-    local entry = payload.entry
-    if not entry then return end
-
-    ---@cast entry FzfFileEntry
-
-    local filetype = vim.bo[instance.layout.side_popup.bufnr].filetype
-    ---@cast filetype string
-    border_component:render(NuiText(str_utils.title_case(filetype), "Normal"))
-  end)
 
   return instance
 end
