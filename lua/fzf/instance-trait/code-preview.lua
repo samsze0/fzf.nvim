@@ -35,7 +35,7 @@ function FzfCodePreviewInstanceTrait:setup_filepreview(opts)
     local cursor_pos = self._row_accessor
         and {
           self._row_accessor(self.focus),
-          self._col_accessor(self.focus),
+          self._col_accessor and self._col_accessor(self.focus) or 1,
         }
       or nil
 
@@ -59,7 +59,7 @@ function FzfCodePreviewInstanceTrait:setup_fileopen_keymaps()
     if self._row_accessor ~= nil then
       vim.fn.cursor({
         self._row_accessor(self.focus),
-        self._col_accessor(self.focus),
+        self._col_accessor and self._col_accessor(self.focus) or 1,
       })
     end
   end

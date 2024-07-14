@@ -102,6 +102,10 @@ return function(opts)
       filepath = entry.full_path,
     }
   end
+  instance._row_accessor = function(entry)
+    ---@cast entry FzfGrepWorkspaceEntry
+    return entry.line
+  end
 
   -- Only run rg/fd when query has not been modified for x ms
   -- TODO: kill ongoing rg/fd process when query is modified
