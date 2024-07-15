@@ -29,7 +29,7 @@ local _error = config.notifier.error
 -- Fzf document symbols
 --
 ---@param opts? FzfLspDocumentSymbolsOptions
----@return FzfController
+---@return FzfDualPaneNvimPreviewInstance
 return function(opts)
   opts = opts_utils.extend({
     hl_groups = {
@@ -55,6 +55,8 @@ return function(opts)
     },
     function(err, symbol_tree)
       assert(not err)
+
+      if instance:exited() then return end
 
       ---@type FzfLspDocumentSymbolsEntry[]
       local entries = {}

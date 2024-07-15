@@ -30,6 +30,7 @@ local _error = config.notifier.error
 -- Fzf all lines in current workspace
 --
 ---@param opts? FzfGrepWorkspaceOptions
+---@return FzfDualPaneNvimPreviewInstance
 return function(opts)
   opts = opts_utils.extend({
     git_dir = git_utils.current_dir(),
