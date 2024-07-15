@@ -4,6 +4,11 @@ local EventMap = require("tui.event-map")
 local uv_utils = require("utils.uv")
 local os_utils = require("utils.os")
 local CallbackMap = require("tui.callback-map")
+local config = require("fzf.core.config").value
+
+local _info = config.notifier.info
+local _warn = config.notifier.warn
+local _error = config.notifier.error
 
 ---@enum FzfIpcClientType
 local CLIENT_TYPE = {
@@ -98,10 +103,12 @@ function TcpIpcClient.new()
   }, TcpIpcClient)
   ---@cast obj FzfTcpIpcClient
 
-  local tcp_server = uv_utils.create_tcp_server(
-    obj.host,
-    function(message) obj:on_message(message) end
-  )
+  local tcp_server = uv_utils.create_tcp_server(obj.host, function(message)
+    xpcall(
+      function() obj:on_message(message) end,
+      function(err) _error(debug.traceback("Error in on_message: " .. err)) end
+    )
+  end)
   obj.port = tcp_server.port
   obj._tcp_server = tcp_server
 

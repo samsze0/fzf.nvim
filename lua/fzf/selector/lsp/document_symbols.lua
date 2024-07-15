@@ -35,7 +35,7 @@ return function(opts)
     hl_groups = {
       border_text = {},
     },
-    indent_char = "⋅",
+    indent_char = "  ",
   }, opts)
   ---@cast opts FzfLspDocumentSymbolsOptions
 
@@ -65,7 +65,7 @@ return function(opts)
         for _, s in ipairs(symbols) do
           table.insert(entries, {
             display = {
-              (opts.indent_char):rep(indent + 1),
+              (opts.indent_char):rep(indent),
               terminal_utils.ansi.blue(
                 vim.lsp.protocol.SymbolKind[s.kind] or "Unknown"
               ),
