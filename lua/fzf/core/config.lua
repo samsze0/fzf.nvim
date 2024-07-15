@@ -4,6 +4,8 @@ local opts_utils = require("utils.opts")
 ---@class FzfHighlightGroupsConfig.border_text
 ---@field selector_breadcrumbs? string
 ---@field filetype? string
+---@field loading_indicator? string
+---@field stale_indicator? string
 
 ---@class FzfHighlightGroupsConfig : TUIHighlightGroupsConfig
 ---@field border_text FzfHighlightGroupsConfig.border_text
@@ -54,6 +56,8 @@ function FzfConfig.new()
       border_text = {
         selector_breadcrumbs = "FzfBorderSelectorBreadcrumbs",
         filetype = "FzfBorderFiletype",
+        loading_indicator = "FzfBorderLoadingIndicator",
+        stale_indicator = "FzfBorderStaleIndicator",
       },
     },
     focus_event_default_debounce_ms = 100,
