@@ -40,6 +40,7 @@ An extensible neovim plugin that integrates fzf into the editor
 - Integrate with k8s
 - Integrate with git worktree
 - Error handling and reporting. Error occured in "fast lane" is slienced?
+- Add options to not change focus when invoking `refresh`
 
 ## License
 
