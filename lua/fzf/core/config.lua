@@ -32,10 +32,7 @@ function FzfConfig.new()
 
   obj.value = opts_utils.deep_extend(obj.value, {
     ipc_client_type = 1,
-    default_extra_args = {
-      -- TODO: move to private usage
-      ["--scroll-off"] = "2",
-    },
+    default_extra_args = {},
     default_rg_args = {
       ["--smart-case"] = true,
       ["--no-ignore"] = true,
