@@ -30,6 +30,7 @@ local _error = config.notifier.error
 ---@class FzfController : TUIController
 ---@field name string Name of the selector
 ---@field _parent_id? TUIControllerId The id of the parent controller
+---@field fzf_ready boolean
 ---@field query string The current query
 ---@field focus? FzfEntry The currently focused entry
 ---@field _ipc_client FzfIpcClient The ipc client
@@ -80,6 +81,7 @@ function FzfController.new(opts)
 
   obj.name = opts.name
   obj.query = ""
+  obj.fzf_ready = false
   obj._ipc_client = match(config.ipc_client_type, {
     [1] = function() return TcpIpcClient.new() end,
   })()
@@ -99,12 +101,14 @@ function FzfController.new(opts)
 
   -- Make sure fzf is load up before sending reload action to it
   obj:on_start(function(payload)
+    obj.fzf_ready = true
+
     obj:set_fetching_entries(true)
 
-    obj:refresh({
-      refetch = true,
-      change_focus = true,
-    })
+    if not obj._entries_getter then return end
+
+    obj:_fetch_entries()
+    obj:_load_fetched_entries({ change_focus = true })
   end)
 
   obj:on_focus(function(payload) obj.focus = payload.entry end)
@@ -203,16 +207,31 @@ end
 ---@return integer
 function FzfController:prev_win() return self:root()._prev_win end
 
+-- Make sure function is run when fzf is ready
+--
+---@param fn function
+function FzfController:run_when_ready(fn)
+  if self.fzf_ready then
+    fn()
+  else
+    self:on_start(fn)
+  end
+end
+
 -- Send an action to fzf to execute
 --
 ---@param action string
 ---@param opts? { load_action_from_file?: boolean }
 function FzfController:execute(action, opts)
-  return self._ipc_client:execute(action, opts)
+  return self:run_when_ready(
+    function() self._ipc_client:execute(action, opts) end
+  )
 end
 
 function FzfController:ask(body, callback)
-  return self._ipc_client:ask(body, callback)
+  return self:run_when_ready(
+    function() self._ipc_client:ask(body, callback) end
+  )
 end
 
 function FzfController:subscribe(event, body, callback)
@@ -235,39 +254,49 @@ end
 --
 ---@param event string
 ---@param action string
-function FzfController:bind(event, action) self._ipc_client:bind(event, action) end
+function FzfController:bind(event, action)
+  self:run_when_ready(
+    function() return self._ipc_client:bind(event, action) end
+  )
+end
 
 -- Manually trigger a fzf event
 --
 ---@param event string
 function FzfController:trigger_event(event)
-  self._ipc_client:trigger_event(event)
+  self:run_when_ready(function() self._ipc_client:trigger_event(event) end)
 end
 
 -- Abort controller
-function FzfController:abort() self:execute("abort") end
+function FzfController:abort()
+  self:run_when_ready(function() self:execute("abort") end)
+end
 
 -- Set pos
 --
 ---@param index number
-function FzfController:pos(index) self:execute(("pos(%d)"):format(index)) end
+function FzfController:pos(index)
+  self:run_when_ready(function() self:execute(("pos(%d)"):format(index)) end)
+end
 
 -- Reload
 --
 ---@param rows string[]
 function FzfController:reload(rows)
-  if #rows == 0 then
-    self:execute("reload()")
-    return
-  end
+  self:run_when_ready(function()
+    if #rows == 0 then
+      self:execute("reload()")
+      return
+    end
 
-  -- Using $ as the delimiter
-  -- TODO: make delimiter configurable
-  local action = ("reload$%s$"):format(([[cat <<"EOF"
+    -- Using $ as the delimiter
+    -- TODO: make delimiter configurable
+    local action = ("reload$%s$"):format(([[cat <<"EOF"
 %s
 EOF
 ]]):format(table.concat(rows, "\n")))
-  self:execute(action, { load_action_from_file = true })
+    self:execute(action, { load_action_from_file = true })
+  end)
 end
 
 -- Fetch entries and check if they are stale
@@ -298,14 +327,16 @@ function FzfController:refresh(opts)
   }, opts)
   ---@cast opts FzfControllerRefreshOpts
 
-  if not self._entries_getter then return end
+  self:run_when_ready(function()
+    if not self._entries_getter then error("No entries getter") end
 
-  if self:is_entries_stale() and not opts.force_fetch then
-    self:_load_fetched_entries({ change_focus = opts.change_focus })
-  else
-    self:_fetch_entries()
-    self:_load_fetched_entries({ change_focus = opts.change_focus })
-  end
+    if self:is_entries_stale() and not opts.force_fetch then
+      self:_load_fetched_entries({ change_focus = opts.change_focus })
+    else
+      self:_fetch_entries()
+      self:_load_fetched_entries({ change_focus = opts.change_focus })
+    end
+  end)
 end
 
 -- Load the background-fetched-entries into fzf
@@ -359,13 +390,17 @@ end
 --
 ---@param callback fun(entries: FzfEntry[])
 function FzfController:selections(callback)
-  self._ipc_client:ask("{+n}", function(payload)
-    local indices = tbl_utils.map(vim.split(payload, " "), function(_, i)
-      local index = tonumber(i) + 1
-      if index == nil then error("Invalid payload", payload) end
-      return index
+  self:run_when_ready(function()
+    self._ipc_client:ask("{+n}", function(payload)
+      local indices = tbl_utils.map(vim.split(payload, " "), function(_, i)
+        local index = tonumber(i) + 1
+        if index == nil then error("Invalid payload", payload) end
+        return index
+      end)
+      callback(
+        tbl_utils.map(indices, function(_, i) return self._entries[i] end)
+      )
     end)
-    callback(tbl_utils.map(indices, function(_, i) return self._entries[i] end))
   end)
 end
 
