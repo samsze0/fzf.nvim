@@ -8,6 +8,7 @@ local config = require("fzf.core.config").value
 local NuiText = require("nui.text")
 local str_utils = require("utils.string")
 local shared = require("fzf.selector.lsp.shared")
+local dbg = require("utils").debug
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -43,9 +44,6 @@ return function(opts)
   })
 
   local buf = instance:prev_buf()
-
-  -- Load an empty list to start with
-  instance:set_entries_getter(function() return {} end)
 
   ---@alias FzfLspDocumentSymbolsEntry { display: string[], symbol: table }
   -- https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#documentSymbol

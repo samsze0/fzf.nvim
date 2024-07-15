@@ -98,13 +98,14 @@ function FzfController.new(opts)
   setmetatable(obj, FzfController)
 
   -- Make sure fzf is load up before sending reload action to it
-  obj:on_start(
-    function(payload)
-      obj:refresh({
-        refetch = true,
-      })
-    end
-  )
+  obj:on_start(function(payload)
+    obj:set_fetching_entries(true)
+
+    obj:refresh({
+      refetch = true,
+      change_focus = true,
+    })
+  end)
 
   obj:on_focus(function(payload) obj.focus = payload.entry end)
 
@@ -222,9 +223,12 @@ end
 function FzfController:set_entries_getter(entries_getter)
   self._entries_getter = entries_getter
 
-  if self:started() then self:refresh({
-    refetch = true,
-  }) end
+  if self:started() then
+    self:refresh({
+      refetch = true,
+      change_focus = true,
+    })
+  end
 end
 
 -- Bind a fzf event to a fzf action
@@ -286,7 +290,7 @@ end
 -- Else, fetch entries and load them immediately.
 -- If the `force_fetch` option is set to true, then always go fetch entries
 --
----@alias FzfControllerRefreshOpts { force_fetch?: boolean }
+---@alias FzfControllerRefreshOpts { force_fetch?: boolean, change_focus?: boolean }
 ---@param opts? FzfControllerRefreshOpts
 function FzfController:refresh(opts)
   opts = opts_utils.extend({
@@ -294,15 +298,19 @@ function FzfController:refresh(opts)
   }, opts)
   ---@cast opts FzfControllerRefreshOpts
 
+  if not self._entries_getter then return end
+
   if self:is_entries_stale() and not opts.force_fetch then
-    self:_load_fetched_entries()
+    self:_load_fetched_entries({ change_focus = opts.change_focus })
   else
     self:_fetch_entries()
-    self:_load_fetched_entries()
+    self:_load_fetched_entries({ change_focus = opts.change_focus })
   end
 end
 
 -- Load the background-fetched-entries into fzf
+--
+---@param opts? { change_focus?: boolean }
 function FzfController:_load_fetched_entries(opts)
   opts = opts or {}
 
@@ -340,7 +348,7 @@ function FzfController:_load_fetched_entries(opts)
 
   self._on_reloaded_subscribers:invoke_all()
 
-  if initial_pos ~= nil then
+  if initial_pos ~= nil and opts.change_focus then
     self:pos(initial_pos)
   else
     self:trigger_event("focus")
