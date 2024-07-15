@@ -13,6 +13,8 @@ local opts_utils = require("utils.opts")
 ---@field default_rg_args? ShellOpts
 ---@field default_delta_args? ShellOpts
 ---@field highlight_groups? FzfHighlightGroupsConfig
+---@field focus_event_default_debounce_ms? number
+---@field change_event_default_debounce_ms? number
 
 ---@class FzfConfig: TUIConfig
 ---@field value FzfConfig.config
@@ -54,6 +56,8 @@ function FzfConfig.new()
         filetype = "FzfBorderFiletype",
       },
     },
+    focus_event_default_debounce_ms = 100,
+    change_event_default_debounce_ms = 100,
   })
 
   return obj

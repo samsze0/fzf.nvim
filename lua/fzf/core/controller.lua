@@ -10,6 +10,7 @@ local fzf_utils = require("fzf.utils")
 local config = require("fzf.core.config").value
 local Controller = require("tui.controller")
 local ControllerMap = require("tui.controller-map")
+local uv_utils = require("utils.uv")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -430,11 +431,19 @@ end
 --
 ---@alias FzfControllerOnFocusCallbackPayload { index: number, entry: FzfEntry }
 ---@param callback fun(payload: FzfControllerOnFocusCallbackPayload)
-function FzfController:on_focus(callback)
+---@param opts? { debounce_ms?: number }
+function FzfController:on_focus(callback, opts)
+  opts = opts_utils.extend({
+    debounce_ms = config.focus_event_default_debounce_ms,
+  }, opts)
+
+  local debounced_callback =
+    uv_utils.debounce(callback, opts.debounce_ms, { run_in_main_loop = true })
+
   self:subscribe("focus", "{n}", function(payload)
     local index = tonumber(payload)
     if index == nil then error("Invalid payload", payload) end
-    callback({ index = index, entry = self._entries[index + 1] })
+    debounced_callback({ index = index, entry = self._entries[index + 1] })
   end)
 end
 
@@ -442,11 +451,19 @@ end
 --
 ---@alias FzfControllerOnChangeCallbackPayload { query: string }
 ---@param callback fun(payload: FzfControllerOnChangeCallbackPayload)
-function FzfController:on_change(callback)
+---@param opts? { debounce_ms?: number }
+function FzfController:on_change(callback, opts)
+  opts = opts_utils.extend({
+    debounce_ms = config.change_event_default_debounce_ms,
+  }, opts)
+
+  local debounced_callback =
+    uv_utils.debounce(callback, opts.debounce_ms, { run_in_main_loop = true })
+
   self:subscribe("change", "{q}", function(payload)
     local query = payload:match("^'(.*)'$")
     if not query then error("Invalid payload", payload) end
-    callback({ query = query })
+    debounced_callback({ query = query })
   end)
 end
 

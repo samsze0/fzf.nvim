@@ -25,7 +25,7 @@ local _error = config.notifier.error
 ---@field git_dir? string
 ---@field initial_query? string
 ---@field hl_groups? FzfGrepWorkspaceOptions.hl_groups
----@field debounce? number Debounce time in ms
+---@field debounce_ms? number Debounce time in ms
 
 -- Fzf all lines in current workspace
 --
@@ -35,8 +35,7 @@ return function(opts)
     git_dir = git_utils.current_dir(),
     initial_query = "",
     hl_groups = {
-      border_text = {
-      }
+      border_text = {},
     },
     debounce = 200,
   }, opts)
@@ -48,7 +47,7 @@ return function(opts)
       ["--disabled"] = true,
       ["--multi"] = true,
       ["--query"] = ([['%s']]):format(opts.initial_query),
-    }
+    },
   })
 
   ---@alias FzfGrepWorkspaceEntry { display: string[], line: number, full_path: string, relative_path: string }
@@ -107,16 +106,12 @@ return function(opts)
     return entry.line
   end
 
-  -- Only run rg/fd when query has not been modified for x ms
-  -- TODO: kill ongoing rg/fd process when query is modified
-  local debounced_refresh = uv_utils.debounce(function()
-    instance:refresh()
-  end, opts.debounce, { run_in_main_loop = true })
-
   -- Change event is muted when --disabled flag is passed
-  instance:on_change(function(payload)
-    debounced_refresh()
-  end)
+  -- TODO: kill ongoing rg/fd process when query is modified
+  instance:on_change(
+    function(payload) instance:refresh() end,
+    { debounce_ms = opts.debounce_ms }
+  )
 
   return instance
 end
