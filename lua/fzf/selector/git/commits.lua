@@ -11,7 +11,6 @@ local config = require("fzf.core.config").value
 local files_utils = require("utils.files")
 local fzf_utils = require("fzf.utils")
 local NuiText = require("nui.text")
-local terminal_filetype = require("terminal-filetype")
 local file_changes_selector = require("fzf.selector.git.file-changes")
 
 local _info = config.notifier.info
@@ -98,7 +97,6 @@ return function(opts)
       filepaths = opts.filepaths,
     })
     instance.layout.side_popup:set_lines(output, { filetype = "terminal" })
-    terminal_filetype.refresh_highlight(instance.layout.side_popup.bufnr)
 
     -- FIX: diff stat
     local diff_stat = git_utils.diff_stat({
