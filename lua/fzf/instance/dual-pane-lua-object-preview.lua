@@ -66,11 +66,11 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
 
       return NuiLayout.Box(
         tbl_utils.non_falsey({
-          main_popup.should_show and NuiLayout.Box(main_popup, { grow = 1 })
-            or nil,
+          main_popup.should_show and NuiLayout.Box(main_popup, { grow = 10 })
+            or NuiLayout.Box(main_popup, { grow = 1 }),
           preview_popup.should_show
-              and NuiLayout.Box(preview_popup, { grow = 1 })
-            or nil,
+              and NuiLayout.Box(preview_popup, { grow = 10 })
+            or NuiLayout.Box(preview_popup, { grow = 1 }),
         }),
         { dir = "row" }
       )
