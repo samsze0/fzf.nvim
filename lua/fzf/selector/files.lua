@@ -7,6 +7,7 @@ local git_utils = require("utils.git")
 local config = require("fzf.core.config").value
 local NuiText = require("nui.text")
 local str_utils = require("utils.string")
+local dbg = require("utils").debug
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -47,7 +48,7 @@ return function(opts)
     local files
     if opts.git_dir then
       files = git_utils.files(opts.git_dir, {
-        filter_unreadable = true
+        filter_unreadable = true,
       })
     else
       if vim.fn.executable("fd") ~= 1 then error("fd is not installed") end

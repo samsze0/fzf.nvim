@@ -121,27 +121,42 @@ function TcpIpcClient:execute(action, opts)
   opts = opts or {}
 
   local fn = function()
+    local curl_output
     if opts.load_action_from_file then
       local tmpfile = vim.fn.tempname()
       vim.fn.writefile(vim.split(action, "\n"), tmpfile)
-      terminal_utils.system_unsafe(
-        ([[curl -X POST --data-binary '@%s' -H 'x-api-key: %s' %s:%s]]):format(
+      curl_output = terminal_utils.system_unsafe(
+        ([[curl --include --silent -X POST --data-binary '@%s' -H 'x-api-key: %s' %s:%s]]):format(
           tmpfile,
           FZF_API_KEY,
           self.fzf_host,
           self.fzf_port
-        )
+        ),
+        { trim_endline = true }
       )
       vim.fn.delete(tmpfile)
     else
-      terminal_utils.system_unsafe(
-        ([[curl -X POST --data '%s' -H 'x-api-key: %s' %s:%s]]):format(
+      curl_output = terminal_utils.system_unsafe(
+        ([[curl --include --silent -X POST --data '%s' -H 'x-api-key: %s' %s:%s]]):format(
           action,
           FZF_API_KEY,
           self.fzf_host,
           self.fzf_port
-        )
+        ),
+        { trim_endline = true }
       )
+    end
+
+    local status_code = curl_output:match("^HTTP/1%.1 (%d+)")
+    if not status_code then
+      error(
+        "Failed to get status code from curl output: "
+          .. vim.inspect(curl_output)
+      )
+    end
+
+    if status_code ~= "200" then
+      error("Failed to send message to fzf: " .. vim.inspect(curl_output))
     end
   end
 
