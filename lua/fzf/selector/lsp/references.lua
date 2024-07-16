@@ -37,7 +37,7 @@ return function(opts)
   })
 
   ---@alias FzfLspReferencesEntry { display: string[], filepath: string, relative_path: string, row: number, col: number, text: string }
-  dbg(vim.lsp.buf.references({
+  vim.lsp.buf.references({
     includeDeclaration = false,
   }, {
     on_list = function(list)
@@ -65,7 +65,7 @@ return function(opts)
 
       instance:set_entries_getter(function() return entries end)
     end,
-  }))
+  })
 
   instance._accessor = function(entry)
     return {
