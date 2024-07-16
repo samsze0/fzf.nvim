@@ -93,6 +93,7 @@ function TriplePaneCodeDiffInstance.new(opts)
     layout_config = function(layout)
       ---@cast layout FzfCodeDiffLayout
 
+      -- FIX: NuiPopup does not cater for removing popup from layout
       return NuiLayout.Box(
         tbl_utils.non_falsey({
           main_popup.should_show and NuiLayout.Box(main_popup, { grow = 10 })
