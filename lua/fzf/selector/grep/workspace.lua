@@ -1,5 +1,4 @@
-local FzfDualPaneNvimPreviewInstance =
-  require("fzf.instance.dual-pane-nvim-preview")
+local FzfGrepInstance = require("fzf.selector.grep.instance")
 local tbl_utils = require("utils.table")
 local opts_utils = require("utils.opts")
 local terminal_utils = require("utils.terminal")
@@ -30,7 +29,7 @@ local _error = config.notifier.error
 -- Fzf all lines in current workspace
 --
 ---@param opts? FzfGrepWorkspaceOptions
----@return FzfDualPaneNvimPreviewInstance
+---@return FzfGrepInstance
 return function(opts)
   opts = opts_utils.extend({
     git_dir = git_utils.current_dir(),
@@ -42,7 +41,7 @@ return function(opts)
   }, opts)
   ---@cast opts FzfGrepWorkspaceOptions
 
-  local instance = FzfDualPaneNvimPreviewInstance.new({
+  local instance = FzfGrepInstance.new({
     name = "Grep-Workspace",
     extra_args = {
       ["--disabled"] = true,
@@ -68,12 +67,17 @@ return function(opts)
     })
     if status ~= 0 then
       if status == 1 then
-        -- No matches
+        instance.layout.side_popups.rg_error:set_lines({
+          "No match",
+        })
         return {}
       else
-        error("Error running rg command: " .. err)
+        instance.layout.side_popups.rg_error:set_lines(vim.split(err, "\n"))
+        return {}
       end
     end
+
+    instance.layout.side_popups.rg_error:set_lines({})
 
     return tbl_utils.map(lines, function(i, e)
       local parts = str_utils.split(e, {
