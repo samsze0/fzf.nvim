@@ -23,19 +23,4 @@ M.preview_offset = function(offset, opts)
   )
 end
 
--- Escape fzf special characters
---
--- Replace curly braces with square brackets
--- Curly brackets would cause render failure because fzf will try evaluating them
---
----@param str string
----@return string
-M.fzf_escape = function(str)
-  local v, _ = str:gsub("{", "\\{"):gsub("}", "\\}")
-  -- local v, _ = v:gsub("%$", "\\$")
-  -- local v, _ = v:gsub("%(", "\\(")
-  -- local v, _ = v:gsub("%)", "\\)")
-  return v
-end
-
 return M

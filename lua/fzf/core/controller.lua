@@ -342,13 +342,9 @@ function FzfController:_load_fetched_entries(opts)
   local rows = tbl_utils.map(self._entries, function(i, e)
     local display = self._display_accessor(e)
     if type(display) == "table" then
-      display = tbl_utils.map(
-        display,
-        function(_, d) return fzf_utils.fzf_escape(d) end
-      )
       display = terminal_utils.join_by_nbsp(unpack(display))
     elseif type(display) == "string" then
-      display = fzf_utils.fzf_escape(display)
+      display = display
     else
       error("Invalid display", display)
     end

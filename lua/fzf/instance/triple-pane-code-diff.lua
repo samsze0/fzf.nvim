@@ -94,7 +94,7 @@ function TriplePaneCodeDiffInstance.new(opts)
       ---@cast layout FzfCodeDiffLayout
 
       return NuiLayout.Box(
-        tbl_utils.non_nil({
+        tbl_utils.non_falsey({
           main_popup.should_show and NuiLayout.Box(main_popup, { grow = 1 })
             or nil,
           a_popup.should_show and NuiLayout.Box(a_popup, { grow = 1 }) or nil,

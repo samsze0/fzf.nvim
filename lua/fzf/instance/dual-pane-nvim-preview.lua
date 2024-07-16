@@ -72,10 +72,11 @@ function DualPaneNvimPreviewInstance.new(opts)
     layout_config = function(layout)
       ---@cast layout FzfCodePreviewLayout
 
+      vim.info("Should show:", preview_popup.should_show)
+
       return NuiLayout.Box(
-        tbl_utils.non_nil({
-          main_popup.should_show
-              and NuiLayout.Box(main_popup, { grow = 1 })
+        tbl_utils.non_falsey({
+          main_popup.should_show and NuiLayout.Box(main_popup, { grow = 1 })
             or nil,
           preview_popup.should_show
               and NuiLayout.Box(preview_popup, { grow = 1 })

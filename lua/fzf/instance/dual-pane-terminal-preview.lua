@@ -70,7 +70,7 @@ function DualPaneTerminalPreviewInstance.new(opts)
       ---@cast layout FzfTerminalPreviewLayout
 
       return NuiLayout.Box(
-        tbl_utils.non_nil({
+        tbl_utils.non_falsey({
           main_popup.should_show and NuiLayout.Box(main_popup, { grow = 1 })
             or nil,
           preview_popup.should_show
