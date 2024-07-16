@@ -49,14 +49,6 @@ function FzfBaseInstanceTrait:setup_scroll_keymaps(preview_popup, opts)
   )
 end
 
-function FzfBaseInstanceTrait:setup_maximise_popup_keymaps()
-  self.layout.main_popup:map(
-    "<C-z>",
-    "Maximise",
-    function() self.layout:maximise_popup(self.layout.main_popup) end
-  )
-end
-
 function FzfBaseInstanceTrait:setup_main_popup_top_border()
   local border_component_1 =
     self.layout.main_popup.top_border_text:prepend("left")

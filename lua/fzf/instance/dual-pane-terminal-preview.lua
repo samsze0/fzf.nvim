@@ -71,7 +71,8 @@ function DualPaneTerminalPreviewInstance.new(opts)
 
       return NuiLayout.Box(
         tbl_utils.non_nil({
-          main_popup and NuiLayout.Box(main_popup, { grow = 1 }) or nil,
+          main_popup.should_show and NuiLayout.Box(main_popup, { grow = 1 })
+            or nil,
           preview_popup.should_show
               and NuiLayout.Box(preview_popup, { grow = 1 })
             or nil,
@@ -87,7 +88,6 @@ function DualPaneTerminalPreviewInstance.new(opts)
 
   FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview)
   FzfBaseInstanceTrait.setup_main_popup_top_border(obj)
-  FzfBaseInstanceTrait.setup_maximise_popup_keymaps(obj)
 
   return obj
 end

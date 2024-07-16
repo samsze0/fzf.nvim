@@ -95,7 +95,8 @@ function TriplePaneCodeDiffInstance.new(opts)
 
       return NuiLayout.Box(
         tbl_utils.non_nil({
-          main_popup and NuiLayout.Box(main_popup, { grow = 1 }) or nil,
+          main_popup.should_show and NuiLayout.Box(main_popup, { grow = 1 })
+            or nil,
           a_popup.should_show and NuiLayout.Box(a_popup, { grow = 1 }) or nil,
           b_popup.should_show and NuiLayout.Box(b_popup, { grow = 1 }) or nil,
         }),
@@ -109,7 +110,6 @@ function TriplePaneCodeDiffInstance.new(opts)
   TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)
 
   FzfBaseInstanceTrait.setup_main_popup_top_border(obj)
-  FzfBaseInstanceTrait.setup_maximise_popup_keymaps(obj)
 
   FzfCodeDiffInstanceTrait.setup_fileopen_keymaps(obj)
   FzfCodeDiffInstanceTrait.setup_filepreview(obj)
