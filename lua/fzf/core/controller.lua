@@ -283,20 +283,7 @@ end
 --
 ---@param rows string[]
 function FzfController:reload(rows)
-  self:run_when_ready(function()
-    if #rows == 0 then
-      self:execute("reload()")
-      return
-    end
-
-    -- Using $ as the delimiter
-    -- TODO: make delimiter configurable
-    local action = ("reload$%s$"):format(([[cat <<"EOF"
-%s
-EOF
-]]):format(table.concat(rows, "\n")))
-    self:execute(action, { load_action_from_file = true })
-  end)
+  self:run_when_ready(function() self._ipc_client:reload(rows) end)
 end
 
 -- Fetch entries and check if they are stale

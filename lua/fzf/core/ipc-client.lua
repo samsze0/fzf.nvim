@@ -42,6 +42,9 @@ function IpcClient:subscribe(event, body, callback) error("Not implemented") end
 
 function IpcClient:on_focus(payload) error("Not implemented") end
 
+---@param rows string[]
+function IpcClient:reload(rows) error("Not implemented") end
+
 function IpcClient:destroy() error("Not implemented") end
 
 ---@param message string
@@ -87,6 +90,7 @@ function IpcClient:env_vars() error("Not implemented") end
 ---@field host string Host of the server that listens to incoming messages from fzf
 ---@field port number Port of the server that listens to incoming messages from fzf
 ---@field _tcp_server any
+---@field _rows_tmp_file string Path to the temporary file that stores the rows for fzf to load
 local TcpIpcClient = {}
 TcpIpcClient.__index = TcpIpcClient
 TcpIpcClient.__is_class = true
@@ -100,6 +104,7 @@ function TcpIpcClient.new()
     fzf_port = os_utils.find_available_port(),
     _event_map = EventMap.new(),
     _callback_map = CallbackMap.new(),
+    _rows_tmp_file = vim.fn.tempname(),
   }, TcpIpcClient)
   ---@cast obj FzfTcpIpcClient
 
@@ -113,6 +118,16 @@ function TcpIpcClient.new()
   obj._tcp_server = tcp_server
 
   return obj
+end
+
+---@param rows string[]
+function TcpIpcClient:reload(rows)
+  if #rows == 0 then
+    self:execute("reload()")
+  else
+    vim.fn.writefile(rows, self._rows_tmp_file)
+    self:execute("reload(cat " .. vim.fn.shellescape(self._rows_tmp_file) .. ")")
+  end
 end
 
 ---@param action string
@@ -200,6 +215,8 @@ end
 function TcpIpcClient:destroy()
   -- TCP server would shutdown itself once connection to fzf is lost
   -- self._tcp_server.close()
+
+  vim.fn.delete(self._rows_tmp_file)
 end
 
 ---@return ShellOpts
