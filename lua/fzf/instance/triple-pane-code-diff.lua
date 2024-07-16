@@ -80,6 +80,11 @@ function TriplePaneCodeDiffInstance.new(opts)
   })
   local help_popup = HelpPopup.new({})
 
+  main_popup.right = a_popup
+  a_popup.right = b_popup
+  b_popup.left = a_popup
+  a_popup.left = main_popup
+
   local layout = Layout.new({
     config = obj._config,
     main_popup = main_popup,
@@ -88,20 +93,14 @@ function TriplePaneCodeDiffInstance.new(opts)
     layout_config = function(layout)
       ---@cast layout FzfCodeDiffLayout
 
-      return NuiLayout.Box(tbl_utils.non_nil({
-        main_popup and NuiLayout.Box(
-          main_popup,
-          { grow = 1 }
-        ) or nil,
-        a_popup.should_show and NuiLayout.Box(
-          a_popup,
-          { grow = 1 }
-        ) or nil,
-        b_popup.should_show and NuiLayout.Box(
-          b_popup,
-          { grow = 1 }
-        ) or nil,
-      }), { dir = "row" })
+      return NuiLayout.Box(
+        tbl_utils.non_nil({
+          main_popup and NuiLayout.Box(main_popup, { grow = 1 }) or nil,
+          a_popup.should_show and NuiLayout.Box(a_popup, { grow = 1 }) or nil,
+          b_popup.should_show and NuiLayout.Box(b_popup, { grow = 1 }) or nil,
+        }),
+        { dir = "row" }
+      )
     end,
   })
   ---@cast layout FzfCodeDiffLayout

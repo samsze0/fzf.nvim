@@ -295,7 +295,7 @@ return function(opts)
       })
       instance:refresh()
     end)
-  end)
+  end, { force = true })
 
   instance.layout.main_popup:map("<C-d>", "Stash staged", function()
     git_utils.stash({
@@ -303,7 +303,7 @@ return function(opts)
       stash_staged = true,
     })
     instance:refresh()
-  end)
+  end, { force = true })
 
   return instance
 end

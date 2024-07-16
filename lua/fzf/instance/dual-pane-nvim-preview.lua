@@ -61,6 +61,9 @@ function DualPaneNvimPreviewInstance.new(opts)
   })
   local help_popup = HelpPopup.new({})
 
+  main_popup.right = preview_popup
+  preview_popup.left = main_popup
+
   local layout = Layout.new({
     config = obj._config,
     main_popup = main_popup,

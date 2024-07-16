@@ -53,6 +53,9 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
   })
   local help_popup = HelpPopup.new({})
 
+  main_popup.right = preview_popup
+  preview_popup.left = main_popup
+
   local layout = Layout.new({
     config = obj._config,
     main_popup = main_popup,
@@ -61,16 +64,15 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
     layout_config = function(layout)
       ---@cast layout FzfCodePreviewLayout
 
-      return NuiLayout.Box(tbl_utils.non_nil({
-        main_popup and NuiLayout.Box(
-          main_popup,
-          { grow = 1 }
-        ) or nil,
-        preview_popup.should_show and NuiLayout.Box(
-          preview_popup,
-          { grow = 1 }
-        ) or nil,
-      }), { dir = "row" })
+      return NuiLayout.Box(
+        tbl_utils.non_nil({
+          main_popup and NuiLayout.Box(main_popup, { grow = 1 }) or nil,
+          preview_popup.should_show
+              and NuiLayout.Box(preview_popup, { grow = 1 })
+            or nil,
+        }),
+        { dir = "row" }
+      )
     end,
   })
   ---@cast layout FzfCodePreviewLayout
