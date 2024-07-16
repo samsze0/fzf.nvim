@@ -1,20 +1,23 @@
 local TUIBaseInstanceTrait = require("tui.instance-trait")
 local FzfBaseInstanceTrait = require("fzf.instance-trait.base")
 local FzfController = require("fzf.core.controller")
-local DualPaneLayout = require("tui.layout").DualPaneLayout
+local Layout = require("tui.layout")
 local config = require("fzf.core.config").value
 local opts_utils = require("utils.opts")
-local SidePopup = require("tui.popup").SidePopup
+local MainPopup = require("fzf.popup").MainPopup
+local SidePopup = require("fzf.popup").SidePopup
+local HelpPopup = require("fzf.popup").HelpPopup
 local lang_utils = require("utils.lang")
 local terminal_utils = require("utils.terminal")
 local tbl_utils = require("utils.table")
+local NuiLayout = require("nui.layout")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
 local _error = config.notifier.error
 
 ---@class FzfDualPaneLuaObjectPreviewInstance : FzfController
----@field layout TUIDualPaneLayout
+---@field layout FzfCodePreviewLayout
 ---@field _lua_object_accessor fun(focus: FzfEntry): string
 local DualPaneLuaObjectPreviewInstance = {}
 DualPaneLuaObjectPreviewInstance.__index = DualPaneLuaObjectPreviewInstance
@@ -39,21 +42,43 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
 
   obj._lua_object_accessor = opts.lua_object_accessor
 
-  obj.layout = DualPaneLayout.new({
-    config = obj._config,
-    side_popup = SidePopup.new({
-      popup_opts = {
-        buf_options = {
-          filetype = "lua",
-        },
+  local main_popup = MainPopup.new({})
+  local preview_popup = SidePopup.new({
+    popup_opts = {
+      buf_options = {
+        filetype = "lua",
       },
-      config = obj._config,
-    }),
+    },
+    config = obj._config,
   })
+  local help_popup = HelpPopup.new({})
+
+  local layout = Layout.new({
+    config = obj._config,
+    main_popup = main_popup,
+    side_popups = { preview = preview_popup },
+    help_popup = help_popup,
+    layout_config = function(layout)
+      ---@cast layout FzfCodePreviewLayout
+
+      return NuiLayout.Box(tbl_utils.non_nil({
+        main_popup and NuiLayout.Box(
+          main_popup,
+          { grow = 1 }
+        ) or nil,
+        preview_popup.should_show and NuiLayout.Box(
+          preview_popup,
+          { grow = 1 }
+        ) or nil,
+      }), { dir = "row" })
+    end,
+  })
+  ---@cast layout FzfCodePreviewLayout
+  obj.layout = layout
 
   TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)
 
-  FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popup)
+  FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview)
   FzfBaseInstanceTrait.setup_main_popup_top_border(obj)
   FzfBaseInstanceTrait.setup_maximise_popup_keymaps(obj)
 
@@ -64,14 +89,16 @@ end
 
 function DualPaneLuaObjectPreviewInstance:_setup_lua_object_preview()
   self:on_focus(function(payload)
-    self.layout.side_popup:set_lines({})
+    self.layout.side_popups.preview:set_lines({})
 
     local focus = self.focus
 
     if not focus then return end
 
     local lua_obj = self._lua_object_accessor(focus)
-    self.layout.side_popup:set_lines(vim.split(vim.inspect(lua_obj), "\n"))
+    self.layout.side_popups.preview:set_lines(
+      vim.split(vim.inspect(lua_obj), "\n")
+    )
   end)
 end
 

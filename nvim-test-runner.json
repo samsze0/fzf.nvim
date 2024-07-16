@@ -8,6 +8,10 @@
       "uri": "https://github.com/nvim-neotest/nvim-nio"
     },
     {
+      "uri": "https://github.com/MunifTanjim/nui.nvim",
+      "sha": "0.3.0"
+    },
+    {
       "uri": "file:../utils.nvim"
     },
     {

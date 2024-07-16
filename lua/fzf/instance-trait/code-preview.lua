@@ -10,8 +10,11 @@ local _info = config.notifier.info
 local _warn = config.notifier.warn
 local _error = config.notifier.error
 
+---@class FzfCodePreviewLayout : TUILayout
+---@field side_popups { preview: TUISidePopup }
+
 ---@class FzfCodePreviewInstanceTrait : FzfController
----@field layout TUIDualPaneLayout
+---@field layout FzfCodePreviewLayout
 ---@field _accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _row_accessor? fun(entry: FzfEntry): number
 ---@field _col_accessor? fun(entry: FzfEntry): number
@@ -27,7 +30,7 @@ function FzfCodePreviewInstanceTrait:setup_filepreview(opts)
   opts = opts_utils.extend({}, opts)
 
   self:on_focus(function(payload)
-    self.layout.side_popup:set_lines({})
+    self.layout.side_popups.preview:set_lines({})
 
     local focus = self.focus
     if not focus then return end
@@ -41,11 +44,11 @@ function FzfCodePreviewInstanceTrait:setup_filepreview(opts)
 
     local x = self._accessor(self.focus)
     if x.filepath then
-      self.layout.side_popup:show_file_content(x.filepath, {
+      self.layout.side_popups.preview:show_file_content(x.filepath, {
         cursor_pos = cursor_pos,
       })
     elseif x.lines then
-      self.layout.side_popup:set_lines(x.lines, {
+      self.layout.side_popups.preview:set_lines(x.lines, {
         cursor_pos = cursor_pos,
         filetype = x.filetype,
       })
@@ -127,7 +130,7 @@ end
 
 function FzfCodePreviewInstanceTrait:setup_filetype_border_component()
   local border_component =
-    self.layout.side_popup.bottom_border_text:append("right")
+    self.layout.side_popups.preview.bottom_border_text:append("right")
 
   self:on_focus(function(payload)
     local entry = payload.entry
@@ -135,9 +138,14 @@ function FzfCodePreviewInstanceTrait:setup_filetype_border_component()
 
     ---@cast entry FzfFileEntry
 
-    local filetype = vim.bo[self.layout.side_popup.bufnr].filetype
+    local filetype = vim.bo[self.layout.side_popups.preview.bufnr].filetype
     ---@cast filetype string
-    border_component:render(NuiText(str_utils.title_case(filetype), config.highlight_groups.border_text.filetype))
+    border_component:render(
+      NuiText(
+        str_utils.title_case(filetype),
+        config.highlight_groups.border_text.filetype
+      )
+    )
   end)
 end
 

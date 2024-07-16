@@ -53,7 +53,7 @@ function FzfBaseInstanceTrait:setup_maximise_popup_keymaps()
   self.layout.main_popup:map(
     "<C-z>",
     "Maximise",
-    function() self.layout:maximise_popup("main") end
+    function() self.layout:maximise_popup(self.layout.main_popup) end
   )
 end
 

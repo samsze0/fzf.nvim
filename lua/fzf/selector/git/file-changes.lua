@@ -105,28 +105,14 @@ return function(opts)
   ---@param text string
   ---@param hl_group? "added" | "changed" | "deleted"
   local set_a_border = function(text, hl_group)
-    local a_popup = instance.layout.side_popups.left
+    local a_popup = instance.layout.side_popups.a
     set_border(text, hl_group, a_popup, border_component_a)
   end
 
   ---@param text string
   ---@param hl_group? "added" | "changed" | "deleted"
   local set_b_border = function(text, hl_group)
-    local b_popup = instance.layout.side_popups.right
-    set_border(text, hl_group, b_popup, border_component_b)
-  end
-
-  ---@param text string
-  ---@param hl_group? "added" | "changed" | "deleted"
-  local set_a_border = function(text, hl_group)
-    local a_popup = instance.layout.side_popups.left
-    set_border(text, hl_group, a_popup, border_component_a)
-  end
-
-  ---@param text string
-  ---@param hl_group? "added" | "changed" | "deleted"
-  local set_b_border = function(text, hl_group)
-    local b_popup = instance.layout.side_popups.right
+    local b_popup = instance.layout.side_popups.b
     set_border(text, hl_group, b_popup, border_component_b)
   end
 
@@ -196,13 +182,13 @@ return function(opts)
     if focus.deleted then
       FzfBaseInstanceTrait.setup_scroll_keymaps(
         instance,
-        instance.layout.side_popups.left,
+        instance.layout.side_popups.a,
         { force = true }
       )
     else
       FzfBaseInstanceTrait.setup_scroll_keymaps(
         instance,
-        instance.layout.side_popups.right,
+        instance.layout.side_popups.b,
         { force = true }
       )
     end

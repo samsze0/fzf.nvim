@@ -79,10 +79,10 @@ return function(opts)
   instance:set_entries_getter(entries_getter)
 
   local border_component =
-    instance.layout.side_popup.bottom_border_text:append("left")
+    instance.layout.side_popups.preview.bottom_border_text:append("left")
 
   instance:on_focus(function(payload)
-    instance.layout.side_popup:set_lines({})
+    instance.layout.side_popups.preview:set_lines({})
 
     local focus = instance.focus
     if not focus then return end
@@ -96,7 +96,7 @@ return function(opts)
       delta_args = config.default_delta_args,
       filepaths = opts.filepaths,
     })
-    instance.layout.side_popup:set_lines(output, { filetype = "terminal" })
+    instance.layout.side_popups.preview:set_lines(output, { filetype = "terminal" })
 
     -- FIX: diff stat
     local diff_stat = git_utils.diff_stat({

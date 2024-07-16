@@ -2,21 +2,23 @@ local TUIBaseInstanceTrait = require("tui.instance-trait")
 local FzfBaseInstanceTrait = require("fzf.instance-trait.base")
 local FzfCodePreviewInstanceTrait = require("fzf.instance-trait.code-preview")
 local FzfController = require("fzf.core.controller")
-local DualPaneLayout = require("tui.layout").DualPaneLayout
+local Layout = require("tui.layout")
 local config = require("fzf.core.config").value
 local opts_utils = require("utils.opts")
-local MainPopup = require("tui.popup").MainPopup
-local SidePopup = require("tui.popup").SidePopup
+local MainPopup = require("fzf.popup").MainPopup
+local SidePopup = require("fzf.popup").SidePopup
+local HelpPopup = require("fzf.popup").HelpPopup
 local lang_utils = require("utils.lang")
 local terminal_utils = require("utils.terminal")
 local tbl_utils = require("utils.table")
+local NuiLayout = require("nui.layout")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
 local _error = config.notifier.error
 
 ---@class FzfDualPaneNvimPreviewInstance : FzfController
----@field layout TUIDualPaneLayout
+---@field layout FzfCodePreviewLayout
 ---@field _accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _row_accessor? fun(entry: FzfEntry): number
 ---@field _col_accessor? fun(entry: FzfEntry): number
@@ -47,22 +49,44 @@ function DualPaneNvimPreviewInstance.new(opts)
   obj._row_accessor = opts.row_accessor
   obj._col_accessor = opts.col_accessor
 
-  obj.layout = DualPaneLayout.new({
-    config = obj._config,
-    side_popup = SidePopup.new({
-      popup_opts = {
-        win_options = {
-          number = true,
-          cursorline = true,
-        },
+  local main_popup = MainPopup.new({})
+  local preview_popup = SidePopup.new({
+    popup_opts = {
+      win_options = {
+        number = true,
+        cursorline = true,
       },
-      config = obj._config,
-    }),
+    },
+    config = obj._config,
   })
+  local help_popup = HelpPopup.new({})
+
+  local layout = Layout.new({
+    config = obj._config,
+    main_popup = main_popup,
+    side_popups = { preview = preview_popup },
+    help_popup = help_popup,
+    layout_config = function(layout)
+      ---@cast layout FzfCodePreviewLayout
+
+      return NuiLayout.Box(tbl_utils.non_nil({
+        main_popup and NuiLayout.Box(
+          main_popup,
+          { grow = 1 }
+        ) or nil,
+        preview_popup.should_show and NuiLayout.Box(
+          preview_popup,
+          { grow = 1 }
+        ) or nil,
+      }), { dir = "row" })
+    end,
+  })
+  ---@cast layout FzfCodePreviewLayout
+  obj.layout = layout
 
   TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)
 
-  FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popup)
+  FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview)
   FzfBaseInstanceTrait.setup_main_popup_top_border(obj)
   FzfBaseInstanceTrait.setup_maximise_popup_keymaps(obj)
 

@@ -11,6 +11,7 @@
       "../utils.nvim/lua",
       "../terminal-filetype.nvim/lua",
       "../jumplist.nvim/lua",
+      "../nui.nvim/lua",
       ".test/lua",
       "../tui.nvim/lua"
     ],

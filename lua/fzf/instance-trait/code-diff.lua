@@ -11,8 +11,11 @@ local _info = config.notifier.info
 local _warn = config.notifier.warn
 local _error = config.notifier.error
 
+---@class FzfCodeDiffLayout : TUILayout
+---@field side_popups { a: TUISidePopup, b: TUISidePopup }
+
 ---@class FzfCodeDiffInstanceTrait : FzfController
----@field layout TUITriplePaneLayout
+---@field layout FzfCodeDiffLayout
 ---@field _a_accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _b_accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _picker fun(entry: FzfEntry): ("a" | "b")
@@ -41,7 +44,7 @@ function FzfCodeDiffInstanceTrait:setup_diff_highlights(opts)
     DiffChange = "FzfDiffChange",
     DiffText = "FzfDiffText",
   }
-  
+
   return a_win_hl, b_win_hl
 end
 
@@ -52,8 +55,8 @@ function FzfCodeDiffInstanceTrait:setup_filepreview(opts)
   opts = opts_utils.extend({}, opts)
 
   self:on_focus(function(payload)
-    self.layout.side_popups.left:set_lines({})
-    self.layout.side_popups.right:set_lines({})
+    self.layout.side_popups.a:set_lines({})
+    self.layout.side_popups.b:set_lines({})
 
     local focus = self.focus
     if not focus then return end
@@ -69,14 +72,14 @@ function FzfCodeDiffInstanceTrait:setup_filepreview(opts)
     end
 
     local a = self._a_accessor(self.focus)
-    show(a, self.layout.side_popups.left)
+    show(a, self.layout.side_popups.a)
 
     local b = self._b_accessor(self.focus)
-    show(b, self.layout.side_popups.right)
+    show(b, self.layout.side_popups.b)
 
     vimdiff_utils.diff_bufs(
-      self.layout.side_popups.left.bufnr,
-      self.layout.side_popups.right.bufnr
+      self.layout.side_popups.a.bufnr,
+      self.layout.side_popups.b.bufnr
     )
   end)
 end
