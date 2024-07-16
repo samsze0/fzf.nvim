@@ -87,9 +87,9 @@ return function(opts)
   local border_component_git_status =
     instance.layout.main_popup.bottom_border_text:append("left")
   local border_component_a =
-    instance.layout.side_popups.left.top_border_text:prepend("left")
+    instance.layout.side_popups.a.top_border_text:prepend("left")
   local border_component_b =
-    instance.layout.side_popups.right.top_border_text:prepend("left")
+    instance.layout.side_popups.b.top_border_text:prepend("left")
 
   -- TODO: Reuse this function from status.lua
   local set_border = function(text, hl_group, popup, border_component)
