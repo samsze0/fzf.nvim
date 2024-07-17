@@ -80,6 +80,7 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
 
   TUIBaseInstanceTrait.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
   TUIBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview) --- @diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceTrait.setup_close_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
 
   FzfBaseInstanceTrait.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch
 

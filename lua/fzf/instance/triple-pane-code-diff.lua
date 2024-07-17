@@ -109,6 +109,7 @@ function TriplePaneCodeDiffInstance.new(opts)
   obj.layout = layout
 
   TUIBaseInstanceTrait.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceTrait.setup_close_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
 
   FzfBaseInstanceTrait.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch
 
