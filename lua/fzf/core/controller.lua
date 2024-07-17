@@ -4,12 +4,12 @@ local match = lang_utils.match
 local tbl_utils = require("utils.table")
 local opts_utils = require("utils.opts")
 local terminal_utils = require("utils.terminal")
-local CallbackMap = require("tui.callback-map")
+local TUICallbackMap = require("tui.callback-map")
 local TcpIpcClient = require("fzf.core.ipc-client").TcpIpcClient
 local fzf_utils = require("fzf.utils")
 local config = require("fzf.core.config").value
-local Controller = require("tui.controller")
-local ControllerMap = require("tui.controller-map")
+local TUIController = require("tui.controller")
+local TUIControllerMap = require("tui.controller-map")
 local uv_utils = require("utils.uv")
 local oop_utils = require("utils.oop")
 
@@ -45,11 +45,11 @@ local _error = config.notifier.error
 ---@field _is_entries_stale_subscribers TUICallbackMap Map of subscribers of `is_entries_stale`
 ---@field _on_aborted_subscribers TUICallbackMap Mapping of subscribers of the abort event
 ---@field _on_reloaded_subscribers TUICallbackMap Mapping of subscribers of the reload event
-local FzfController = oop_utils.new_class(Controller)
+local FzfController = oop_utils.new_class(TUIController)
 
 -- Map of controller ID to controller.
 -- A singleton.
-local fzf_controller_map = ControllerMap.new()
+local fzf_controller_map = TUIControllerMap.new()
 
 ---@class FzfCreateControllerOptions: TUICreateControllerOptions
 ---@field name string
@@ -74,7 +74,7 @@ function FzfController.new(opts)
 
   if not vim.fn.executable("fzf") == 1 then error("fzf is not installed") end
 
-  local obj = Controller.new(opts)
+  local obj = TUIController.new(opts)
   ---@cast obj FzfController
 
   obj.name = opts.name
@@ -85,10 +85,10 @@ function FzfController.new(opts)
   })()
   obj._display_accessor = function(e) return e.display end
   obj._initial_focus_accessor = function(e) return e.initial_focus end
-  obj._fetching_entries_subscribers = CallbackMap.new()
-  obj._is_entries_stale_subscribers = CallbackMap.new()
-  obj._on_aborted_subscribers = CallbackMap.new()
-  obj._on_reloaded_subscribers = CallbackMap.new()
+  obj._fetching_entries_subscribers = TUICallbackMap.new()
+  obj._is_entries_stale_subscribers = TUICallbackMap.new()
+  obj._on_aborted_subscribers = TUICallbackMap.new()
+  obj._on_reloaded_subscribers = TUICallbackMap.new()
   obj._entries_getter = opts.entries_getter
   obj._display_accessor = opts.display_accessor
   obj._initial_focus_accessor = opts.initial_focus_accessor
@@ -119,7 +119,7 @@ end
 -- Destroy controller
 --
 function FzfController:_destroy()
-  Controller._destroy(self)
+  TUIController._destroy(self)
 
   self._ipc_client:destroy()
 end

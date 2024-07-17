@@ -1,9 +1,9 @@
 local uuid_utils = require("utils.uuid")
 local terminal_utils = require("utils.terminal")
-local EventMap = require("tui.event-map")
+local TUIEventMap = require("tui.event-map")
 local uv_utils = require("utils.uv")
 local os_utils = require("utils.os")
-local CallbackMap = require("tui.callback-map")
+local TUICallbackMap = require("tui.callback-map")
 local config = require("fzf.core.config").value
 local oop_utils = require("utils.oop")
 
@@ -98,8 +98,8 @@ function TcpIpcClient.new()
     port = nil,
     fzf_host = "127.0.0.1",
     fzf_port = os_utils.find_available_port(),
-    _event_map = EventMap.new(),
-    _callback_map = CallbackMap.new(),
+    _event_map = TUIEventMap.new(),
+    _callback_map = TUICallbackMap.new(),
     _rows_tmp_file = vim.fn.tempname(),
   }, TcpIpcClient)
   ---@cast obj FzfTcpIpcClient

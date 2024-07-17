@@ -1,22 +1,22 @@
-local MainPopup = require("tui.popup").MainPopup
-local SidePopup = require("tui.popup").SidePopup
-local HelpPopup = require("tui.popup").HelpPopup
+local TUIMainPopup = require("tui.popup").MainPopup
+local TUISidePopup = require("tui.popup").SidePopup
+local TUIHelpPopup = require("tui.popup").HelpPopup
 local opts_utils = require("utils.opts")
-local Config = require("fzf.core.config")
+local FzfConfig = require("fzf.core.config")
 local oop_utils = require("utils.oop")
 
 ---@class FzfMainPopup: TUIMainPopup
 ---@field _config FzfConfig
-local FzfMainPopup = oop_utils.new_class(MainPopup)
+local FzfMainPopup = oop_utils.new_class(TUIMainPopup)
 
 ---@param opts { popup_opts?: nui_popup_options }
 ---@return FzfMainPopup
 function FzfMainPopup.new(opts)
   opts = opts or {}
 
-  local obj = MainPopup.new({
+  local obj = TUIMainPopup.new({
     popup_opts = opts.popup_opts,
-    config = Config,
+    config = FzfConfig,
   })
   setmetatable(obj, FzfMainPopup)
   ---@cast obj FzfMainPopup
@@ -26,16 +26,16 @@ end
 
 ---@class FzfSidePopup: TUISidePopup
 ---@field _config FzfConfig
-local FzfSidePopup = oop_utils.new_class(SidePopup)
+local FzfSidePopup = oop_utils.new_class(TUISidePopup)
 
 ---@param opts { popup_opts?: nui_popup_options }
 ---@return FzfSidePopup
 function FzfSidePopup.new(opts)
   opts = opts or {}
 
-  local obj = SidePopup.new({
+  local obj = TUISidePopup.new({
     popup_opts = opts.popup_opts,
-    config = Config,
+    config = FzfConfig,
   })
   setmetatable(obj, FzfSidePopup)
   ---@cast obj FzfSidePopup
@@ -45,16 +45,16 @@ end
 
 ---@class FzfHelpPopup: TUIHelpPopup
 ---@field _config FzfConfig
-local FzfHelpPopup = oop_utils.new_class(HelpPopup)
+local FzfHelpPopup = oop_utils.new_class(TUIHelpPopup)
 
 ---@param opts { popup_opts?: nui_popup_options }
 ---@return FzfHelpPopup
 function FzfHelpPopup.new(opts)
   opts = opts or {}
 
-  local obj = HelpPopup.new({
+  local obj = TUIHelpPopup.new({
     popup_opts = opts.popup_opts,
-    config = Config,
+    config = FzfConfig,
   })
   setmetatable(obj, FzfHelpPopup)
   ---@cast obj FzfHelpPopup

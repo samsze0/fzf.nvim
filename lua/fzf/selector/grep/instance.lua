@@ -5,9 +5,9 @@ local FzfController = require("fzf.core.controller")
 local Layout = require("tui.layout")
 local config = require("fzf.core.config").value
 local opts_utils = require("utils.opts")
-local MainPopup = require("fzf.popup").MainPopup
-local SidePopup = require("fzf.popup").SidePopup
-local HelpPopup = require("fzf.popup").HelpPopup
+local FzfMainPopup = require("fzf.popup").MainPopup
+local FzfSidePopup = require("fzf.popup").SidePopup
+local FzfHelpPopup = require("fzf.popup").HelpPopup
 local lang_utils = require("utils.lang")
 local terminal_utils = require("utils.terminal")
 local tbl_utils = require("utils.table")
@@ -51,8 +51,8 @@ function GrepInstance.new(opts)
   obj._row_accessor = opts.row_accessor
   obj._col_accessor = opts.col_accessor
 
-  local main_popup = MainPopup.new({})
-  local preview_popup = SidePopup.new({
+  local main_popup = FzfMainPopup.new({})
+  local preview_popup = FzfSidePopup.new({
     popup_opts = {
       win_options = {
         number = true,
@@ -60,8 +60,8 @@ function GrepInstance.new(opts)
       },
     },
   })
-  local rg_error_popup = SidePopup.new({})
-  local help_popup = HelpPopup.new({})
+  local rg_error_popup = FzfSidePopup.new({})
+  local help_popup = FzfHelpPopup.new({})
 
   main_popup.right = preview_popup
   preview_popup.left = main_popup

@@ -1,4 +1,4 @@
-local Config = require("tui.config")
+local TUIConfig = require("tui.config")
 local opts_utils = require("utils.opts")
 local oop_utils = require("utils.oop")
 
@@ -21,11 +21,11 @@ local oop_utils = require("utils.oop")
 
 ---@class FzfConfig: TUIConfig
 ---@field value FzfConfig.config
-local FzfConfig = oop_utils.new_class(Config)
+local FzfConfig = oop_utils.new_class(TUIConfig)
 
 ---@return FzfConfig
 function FzfConfig.new()
-  local obj = setmetatable(Config.new(), FzfConfig)
+  local obj = setmetatable(TUIConfig.new(), FzfConfig)
   ---@cast obj FzfConfig
 
   obj.value = opts_utils.deep_extend(obj.value, {
