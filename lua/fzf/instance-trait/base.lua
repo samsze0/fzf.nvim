@@ -18,38 +18,6 @@ local FzfBaseInstanceTrait = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateInstanceOptions : FzfCreateControllerOptions
 
--- TODO: move to private config
----@param preview_popup FzfSidePopup
----@param opts? { force?: boolean }
-function FzfBaseInstanceTrait:setup_scroll_keymaps(preview_popup, opts)
-  opts = opts or {}
-
-  self.layout.main_popup:map_remote(
-    preview_popup,
-    "Scroll preview up",
-    "<S-Up>",
-    { force = opts.force }
-  )
-  self.layout.main_popup:map_remote(
-    preview_popup,
-    "Scroll preview left",
-    "<S-Left>",
-    { force = opts.force }
-  )
-  self.layout.main_popup:map_remote(
-    preview_popup,
-    "Scroll preview down",
-    "<S-Down>",
-    { force = opts.force }
-  )
-  self.layout.main_popup:map_remote(
-    preview_popup,
-    "Scroll preview right",
-    "<S-Right>",
-    { force = opts.force }
-  )
-end
-
 function FzfBaseInstanceTrait:setup_main_popup_top_border()
   local border_component_1 =
     self.layout.main_popup.top_border_text:prepend("left")

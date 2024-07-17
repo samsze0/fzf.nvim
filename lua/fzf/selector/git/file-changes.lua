@@ -1,6 +1,7 @@
 local FzfTriplePaneCodeDiffInstance =
   require("fzf.instance.triple-pane-code-diff")
 local FzfBaseInstanceTrait = require("fzf.instance-trait.base")
+local TUIBaseInstanceTrait = require("tui.instance-trait")
 local tbl_utils = require("utils.table")
 local opts_utils = require("utils.opts")
 local terminal_utils = require("utils.terminal")
@@ -180,13 +181,13 @@ return function(opts)
     ---@cast focus FzfGitFileChangeEntry
 
     if focus.deleted then
-      FzfBaseInstanceTrait.setup_scroll_keymaps(
+      TUIBaseInstanceTrait.setup_scroll_keymaps(
         instance,
         instance.layout.side_popups.a,
         { force = true }
       )
     else
-      FzfBaseInstanceTrait.setup_scroll_keymaps(
+      TUIBaseInstanceTrait.setup_scroll_keymaps(
         instance,
         instance.layout.side_popups.b,
         { force = true }

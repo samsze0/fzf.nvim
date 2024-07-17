@@ -101,15 +101,15 @@ function GrepInstance.new(opts)
   ---@cast layout FzfGrepLayout
   obj.layout = layout
 
-  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)
+  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj) ---@diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview)  ---@diagnostic disable-line: param-type-mismatch
 
-  FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview)
-  FzfBaseInstanceTrait.setup_main_popup_top_border(obj)
+  FzfBaseInstanceTrait.setup_main_popup_top_border(obj)  ---@diagnostic disable-line: param-type-mismatch
 
-  FzfCodePreviewInstanceTrait.setup_fileopen_keymaps(obj)
-  FzfCodePreviewInstanceTrait.setup_filepreview(obj)
-  FzfCodePreviewInstanceTrait.setup_copy_filepath_keymap(obj)
-  FzfCodePreviewInstanceTrait.setup_filetype_border_component(obj)
+  FzfCodePreviewInstanceTrait.setup_fileopen_keymaps(obj)  ---@diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceTrait.setup_filepreview(obj)  ---@diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceTrait.setup_copy_filepath_keymap(obj)  ---@diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceTrait.setup_filetype_border_component(obj)  ---@diagnostic disable-line: param-type-mismatch
 
   local rg_error_popup_title = rg_error_popup.top_border_text:prepend("left")
   rg_error_popup_title:render(NuiText("Rg output"))
