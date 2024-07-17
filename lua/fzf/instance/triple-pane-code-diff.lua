@@ -2,7 +2,7 @@ local TUIBaseInstanceTrait = require("tui.instance-trait")
 local FzfBaseInstanceTrait = require("fzf.instance-trait.base")
 local FzfCodeDiffInstanceTrait = require("fzf.instance-trait.code-diff")
 local FzfController = require("fzf.core.controller")
-local Layout = require("tui.layout")
+local FzfLayout = require("fzf.layout")
 local config = require("fzf.core.config").value
 local opts_utils = require("utils.opts")
 local MainPopup = require("fzf.popup").MainPopup
@@ -83,7 +83,7 @@ function TriplePaneCodeDiffInstance.new(opts)
   b_popup.left = a_popup
   a_popup.left = main_popup
 
-  local layout = Layout.new({
+  local layout = FzfLayout.new({
     config = obj._config,
     main_popup = main_popup,
     side_popups = { a = a_popup, b = b_popup },

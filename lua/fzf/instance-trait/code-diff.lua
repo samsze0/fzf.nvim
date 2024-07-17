@@ -12,7 +12,7 @@ local _info = config.notifier.info
 local _warn = config.notifier.warn
 local _error = config.notifier.error
 
----@class FzfCodeDiffLayout : TUILayout
+---@class FzfCodeDiffLayout : FzfLayout
 ---@field side_popups { a: TUISidePopup, b: TUISidePopup }
 
 ---@class FzfCodeDiffInstanceTrait : FzfController

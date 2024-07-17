@@ -11,8 +11,8 @@ local _info = config.notifier.info
 local _warn = config.notifier.warn
 local _error = config.notifier.error
 
----@class FzfCodePreviewLayout : TUILayout
----@field side_popups { preview: TUISidePopup }
+---@class FzfCodePreviewLayout : FzfLayout
+---@field side_popups { preview: FzfSidePopup }
 
 ---@class FzfCodePreviewInstanceTrait : FzfController
 ---@field layout FzfCodePreviewLayout

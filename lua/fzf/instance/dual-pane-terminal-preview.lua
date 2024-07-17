@@ -1,7 +1,7 @@
 local TUIBaseInstanceTrait = require("tui.instance-trait")
 local FzfBaseInstanceTrait = require("fzf.instance-trait.base")
 local FzfController = require("fzf.core.controller")
-local Layout = require("tui.layout")
+local Layout = require("fzf.layout")
 local config = require("fzf.core.config").value
 local opts_utils = require("utils.opts")
 local MainPopup = require("fzf.popup").MainPopup
@@ -17,7 +17,7 @@ local _info = config.notifier.info
 local _warn = config.notifier.warn
 local _error = config.notifier.error
 
----@class FzfTerminalPreviewLayout : TUILayout
+---@class FzfTerminalPreviewLayout : FzfLayout
 ---@field side_popups { preview: TUISidePopup }
 
 ---@class FzfDualPaneTerminalPreviewInstance : FzfController

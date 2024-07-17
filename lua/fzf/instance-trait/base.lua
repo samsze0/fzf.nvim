@@ -10,7 +10,7 @@ local _warn = config.notifier.warn
 local _error = config.notifier.error
 
 ---@class FzfBaseInstanceTrait : FzfController
----@field layout TUILayout
+---@field layout FzfLayout
 local FzfBaseInstanceTrait = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateInstanceOptions : FzfCreateControllerOptions

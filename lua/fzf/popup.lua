@@ -9,7 +9,9 @@ local oop_utils = require("utils.oop")
 ---@field _config FzfConfig
 local FzfMainPopup = oop_utils.new_class(TUIMainPopup)
 
----@param opts { popup_opts?: nui_popup_options }
+---@class FzfMainPopup.constructor.opts : TUIMainPopup.constructor.opts
+
+---@param opts FzfMainPopup.constructor.opts
 ---@return FzfMainPopup
 function FzfMainPopup.new(opts)
   opts = opts or {}
@@ -28,7 +30,9 @@ end
 ---@field _config FzfConfig
 local FzfSidePopup = oop_utils.new_class(TUISidePopup)
 
----@param opts { popup_opts?: nui_popup_options }
+---@class FzfSidePopup.constructor.opts : TUISidePopup.constructor.opts
+
+---@param opts FzfSidePopup.constructor.opts
 ---@return FzfSidePopup
 function FzfSidePopup.new(opts)
   opts = opts or {}
@@ -47,7 +51,9 @@ end
 ---@field _config FzfConfig
 local FzfHelpPopup = oop_utils.new_class(TUIHelpPopup)
 
----@param opts { popup_opts?: nui_popup_options }
+---@class FzfHelpPopup.constructor.opts : TUIHelpPopup.constructor.opts
+
+---@param opts FzfHelpPopup.constructor.opts
 ---@return FzfHelpPopup
 function FzfHelpPopup.new(opts)
   opts = opts or {}

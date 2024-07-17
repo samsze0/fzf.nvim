@@ -2,7 +2,7 @@ local TUIBaseInstanceTrait = require("tui.instance-trait")
 local FzfBaseInstanceTrait = require("fzf.instance-trait.base")
 local FzfCodePreviewInstanceTrait = require("fzf.instance-trait.code-preview")
 local FzfController = require("fzf.core.controller")
-local Layout = require("tui.layout")
+local FzfLayout = require("fzf.layout")
 local config = require("fzf.core.config").value
 local opts_utils = require("utils.opts")
 local MainPopup = require("fzf.popup").MainPopup
@@ -62,7 +62,7 @@ function DualPaneNvimPreviewInstance.new(opts)
   main_popup.right = preview_popup
   preview_popup.left = main_popup
 
-  local layout = Layout.new({
+  local layout = FzfLayout.new({
     config = obj._config,
     main_popup = main_popup,
     side_popups = { preview = preview_popup },
