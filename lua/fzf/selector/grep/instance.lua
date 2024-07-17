@@ -78,8 +78,6 @@ function GrepInstance.new(opts)
       ---@cast layout FzfGrepLayout
 
       -- FIX: NuiPopup does not cater for removing popup from layout
-      -- TODO: redesign this to make it more intuitive to configure
-      -- FIX: rg error popup title not being shown
       -- FIX: size is weird
       return NuiLayout.Box({
         NuiLayout.Box({
