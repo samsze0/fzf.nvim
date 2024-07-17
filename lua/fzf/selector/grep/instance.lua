@@ -79,14 +79,12 @@ function GrepInstance.new(opts)
 
       -- FIX: NuiPopup does not cater for removing popup from layout
       -- TODO: redesign this to make it more intuitive to configure
-      -- FIX: rg error popup title not being shown, and size is weird
+      -- FIX: rg error popup title not being shown
+      -- FIX: size is weird
       return NuiLayout.Box({
         NuiLayout.Box({
-          main_popup.should_show and NuiLayout.Box(main_popup, { grow = 50 })
-            or NuiLayout.Box(main_popup, { grow = 5 }),
-          rg_error_popup.should_show
-              and NuiLayout.Box(rg_error_popup, { grow = 10 })
-            or NuiLayout.Box(rg_error_popup, { grow = 1 }),
+          NuiLayout.Box(main_popup, { grow = 5 }),
+          NuiLayout.Box(rg_error_popup, { grow = 1 }),
         }, {
           dir = "col",
           grow = (main_popup.should_show or rg_error_popup.should_show) and 10
