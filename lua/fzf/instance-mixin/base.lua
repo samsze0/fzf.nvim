@@ -12,13 +12,13 @@ local _warn = config.notifier.warn
 local _error = config.notifier.error
 ---@cast _error -nil
 
----@class FzfBaseInstanceTrait : FzfController
+---@class FzfBaseInstanceMixin : FzfController
 ---@field layout FzfLayout
-local FzfBaseInstanceTrait = oop_utils.new_class(FzfController)
+local FzfBaseInstanceMixin = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateInstanceOptions : FzfCreateControllerOptions
 
-function FzfBaseInstanceTrait:setup_main_popup_top_border()
+function FzfBaseInstanceMixin:setup_main_popup_top_border()
   local border_component_1 =
     self.layout.main_popup.top_border_text:prepend("left")
 
@@ -105,4 +105,4 @@ function FzfBaseInstanceTrait:setup_main_popup_top_border()
   )
 end
 
-return FzfBaseInstanceTrait
+return FzfBaseInstanceMixin

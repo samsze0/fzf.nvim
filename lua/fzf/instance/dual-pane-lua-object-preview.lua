@@ -1,5 +1,5 @@
-local TUIBaseInstanceTrait = require("tui.instance-trait")
-local FzfBaseInstanceTrait = require("fzf.instance-trait.base")
+local TUIBaseInstanceMixin = require("tui.instance-mixin")
+local FzfBaseInstanceMixin = require("fzf.instance-mixin.base")
 local FzfController = require("fzf.core.controller")
 local FzfLayout = require("fzf.layout")
 local config = require("fzf.core.config").value
@@ -78,11 +78,11 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
   ---@cast layout FzfCodePreviewLayout
   obj.layout = layout
 
-  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
-  TUIBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview) --- @diagnostic disable-line: param-type-mismatch
-  TUIBaseInstanceTrait.setup_close_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceMixin.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceMixin.setup_scroll_keymaps(obj, obj.layout.side_popups.preview) --- @diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceMixin.setup_close_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
 
-  FzfBaseInstanceTrait.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfBaseInstanceMixin.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch
 
   obj:_setup_lua_object_preview()
 

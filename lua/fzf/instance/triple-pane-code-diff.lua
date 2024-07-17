@@ -1,6 +1,6 @@
-local TUIBaseInstanceTrait = require("tui.instance-trait")
-local FzfBaseInstanceTrait = require("fzf.instance-trait.base")
-local FzfCodeDiffInstanceTrait = require("fzf.instance-trait.code-diff")
+local TUIBaseInstanceMixin = require("tui.instance-mixin")
+local FzfBaseInstanceMixin = require("fzf.instance-mixin.base")
+local FzfCodeDiffInstanceMixin = require("fzf.instance-mixin.code-diff")
 local FzfController = require("fzf.core.controller")
 local FzfLayout = require("fzf.layout")
 local config = require("fzf.core.config").value
@@ -21,15 +21,15 @@ local _error = config.notifier.error
 
 ---@class FzfTriplePaneCodeDiffInstance : FzfController
 ---@field layout FzfCodeDiffLayout
----@field _a_accessor FzfCodeDiffInstanceTrait.accessor
----@field _b_accessor FzfCodeDiffInstanceTrait.accessor
----@field _picker FzfCodeDiffInstanceTrait.picker
+---@field _a_accessor FzfCodeDiffInstanceMixin.accessor
+---@field _b_accessor FzfCodeDiffInstanceMixin.accessor
+---@field _picker FzfCodeDiffInstanceMixin.picker
 local TriplePaneCodeDiffInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateTriplePaneCodeDiffInstanceOptions : FzfCreateControllerOptions
----@field a_accessor? FzfCodeDiffInstanceTrait.accessor
----@field b_accessor? FzfCodeDiffInstanceTrait.accessor
----@field picker? FzfCodeDiffInstanceTrait.picker
+---@field a_accessor? FzfCodeDiffInstanceMixin.accessor
+---@field b_accessor? FzfCodeDiffInstanceMixin.accessor
+---@field picker? FzfCodeDiffInstanceMixin.picker
 
 ---@param opts? FzfCreateTriplePaneCodeDiffInstanceOptions
 ---@return FzfTriplePaneCodeDiffInstance
@@ -50,7 +50,7 @@ function TriplePaneCodeDiffInstance.new(opts)
   obj._b_accessor = opts.b_accessor
   obj._picker = opts.picker
 
-  local a_win_hl, b_win_hl = FzfCodeDiffInstanceTrait.setup_diff_highlights(obj)
+  local a_win_hl, b_win_hl = FzfCodeDiffInstanceMixin.setup_diff_highlights(obj)
 
   local main_popup = MainPopup.new({})
   ---@type nui_popup_options
@@ -108,14 +108,14 @@ function TriplePaneCodeDiffInstance.new(opts)
   ---@cast layout FzfCodeDiffLayout
   obj.layout = layout
 
-  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
-  TUIBaseInstanceTrait.setup_close_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceMixin.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceMixin.setup_close_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
 
-  FzfBaseInstanceTrait.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfBaseInstanceMixin.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch
 
-  FzfCodeDiffInstanceTrait.setup_fileopen_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
-  FzfCodeDiffInstanceTrait.setup_filepreview(obj) --- @diagnostic disable-line: param-type-mismatch
-  FzfCodeDiffInstanceTrait.setup_copy_filepath_keymap(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfCodeDiffInstanceMixin.setup_fileopen_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfCodeDiffInstanceMixin.setup_filepreview(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfCodeDiffInstanceMixin.setup_copy_filepath_keymap(obj) --- @diagnostic disable-line: param-type-mismatch
 
   return obj
 end

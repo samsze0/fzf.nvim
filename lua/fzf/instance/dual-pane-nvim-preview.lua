@@ -1,6 +1,6 @@
-local TUIBaseInstanceTrait = require("tui.instance-trait")
-local FzfBaseInstanceTrait = require("fzf.instance-trait.base")
-local FzfCodePreviewInstanceTrait = require("fzf.instance-trait.code-preview")
+local TUIBaseInstanceMixin = require("tui.instance-mixin")
+local FzfBaseInstanceMixin = require("fzf.instance-mixin.base")
+local FzfCodePreviewInstanceMixin = require("fzf.instance-mixin.code-preview")
 local FzfController = require("fzf.core.controller")
 local FzfLayout = require("fzf.layout")
 local config = require("fzf.core.config").value
@@ -20,15 +20,15 @@ local _error = config.notifier.error
 
 ---@class FzfDualPaneNvimPreviewInstance : FzfController
 ---@field layout FzfCodePreviewLayout
----@field _accessor? FzfCodePreviewInstanceTrait.accessor
----@field _row_accessor? FzfCodePreviewInstanceTrait.row_accessor
----@field _col_accessor? FzfCodePreviewInstanceTrait.col_accessor
+---@field _accessor? FzfCodePreviewInstanceMixin.accessor
+---@field _row_accessor? FzfCodePreviewInstanceMixin.row_accessor
+---@field _col_accessor? FzfCodePreviewInstanceMixin.col_accessor
 local DualPaneNvimPreviewInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateDualPaneNvimPreviewInstanceOptions : FzfCreateControllerOptions
----@field accessor? FzfCodePreviewInstanceTrait.accessor
----@field row_accessor? FzfCodePreviewInstanceTrait.row_accessor
----@field col_accessor? FzfCodePreviewInstanceTrait.col_accessor
+---@field accessor? FzfCodePreviewInstanceMixin.accessor
+---@field row_accessor? FzfCodePreviewInstanceMixin.row_accessor
+---@field col_accessor? FzfCodePreviewInstanceMixin.col_accessor
 
 ---@param opts? FzfCreateDualPaneNvimPreviewInstanceOptions
 ---@return FzfDualPaneNvimPreviewInstance
@@ -86,16 +86,16 @@ function DualPaneNvimPreviewInstance.new(opts)
   ---@cast layout FzfCodePreviewLayout
   obj.layout = layout
 
-  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
-  TUIBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview) --- @diagnostic disable-line: param-type-mismatch
-  TUIBaseInstanceTrait.setup_close_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceMixin.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceMixin.setup_scroll_keymaps(obj, obj.layout.side_popups.preview) --- @diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceMixin.setup_close_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
 
-  FzfBaseInstanceTrait.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfBaseInstanceMixin.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch
 
-  FzfCodePreviewInstanceTrait.setup_fileopen_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
-  FzfCodePreviewInstanceTrait.setup_filepreview(obj) --- @diagnostic disable-line: param-type-mismatch
-  FzfCodePreviewInstanceTrait.setup_copy_filepath_keymap(obj) --- @diagnostic disable-line: param-type-mismatch
-  FzfCodePreviewInstanceTrait.setup_filetype_border_component(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceMixin.setup_fileopen_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceMixin.setup_filepreview(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceMixin.setup_copy_filepath_keymap(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceMixin.setup_filetype_border_component(obj) --- @diagnostic disable-line: param-type-mismatch
 
   return obj
 end

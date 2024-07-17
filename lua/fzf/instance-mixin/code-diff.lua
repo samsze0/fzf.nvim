@@ -18,21 +18,21 @@ local _error = config.notifier.error
 ---@class FzfCodeDiffLayout : FzfLayout
 ---@field side_popups { a: FzfSidePopup, b: FzfSidePopup }
 
----@alias FzfCodeDiffInstanceTrait.accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
----@alias FzfCodeDiffInstanceTrait.picker fun(entry: FzfEntry): ("a" | "b")
+---@alias FzfCodeDiffInstanceMixin.accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
+---@alias FzfCodeDiffInstanceMixin.picker fun(entry: FzfEntry): ("a" | "b")
 
----@class FzfCodeDiffInstanceTrait : FzfController
+---@class FzfCodeDiffInstanceMixin : FzfController
 ---@field layout FzfCodeDiffLayout
----@field _a_accessor FzfCodeDiffInstanceTrait.accessor
----@field _b_accessor FzfCodeDiffInstanceTrait.accessor
----@field _picker FzfCodeDiffInstanceTrait.picker
-local FzfCodeDiffInstanceTrait = oop_utils.new_class(FzfController)
+---@field _a_accessor FzfCodeDiffInstanceMixin.accessor
+---@field _b_accessor FzfCodeDiffInstanceMixin.accessor
+---@field _picker FzfCodeDiffInstanceMixin.picker
+local FzfCodeDiffInstanceMixin = oop_utils.new_class(FzfController)
 
 -- Vim's default diff highlights doesn't align with the one used by git
 --
 ---@param opts? { }
 ---@return WinHighlights, WinHighlights
-function FzfCodeDiffInstanceTrait:setup_diff_highlights(opts)
+function FzfCodeDiffInstanceMixin:setup_diff_highlights(opts)
   opts = opts_utils.extend({}, opts)
 
   local a_win_hl = {
@@ -55,7 +55,7 @@ end
 -- Configure file preview
 --
 ---@param opts? { }
-function FzfCodeDiffInstanceTrait:setup_filepreview(opts)
+function FzfCodeDiffInstanceMixin:setup_filepreview(opts)
   opts = opts_utils.extend({}, opts)
 
   self:on_focus(function(payload)
@@ -89,7 +89,7 @@ function FzfCodeDiffInstanceTrait:setup_filepreview(opts)
 end
 
 -- TODO: move to private config
-function FzfCodeDiffInstanceTrait:setup_fileopen_keymaps()
+function FzfCodeDiffInstanceMixin:setup_fileopen_keymaps()
   ---@param save_in_jumplist boolean
   ---@param open_command string
   local function open_file(save_in_jumplist, open_command)
@@ -144,7 +144,7 @@ function FzfCodeDiffInstanceTrait:setup_fileopen_keymaps()
 end
 
 -- TODO: move to private config
-function FzfCodeDiffInstanceTrait:setup_copy_filepath_keymap()
+function FzfCodeDiffInstanceMixin:setup_copy_filepath_keymap()
   self.layout.main_popup:map("<C-y>", "Copy filepath", function()
     if not self.focus then return end
 
@@ -171,4 +171,4 @@ function FzfCodeDiffInstanceTrait:setup_copy_filepath_keymap()
   end)
 end
 
-return FzfCodeDiffInstanceTrait
+return FzfCodeDiffInstanceMixin

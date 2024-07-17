@@ -17,21 +17,21 @@ local _error = config.notifier.error
 ---@class FzfCodePreviewLayout : FzfLayout
 ---@field side_popups { preview: FzfSidePopup }
 
----@alias FzfCodePreviewInstanceTrait.accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
----@alias FzfCodePreviewInstanceTrait.row_accessor fun(entry: FzfEntry): number
----@alias FzfCodePreviewInstanceTrait.col_accessor fun(entry: FzfEntry): number
+---@alias FzfCodePreviewInstanceMixin.accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
+---@alias FzfCodePreviewInstanceMixin.row_accessor fun(entry: FzfEntry): number
+---@alias FzfCodePreviewInstanceMixin.col_accessor fun(entry: FzfEntry): number
 
----@class FzfCodePreviewInstanceTrait : FzfController
+---@class FzfCodePreviewInstanceMixin : FzfController
 ---@field layout FzfCodePreviewLayout
----@field _accessor? FzfCodePreviewInstanceTrait.accessor
----@field _row_accessor? FzfCodePreviewInstanceTrait.row_accessor
----@field _col_accessor? FzfCodePreviewInstanceTrait.col_accessor
-local FzfCodePreviewInstanceTrait = oop_utils.new_class(FzfController)
+---@field _accessor? FzfCodePreviewInstanceMixin.accessor
+---@field _row_accessor? FzfCodePreviewInstanceMixin.row_accessor
+---@field _col_accessor? FzfCodePreviewInstanceMixin.col_accessor
+local FzfCodePreviewInstanceMixin = oop_utils.new_class(FzfController)
 
 -- Configure file preview
 --
 ---@param opts? { }
-function FzfCodePreviewInstanceTrait:setup_filepreview(opts)
+function FzfCodePreviewInstanceMixin:setup_filepreview(opts)
   opts = opts_utils.extend({}, opts)
 
   self:on_focus(function(payload)
@@ -62,7 +62,7 @@ function FzfCodePreviewInstanceTrait:setup_filepreview(opts)
 end
 
 -- TODO: move to private config
-function FzfCodePreviewInstanceTrait:setup_fileopen_keymaps()
+function FzfCodePreviewInstanceMixin:setup_fileopen_keymaps()
   local function highlight_row()
     if self._row_accessor ~= nil then
       vim.fn.cursor({
@@ -117,7 +117,7 @@ function FzfCodePreviewInstanceTrait:setup_fileopen_keymaps()
 end
 
 -- TODO: move to private config
-function FzfCodePreviewInstanceTrait:setup_copy_filepath_keymap()
+function FzfCodePreviewInstanceMixin:setup_copy_filepath_keymap()
   self.layout.main_popup:map("<C-y>", "Copy filepath", function()
     if not self.focus then return end
 
@@ -133,7 +133,7 @@ function FzfCodePreviewInstanceTrait:setup_copy_filepath_keymap()
   end)
 end
 
-function FzfCodePreviewInstanceTrait:setup_filetype_border_component()
+function FzfCodePreviewInstanceMixin:setup_filetype_border_component()
   local border_component =
     self.layout.side_popups.preview.bottom_border_text:append("right")
 
@@ -154,4 +154,4 @@ function FzfCodePreviewInstanceTrait:setup_filetype_border_component()
   end)
 end
 
-return FzfCodePreviewInstanceTrait
+return FzfCodePreviewInstanceMixin
