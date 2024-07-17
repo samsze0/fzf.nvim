@@ -18,7 +18,7 @@ local _warn = config.notifier.warn
 local _error = config.notifier.error
 
 ---@class FzfTerminalPreviewLayout : FzfLayout
----@field side_popups { preview: TUISidePopup }
+---@field side_popups { preview: FzfSidePopup }
 
 ---@class FzfDualPaneTerminalPreviewInstance : FzfController
 ---@field layout FzfTerminalPreviewLayout
@@ -83,10 +83,10 @@ function DualPaneTerminalPreviewInstance.new(opts)
   ---@cast layout FzfTerminalPreviewLayout
   obj.layout = layout
 
-  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)
+  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
 
-  FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview)
-  FzfBaseInstanceTrait.setup_main_popup_top_border(obj)
+  FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview) --- @diagnostic disable-line: param-type-mismatch
+  FzfBaseInstanceTrait.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch
 
   return obj
 end

@@ -18,7 +18,7 @@ function FzfLayout.new(opts)
   opts = opts_utils.extend({
     config = FzfConfig,
     help_popup = FzfHelpPopup,
-  })
+  }, opts)
 
   local obj = TUILayout.new(opts)
   setmetatable(obj, FzfLayout)

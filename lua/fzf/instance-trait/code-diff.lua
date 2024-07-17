@@ -9,17 +9,23 @@ local winhighlight_utils = require("utils.winhighlight")
 local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
+---@cast _info -nil
 local _warn = config.notifier.warn
+---@cast _warn -nil
 local _error = config.notifier.error
+---@cast _error -nil
 
 ---@class FzfCodeDiffLayout : FzfLayout
----@field side_popups { a: TUISidePopup, b: TUISidePopup }
+---@field side_popups { a: FzfSidePopup, b: FzfSidePopup }
+
+---@alias FzfCodeDiffInstanceTrait.accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
+---@alias FzfCodeDiffInstanceTrait.picker fun(entry: FzfEntry): ("a" | "b")
 
 ---@class FzfCodeDiffInstanceTrait : FzfController
 ---@field layout FzfCodeDiffLayout
----@field _a_accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
----@field _b_accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
----@field _picker fun(entry: FzfEntry): ("a" | "b")
+---@field _a_accessor FzfCodeDiffInstanceTrait.accessor
+---@field _b_accessor FzfCodeDiffInstanceTrait.accessor
+---@field _picker FzfCodeDiffInstanceTrait.picker
 local FzfCodeDiffInstanceTrait = oop_utils.new_class(FzfController)
 
 -- Vim's default diff highlights doesn't align with the one used by git

@@ -21,15 +21,15 @@ local _error = config.notifier.error
 
 ---@class FzfTriplePaneCodeDiffInstance : FzfController
 ---@field layout FzfCodeDiffLayout
----@field _a_accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
----@field _b_accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
----@field _picker fun(entry: FzfEntry): ("a" | "b")
+---@field _a_accessor FzfCodeDiffInstanceTrait.accessor
+---@field _b_accessor FzfCodeDiffInstanceTrait.accessor
+---@field _picker FzfCodeDiffInstanceTrait.picker
 local TriplePaneCodeDiffInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateTriplePaneCodeDiffInstanceOptions : FzfCreateControllerOptions
----@field a_accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
----@field b_accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
----@field picker? fun(entry: FzfEntry): ("a" | "b")
+---@field a_accessor? FzfCodeDiffInstanceTrait.accessor
+---@field b_accessor? FzfCodeDiffInstanceTrait.accessor
+---@field picker? FzfCodeDiffInstanceTrait.picker
 
 ---@param opts? FzfCreateTriplePaneCodeDiffInstanceOptions
 ---@return FzfTriplePaneCodeDiffInstance
@@ -53,7 +53,7 @@ function TriplePaneCodeDiffInstance.new(opts)
   local a_win_hl, b_win_hl = FzfCodeDiffInstanceTrait.setup_diff_highlights(obj)
 
   local main_popup = MainPopup.new({})
-  ---@type nui_popup_opts
+  ---@type nui_popup_options
   local side_popup_opts = {
     win_options = {
       number = true,
@@ -108,13 +108,13 @@ function TriplePaneCodeDiffInstance.new(opts)
   ---@cast layout FzfCodeDiffLayout
   obj.layout = layout
 
-  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)
+  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
 
-  FzfBaseInstanceTrait.setup_main_popup_top_border(obj)
+  FzfBaseInstanceTrait.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch
 
-  FzfCodeDiffInstanceTrait.setup_fileopen_keymaps(obj)
-  FzfCodeDiffInstanceTrait.setup_filepreview(obj)
-  FzfCodeDiffInstanceTrait.setup_copy_filepath_keymap(obj)
+  FzfCodeDiffInstanceTrait.setup_fileopen_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfCodeDiffInstanceTrait.setup_filepreview(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfCodeDiffInstanceTrait.setup_copy_filepath_keymap(obj) --- @diagnostic disable-line: param-type-mismatch
 
   return obj
 end

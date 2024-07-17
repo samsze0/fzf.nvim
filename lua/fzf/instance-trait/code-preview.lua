@@ -8,17 +8,24 @@ local str_utils = require("utils.string")
 local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
+---@cast _info -nil
 local _warn = config.notifier.warn
+---@cast _warn -nil
 local _error = config.notifier.error
+---@cast _error -nil
 
 ---@class FzfCodePreviewLayout : FzfLayout
 ---@field side_popups { preview: FzfSidePopup }
 
+---@alias FzfCodePreviewInstanceTrait.accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
+---@alias FzfCodePreviewInstanceTrait.row_accessor fun(entry: FzfEntry): number
+---@alias FzfCodePreviewInstanceTrait.col_accessor fun(entry: FzfEntry): number
+
 ---@class FzfCodePreviewInstanceTrait : FzfController
 ---@field layout FzfCodePreviewLayout
----@field _accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
----@field _row_accessor? fun(entry: FzfEntry): number
----@field _col_accessor? fun(entry: FzfEntry): number
+---@field _accessor? FzfCodePreviewInstanceTrait.accessor
+---@field _row_accessor? FzfCodePreviewInstanceTrait.row_accessor
+---@field _col_accessor? FzfCodePreviewInstanceTrait.col_accessor
 local FzfCodePreviewInstanceTrait = oop_utils.new_class(FzfController)
 
 -- Configure file preview

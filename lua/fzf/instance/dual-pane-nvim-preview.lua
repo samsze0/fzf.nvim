@@ -20,15 +20,15 @@ local _error = config.notifier.error
 
 ---@class FzfDualPaneNvimPreviewInstance : FzfController
 ---@field layout FzfCodePreviewLayout
----@field _accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
----@field _row_accessor? fun(entry: FzfEntry): number
----@field _col_accessor? fun(entry: FzfEntry): number
+---@field _accessor? FzfCodePreviewInstanceTrait.accessor
+---@field _row_accessor? FzfCodePreviewInstanceTrait.row_accessor
+---@field _col_accessor? FzfCodePreviewInstanceTrait.col_accessor
 local DualPaneNvimPreviewInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateDualPaneNvimPreviewInstanceOptions : FzfCreateControllerOptions
----@field accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
----@field row_accessor? fun(entry: FzfEntry): number
----@field col_accessor? fun(entry: FzfEntry): number
+---@field accessor? FzfCodePreviewInstanceTrait.accessor
+---@field row_accessor? FzfCodePreviewInstanceTrait.row_accessor
+---@field col_accessor? FzfCodePreviewInstanceTrait.col_accessor
 
 ---@param opts? FzfCreateDualPaneNvimPreviewInstanceOptions
 ---@return FzfDualPaneNvimPreviewInstance
@@ -86,15 +86,15 @@ function DualPaneNvimPreviewInstance.new(opts)
   ---@cast layout FzfCodePreviewLayout
   obj.layout = layout
 
-  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)
+  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
 
-  FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview)
-  FzfBaseInstanceTrait.setup_main_popup_top_border(obj)
+  FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview) --- @diagnostic disable-line: param-type-mismatch
+  FzfBaseInstanceTrait.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch
 
-  FzfCodePreviewInstanceTrait.setup_fileopen_keymaps(obj)
-  FzfCodePreviewInstanceTrait.setup_filepreview(obj)
-  FzfCodePreviewInstanceTrait.setup_copy_filepath_keymap(obj)
-  FzfCodePreviewInstanceTrait.setup_filetype_border_component(obj)
+  FzfCodePreviewInstanceTrait.setup_fileopen_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceTrait.setup_filepreview(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceTrait.setup_copy_filepath_keymap(obj) --- @diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceTrait.setup_filetype_border_component(obj) --- @diagnostic disable-line: param-type-mismatch
 
   return obj
 end

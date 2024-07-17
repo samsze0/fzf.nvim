@@ -6,8 +6,11 @@ local uv_utils = require("utils.uv")
 local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
+---@cast _info -nil
 local _warn = config.notifier.warn
+---@cast _warn -nil
 local _error = config.notifier.error
+---@cast _error -nil
 
 ---@class FzfBaseInstanceTrait : FzfController
 ---@field layout FzfLayout
@@ -16,7 +19,7 @@ local FzfBaseInstanceTrait = oop_utils.new_class(FzfController)
 ---@class FzfCreateInstanceOptions : FzfCreateControllerOptions
 
 -- TODO: move to private config
----@param preview_popup TUISidePopup
+---@param preview_popup FzfSidePopup
 ---@param opts? { force?: boolean }
 function FzfBaseInstanceTrait:setup_scroll_keymaps(preview_popup, opts)
   opts = opts or {}

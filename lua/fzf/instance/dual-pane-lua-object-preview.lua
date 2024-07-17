@@ -17,20 +17,20 @@ local _info = config.notifier.info
 local _warn = config.notifier.warn
 local _error = config.notifier.error
 
+---@alias FzfDualPaneLuaObjectPreviewInstance.lua_object_accessor fun(focus: FzfEntry): string
+
 ---@class FzfDualPaneLuaObjectPreviewInstance : FzfController
 ---@field layout FzfCodePreviewLayout
----@field _lua_object_accessor fun(focus: FzfEntry): string
+---@field _lua_object_accessor FzfDualPaneLuaObjectPreviewInstance.lua_object_accessor
 local DualPaneLuaObjectPreviewInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateDualPaneLuaObjectPreviewInstanceOptions : FzfCreateControllerOptions
----@field lua_object_accessor fun(focus: FzfEntry): string
+---@field lua_object_accessor FzfDualPaneLuaObjectPreviewInstance.lua_object_accessor
 
 ---@param opts? FzfCreateDualPaneLuaObjectPreviewInstanceOptions
 ---@return FzfDualPaneLuaObjectPreviewInstance
 function DualPaneLuaObjectPreviewInstance.new(opts)
-  opts = opts_utils.extend({
-    filepath_accessor = function(entry) return entry.url end,
-  }, opts)
+  opts = opts_utils.extend({}, opts)
   ---@cast opts FzfCreateDualPaneLuaObjectPreviewInstanceOptions
 
   local obj = FzfController.new(opts)
@@ -78,10 +78,10 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
   ---@cast layout FzfCodePreviewLayout
   obj.layout = layout
 
-  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj)
+  TUIBaseInstanceTrait.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
 
-  FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview)
-  FzfBaseInstanceTrait.setup_main_popup_top_border(obj)
+  FzfBaseInstanceTrait.setup_scroll_keymaps(obj, obj.layout.side_popups.preview) --- @diagnostic disable-line: param-type-mismatch
+  FzfBaseInstanceTrait.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch
 
   obj:_setup_lua_object_preview()
 
