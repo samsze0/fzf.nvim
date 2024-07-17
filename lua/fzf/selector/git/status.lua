@@ -217,13 +217,13 @@ return function(opts)
 
     if focus.deleted then
       TUIBaseInstanceTrait.setup_scroll_keymaps(
-        instance,
+        instance, ---@diagnostic disable-line: param-type-mismatch
         instance.layout.side_popups.a,
         { force = true }
       )
     else
       TUIBaseInstanceTrait.setup_scroll_keymaps(
-        instance,
+        instance,  ---@diagnostic disable-line: param-type-mismatch
         instance.layout.side_popups.b,
         { force = true }
       )
