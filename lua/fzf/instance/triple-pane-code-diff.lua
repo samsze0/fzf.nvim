@@ -13,6 +13,7 @@ local terminal_utils = require("utils.terminal")
 local tbl_utils = require("utils.table")
 local winhighlight_utils = require("utils.winhighlight")
 local NuiLayout = require("nui.layout")
+local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -23,10 +24,7 @@ local _error = config.notifier.error
 ---@field _a_accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _b_accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _picker fun(entry: FzfEntry): ("a" | "b")
-local TriplePaneCodeDiffInstance = {}
-TriplePaneCodeDiffInstance.__index = TriplePaneCodeDiffInstance
-TriplePaneCodeDiffInstance.__is_class = true
-setmetatable(TriplePaneCodeDiffInstance, { __index = FzfController })
+local TriplePaneCodeDiffInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateTriplePaneCodeDiffInstanceOptions : FzfCreateControllerOptions
 ---@field a_accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }

@@ -6,6 +6,7 @@ local vimdiff_utils = require("utils.vimdiff")
 local file_utils = require("utils.files")
 local NuiEvent = require("nui.utils.autocmd").event
 local winhighlight_utils = require("utils.winhighlight")
+local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -19,10 +20,7 @@ local _error = config.notifier.error
 ---@field _a_accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _b_accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _picker fun(entry: FzfEntry): ("a" | "b")
-local FzfCodeDiffInstanceTrait = {}
-FzfCodeDiffInstanceTrait.__index = FzfCodeDiffInstanceTrait
-FzfCodeDiffInstanceTrait.__is_class = true
-setmetatable(FzfCodeDiffInstanceTrait, { __index = FzfController })
+local FzfCodeDiffInstanceTrait = oop_utils.new_class(FzfController)
 
 -- Vim's default diff highlights doesn't align with the one used by git
 --

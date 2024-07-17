@@ -11,6 +11,7 @@ local config = require("fzf.core.config").value
 local Controller = require("tui.controller")
 local ControllerMap = require("tui.controller-map")
 local uv_utils = require("utils.uv")
+local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -44,10 +45,7 @@ local _error = config.notifier.error
 ---@field _is_entries_stale_subscribers TUICallbackMap Map of subscribers of `is_entries_stale`
 ---@field _on_aborted_subscribers TUICallbackMap Mapping of subscribers of the abort event
 ---@field _on_reloaded_subscribers TUICallbackMap Mapping of subscribers of the reload event
-local FzfController = {}
-FzfController.__index = FzfController
-FzfController.__is_class = true
-setmetatable(FzfController, { __index = Controller })
+local FzfController = oop_utils.new_class(Controller)
 
 -- Map of controller ID to controller.
 -- A singleton.

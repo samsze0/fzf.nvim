@@ -13,6 +13,7 @@ local terminal_utils = require("utils.terminal")
 local tbl_utils = require("utils.table")
 local NuiLayout = require("nui.layout")
 local NuiText = require("nui.text")
+local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -26,10 +27,7 @@ local _error = config.notifier.error
 ---@field _accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _row_accessor? fun(entry: FzfEntry): number
 ---@field _col_accessor? fun(entry: FzfEntry): number
-local GrepInstance = {}
-GrepInstance.__index = GrepInstance
-GrepInstance.__is_class = true
-setmetatable(GrepInstance, { __index = FzfController })
+local GrepInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateGrepInstanceOptions : FzfCreateControllerOptions
 ---@field accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }

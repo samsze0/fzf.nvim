@@ -3,13 +3,11 @@ local SidePopup = require("tui.popup").SidePopup
 local HelpPopup = require("tui.popup").HelpPopup
 local opts_utils = require("utils.opts")
 local Config = require("fzf.core.config")
+local oop_utils = require("utils.oop")
 
 ---@class FzfMainPopup: TUIMainPopup
 ---@field _config FzfConfig
-local FzfMainPopup = {}
-FzfMainPopup.__index = FzfMainPopup
-FzfMainPopup.__is_class = true
-setmetatable(FzfMainPopup, { __index = MainPopup })
+local FzfMainPopup = oop_utils.new_class(MainPopup)
 
 ---@param opts { popup_opts?: nui_popup_options }
 ---@return FzfMainPopup
@@ -28,10 +26,7 @@ end
 
 ---@class FzfSidePopup: TUISidePopup
 ---@field _config FzfConfig
-local FzfSidePopup = {}
-FzfSidePopup.__index = FzfSidePopup
-FzfSidePopup.__is_class = true
-setmetatable(FzfSidePopup, { __index = SidePopup })
+local FzfSidePopup = oop_utils.new_class(SidePopup)
 
 ---@param opts { popup_opts?: nui_popup_options }
 ---@return FzfSidePopup
@@ -50,10 +45,7 @@ end
 
 ---@class FzfHelpPopup: TUIHelpPopup
 ---@field _config FzfConfig
-local FzfHelpPopup = {}
-FzfHelpPopup.__index = FzfHelpPopup
-FzfHelpPopup.__is_class = true
-setmetatable(FzfHelpPopup, { __index = HelpPopup })
+local FzfHelpPopup = oop_utils.new_class(HelpPopup)
 
 ---@param opts { popup_opts?: nui_popup_options }
 ---@return FzfHelpPopup

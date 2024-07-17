@@ -11,6 +11,7 @@ local lang_utils = require("utils.lang")
 local terminal_utils = require("utils.terminal")
 local tbl_utils = require("utils.table")
 local NuiLayout = require("nui.layout")
+local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -19,10 +20,7 @@ local _error = config.notifier.error
 ---@class FzfDualPaneLuaObjectPreviewInstance : FzfController
 ---@field layout FzfCodePreviewLayout
 ---@field _lua_object_accessor fun(focus: FzfEntry): string
-local DualPaneLuaObjectPreviewInstance = {}
-DualPaneLuaObjectPreviewInstance.__index = DualPaneLuaObjectPreviewInstance
-DualPaneLuaObjectPreviewInstance.__is_class = true
-setmetatable(DualPaneLuaObjectPreviewInstance, { __index = FzfController })
+local DualPaneLuaObjectPreviewInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateDualPaneLuaObjectPreviewInstanceOptions : FzfCreateControllerOptions
 ---@field lua_object_accessor fun(focus: FzfEntry): string

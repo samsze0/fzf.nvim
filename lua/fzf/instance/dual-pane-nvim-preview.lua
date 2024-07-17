@@ -12,6 +12,7 @@ local lang_utils = require("utils.lang")
 local terminal_utils = require("utils.terminal")
 local tbl_utils = require("utils.table")
 local NuiLayout = require("nui.layout")
+local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -22,10 +23,7 @@ local _error = config.notifier.error
 ---@field _accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@field _row_accessor? fun(entry: FzfEntry): number
 ---@field _col_accessor? fun(entry: FzfEntry): number
-local DualPaneNvimPreviewInstance = {}
-DualPaneNvimPreviewInstance.__index = DualPaneNvimPreviewInstance
-DualPaneNvimPreviewInstance.__is_class = true
-setmetatable(DualPaneNvimPreviewInstance, { __index = FzfController })
+local DualPaneNvimPreviewInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateDualPaneNvimPreviewInstanceOptions : FzfCreateControllerOptions
 ---@field accessor? fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }

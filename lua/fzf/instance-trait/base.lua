@@ -3,6 +3,7 @@ local FzfController = require("fzf.core.controller")
 local tbl_utils = require("utils.table")
 local NuiText = require("nui.text")
 local uv_utils = require("utils.uv")
+local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -10,10 +11,7 @@ local _error = config.notifier.error
 
 ---@class FzfBaseInstanceTrait : FzfController
 ---@field layout TUILayout
-local FzfBaseInstanceTrait = {}
-FzfBaseInstanceTrait.__index = FzfBaseInstanceTrait
-FzfBaseInstanceTrait.__is_class = true
-setmetatable(FzfBaseInstanceTrait, { __index = FzfController })
+local FzfBaseInstanceTrait = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateInstanceOptions : FzfCreateControllerOptions
 

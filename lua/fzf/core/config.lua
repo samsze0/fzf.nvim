@@ -1,5 +1,6 @@
 local Config = require("tui.config")
 local opts_utils = require("utils.opts")
+local oop_utils = require("utils.oop")
 
 ---@class FzfHighlightGroupsConfig.border_text
 ---@field selector_breadcrumbs? string
@@ -20,10 +21,7 @@ local opts_utils = require("utils.opts")
 
 ---@class FzfConfig: TUIConfig
 ---@field value FzfConfig.config
-local FzfConfig = {}
-FzfConfig.__index = FzfConfig
-FzfConfig.__is_class = true
-setmetatable(FzfConfig, { __index = Config })
+local FzfConfig = oop_utils.new_class(Config)
 
 ---@return FzfConfig
 function FzfConfig.new()

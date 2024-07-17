@@ -5,6 +5,7 @@ local uv_utils = require("utils.uv")
 local os_utils = require("utils.os")
 local CallbackMap = require("tui.callback-map")
 local config = require("fzf.core.config").value
+local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -23,9 +24,7 @@ local FZF_API_KEY = uuid_utils.v4()
 ---@field fzf_port number
 ---@field _event_map TUIEventMap Map of events to fzf action(s)
 ---@field _callback_map TUICallbackMap Map of keys to lua callbacks
-local IpcClient = {}
-IpcClient.__index = IpcClient
-IpcClient.__is_class = true
+local IpcClient = oop_utils.new_class()
 
 ---@param action string
 ---@param opts? { load_action_from_file?: boolean }
@@ -91,10 +90,7 @@ function IpcClient:env_vars() error("Not implemented") end
 ---@field port number Port of the server that listens to incoming messages from fzf
 ---@field _tcp_server any
 ---@field _rows_tmp_file string Path to the temporary file that stores the rows for fzf to load
-local TcpIpcClient = {}
-TcpIpcClient.__index = TcpIpcClient
-TcpIpcClient.__is_class = true
-setmetatable(TcpIpcClient, { __index = IpcClient })
+local TcpIpcClient = oop_utils.new_class(IpcClient)
 
 function TcpIpcClient.new()
   local obj = setmetatable({

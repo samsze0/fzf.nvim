@@ -11,6 +11,7 @@ local lang_utils = require("utils.lang")
 local terminal_utils = require("utils.terminal")
 local tbl_utils = require("utils.table")
 local NuiLayout = require("nui.layout")
+local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
 local _warn = config.notifier.warn
@@ -21,10 +22,7 @@ local _error = config.notifier.error
 
 ---@class FzfDualPaneTerminalPreviewInstance : FzfController
 ---@field layout FzfTerminalPreviewLayout
-local DualPaneTerminalPreviewInstance = {}
-DualPaneTerminalPreviewInstance.__index = DualPaneTerminalPreviewInstance
-DualPaneTerminalPreviewInstance.__is_class = true
-setmetatable(DualPaneTerminalPreviewInstance, { __index = FzfController })
+local DualPaneTerminalPreviewInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateDualPaneTerminalPreviewInstanceOptions : FzfCreateControllerOptions
 
