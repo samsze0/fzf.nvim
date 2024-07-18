@@ -20,7 +20,7 @@ local _warn = config.notifier.warn
 local _error = config.notifier.error
 
 ---@class FzfGrepLayout : FzfCodePreviewLayout
----@field side_popups { preview: FzfSidePopup, rg_error: FzfSidePopup }
+---@field side_popups { preview: FzfSidePopup, rg_error: FzfSidePopup, replacement: FzfSidePopup, files_to_include: FzfSidePopup, files_to_exclude: FzfSidePopup }
 
 ---@class FzfGrepInstance : FzfController
 ---@field layout FzfGrepLayout
@@ -60,19 +60,41 @@ function GrepInstance.new(opts)
       },
     },
   })
+  local replacement_popup = FzfSidePopup.new({})
+  local files_to_include_popup = FzfSidePopup.new({})
+  local files_to_exclude_popup = FzfSidePopup.new({})
   local rg_error_popup = FzfSidePopup.new({})
   local help_popup = FzfHelpPopup.new({})
 
   main_popup.right = preview_popup
   preview_popup.left = main_popup
-  main_popup.down = rg_error_popup
-  rg_error_popup.up = main_popup
+
+  main_popup.down = files_to_include_popup
+  files_to_include_popup.up = main_popup
+  files_to_include_popup.right = preview_popup
+
+  files_to_include_popup.down = files_to_exclude_popup
+  files_to_exclude_popup.up = files_to_include_popup
+  files_to_exclude_popup.right = preview_popup
+
+  files_to_exclude_popup.down = rg_error_popup
+  rg_error_popup.up = files_to_exclude_popup
   rg_error_popup.right = preview_popup
+
+  replacement_popup.down = preview_popup
+  preview_popup.up = replacement_popup
+  replacement_popup.left = main_popup
 
   local layout = FzfLayout.new({
     config = obj._config,
     main_popup = main_popup,
-    side_popups = { preview = preview_popup, rg_error = rg_error_popup },
+    side_popups = {
+      preview = preview_popup,
+      rg_error = rg_error_popup,
+      replacement = replacement_popup,
+      files_to_include = files_to_include_popup,
+      files_to_exclude = files_to_exclude_popup,
+    },
     help_popup = help_popup,
     layout_config = function(layout)
       ---@cast layout FzfGrepLayout
@@ -82,15 +104,20 @@ function GrepInstance.new(opts)
       return NuiLayout.Box({
         NuiLayout.Box({
           NuiLayout.Box(main_popup, { grow = 5 }),
+          NuiLayout.Box(files_to_include_popup, { grow = 1 }),
+          NuiLayout.Box(files_to_exclude_popup, { grow = 1 }),
           NuiLayout.Box(rg_error_popup, { grow = 1 }),
         }, {
           dir = "col",
-          grow = (main_popup.should_show or rg_error_popup.should_show) and 10
-            or 1,
+          grow = main_popup.should_show and 10 or 1,
         }),
-        preview_popup.should_show
-            and NuiLayout.Box(preview_popup, { grow = 10 })
-          or NuiLayout.Box(preview_popup, { grow = 1 }),
+        NuiLayout.Box({
+          NuiLayout.Box(replacement_popup, { grow = 1 }),
+          NuiLayout.Box(preview_popup, { grow = 5 }),
+        }, {
+          dir = "col",
+          grow = preview_popup.should_show and 10 or 1,
+        }),
       }, { dir = "row" })
     end,
   })
@@ -98,17 +125,30 @@ function GrepInstance.new(opts)
   obj.layout = layout
 
   TUIBaseInstanceMixin.setup_controller_ui_hooks(obj) ---@diagnostic disable-line: param-type-mismatch
-  TUIBaseInstanceMixin.setup_scroll_keymaps(obj, obj.layout.side_popups.preview)  ---@diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceMixin.setup_scroll_keymaps(obj, obj.layout.side_popups.preview) ---@diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceMixin.setup_close_keymaps(obj) ---@diagnostic disable-line: param-type-mismatch
 
-  FzfBaseInstanceMixin.setup_main_popup_top_border(obj)  ---@diagnostic disable-line: param-type-mismatch
+  FzfBaseInstanceMixin.setup_main_popup_top_border(obj) ---@diagnostic disable-line: param-type-mismatch
 
-  FzfCodePreviewInstanceMixin.setup_fileopen_keymaps(obj)  ---@diagnostic disable-line: param-type-mismatch
-  FzfCodePreviewInstanceMixin.setup_filepreview(obj)  ---@diagnostic disable-line: param-type-mismatch
-  FzfCodePreviewInstanceMixin.setup_copy_filepath_keymap(obj)  ---@diagnostic disable-line: param-type-mismatch
-  FzfCodePreviewInstanceMixin.setup_filetype_border_component(obj)  ---@diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceMixin.setup_fileopen_keymaps(obj) ---@diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceMixin.setup_filepreview(obj) ---@diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceMixin.setup_copy_filepath_keymap(obj) ---@diagnostic disable-line: param-type-mismatch
+  FzfCodePreviewInstanceMixin.setup_filetype_border_component(obj) ---@diagnostic disable-line: param-type-mismatch
 
   local rg_error_popup_title = rg_error_popup.top_border_text:prepend("left")
   rg_error_popup_title:render(NuiText("Rg output"))
+
+  local files_to_include_popup_title =
+    files_to_include_popup.top_border_text:prepend("left")
+  files_to_include_popup_title:render(NuiText("Files to include"))
+
+  local files_to_exclude_popup_title =
+    files_to_exclude_popup.top_border_text:prepend("left")
+  files_to_exclude_popup_title:render(NuiText("Files to exclude"))
+
+  local replacement_popup_title =
+    replacement_popup.top_border_text:prepend("left")
+  replacement_popup_title:render(NuiText("Replacement"))
 
   return obj
 end

@@ -55,7 +55,7 @@ return function(opts)
   local entries_getter = function()
     if instance.query:len() == 0 then return {} end
 
-    local command = ([[rg %s '%s' $(%s)]]):format(
+    local command = ([[rg %s '%s' -- $(%s)]]):format(
       terminal_utils.shell_opts_tostring(config.default_rg_args),
       instance.query,
       git_utils.files_cmd(opts.git_dir)
@@ -67,9 +67,7 @@ return function(opts)
     })
     if status ~= 0 then
       if status == 1 then
-        instance.layout.side_popups.rg_error:set_lines({
-          "No match",
-        })
+        instance.layout.side_popups.rg_error:set_lines({})
         return {}
       else
         instance.layout.side_popups.rg_error:set_lines(vim.split(err, "\n"))
