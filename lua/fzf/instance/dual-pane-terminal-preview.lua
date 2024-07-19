@@ -68,16 +68,16 @@ function DualPaneTerminalPreviewInstance.new(opts)
       ---@cast layout FzfTerminalPreviewLayout
 
       -- FIX: NuiPopup does not cater for removing popup from layout
-      return NuiLayout.Box(
-        tbl_utils.non_falsey({
-          main_popup.should_show and NuiLayout.Box(main_popup, { grow = 10 })
-            or NuiLayout.Box(main_popup, { grow = 1 }),
-          preview_popup.should_show
-              and NuiLayout.Box(preview_popup, { grow = 10 })
-            or NuiLayout.Box(preview_popup, { grow = 1 }),
-        }),
-        { dir = "row" }
-      )
+      return NuiLayout.Box({
+        NuiLayout.Box(
+          main_popup,
+          { grow = main_popup.should_show and 10 or 1 }
+        ),
+        NuiLayout.Box(
+          preview_popup,
+          { grow = preview_popup.should_show and 10 or 1 }
+        ),
+      }, { dir = "row" })
     end,
   })
   ---@cast layout FzfTerminalPreviewLayout
