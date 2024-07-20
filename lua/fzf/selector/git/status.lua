@@ -14,8 +14,11 @@ local files_utils = require("utils.files")
 local NuiText = require("nui.text")
 
 local _info = config.notifier.info
+---@cast _info -nil
 local _warn = config.notifier.warn
+---@cast _warn -nil
 local _error = config.notifier.error
+---@cast _error -nil
 
 ---@class FzfGitStatusOptions.hl_groups.border_text
 ---@field added? string

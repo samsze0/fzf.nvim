@@ -14,8 +14,11 @@ local NuiLayout = require("nui.layout")
 local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
+---@cast _info -nil
 local _warn = config.notifier.warn
+---@cast _warn -nil
 local _error = config.notifier.error
+---@cast _error -nil
 
 ---@class FzfTerminalPreviewLayout : FzfLayout
 ---@field side_popups { preview: FzfSidePopup }

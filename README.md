@@ -41,6 +41,8 @@ An extensible neovim plugin that integrates fzf into the editor
 - Integrate with git worktree
 - Error handling and reporting. Error occured in "fast lane" is slienced?
 - Add options to not change focus when invoking `refresh`
+- Git status refresh should not change entries position
+- yazi.nvim integration (i.e. reveal entry in yazi in git status selector in order to quickly stage a directory)
 
 ## License
 

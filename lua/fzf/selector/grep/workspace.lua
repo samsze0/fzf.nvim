@@ -9,8 +9,11 @@ local str_utils = require("utils.string")
 local uv_utils = require("utils.uv")
 
 local _info = config.notifier.info
+---@cast _info -nil
 local _warn = config.notifier.warn
+---@cast _warn -nil
 local _error = config.notifier.error
+---@cast _error -nil
 
 -- TODO: cater git-less using fd
 

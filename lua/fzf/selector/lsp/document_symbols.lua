@@ -11,8 +11,11 @@ local shared = require("fzf.selector.lsp.shared")
 local dbg = require("utils").debug
 
 local _info = config.notifier.info
+---@cast _info -nil
 local _warn = config.notifier.warn
+---@cast _warn -nil
 local _error = config.notifier.error
+---@cast _error -nil
 
 -- TODO: integration w/ treesitter to support initial pos
 

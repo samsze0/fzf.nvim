@@ -14,18 +14,21 @@ local NuiLayout = require("nui.layout")
 local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
+---@cast _info -nil
 local _warn = config.notifier.warn
+---@cast _warn -nil
 local _error = config.notifier.error
+---@cast _error -nil
 
----@alias FzfDualPaneLuaObjectPreviewInstance.lua_object_accessor fun(focus: FzfEntry): string
+---@alias FzfDualPaneLuaObjectPreviewInstance.accessor fun(focus: FzfEntry): any
 
 ---@class FzfDualPaneLuaObjectPreviewInstance : FzfController
 ---@field layout FzfCodePreviewLayout
----@field _lua_object_accessor FzfDualPaneLuaObjectPreviewInstance.lua_object_accessor
+---@field _accessor FzfDualPaneLuaObjectPreviewInstance.accessor
 local DualPaneLuaObjectPreviewInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateDualPaneLuaObjectPreviewInstanceOptions : FzfCreateControllerOptions
----@field lua_object_accessor FzfDualPaneLuaObjectPreviewInstance.lua_object_accessor
+---@field accessor? FzfDualPaneLuaObjectPreviewInstance.accessor
 
 ---@param opts? FzfCreateDualPaneLuaObjectPreviewInstanceOptions
 ---@return FzfDualPaneLuaObjectPreviewInstance
@@ -38,7 +41,7 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
   ---@diagnostic disable-next-line: cast-type-mismatch
   ---@cast obj FzfDualPaneLuaObjectPreviewInstance
 
-  obj._lua_object_accessor = opts.lua_object_accessor
+  obj._accessor = opts.accessor
 
   local main_popup = MainPopup.new({})
   local preview_popup = SidePopup.new({
@@ -97,7 +100,7 @@ function DualPaneLuaObjectPreviewInstance:_setup_lua_object_preview()
 
     if not focus then return end
 
-    local lua_obj = self._lua_object_accessor(focus)
+    local lua_obj = self._accessor(focus)
     self.layout.side_popups.preview:set_lines(
       vim.split(vim.inspect(lua_obj), "\n")
     )

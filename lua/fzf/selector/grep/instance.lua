@@ -16,8 +16,11 @@ local NuiText = require("nui.text")
 local oop_utils = require("utils.oop")
 
 local _info = config.notifier.info
+---@cast _info -nil
 local _warn = config.notifier.warn
+---@cast _warn -nil
 local _error = config.notifier.error
+---@cast _error -nil
 
 ---@class FzfGrepLayout : FzfCodePreviewLayout
 ---@field side_popups { preview: FzfSidePopup, rg_error: FzfSidePopup, replacement: FzfSidePopup, files_to_include: FzfSidePopup, files_to_exclude: FzfSidePopup }
