@@ -5,6 +5,8 @@ local NuiText = require("nui.text")
 local uv_utils = require("utils.uv")
 local oop_utils = require("utils.oop")
 
+local uv = vim.uv
+
 local _info = config.notifier.info
 ---@cast _info -nil
 local _warn = config.notifier.warn
@@ -57,7 +59,7 @@ function FzfBaseInstanceMixin:setup_main_popup_top_border()
 
     if self:fetching_entries() then
       if not loading_icon_animation_timer then
-        local timer, err = vim.loop.new_timer()
+        local timer, err = uv.new_timer()
         assert(timer, err)
 
         loading_icon_animation_timer = timer
