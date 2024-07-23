@@ -13,7 +13,8 @@
       "../jumplist.nvim/lua",
       "../nui.nvim/lua",
       ".test/lua",
-      "../tui.nvim/lua"
+      "../tui.nvim/lua",
+      "../notifier.nvim/lua"
     ],
     "checkThirdParty": false
   },

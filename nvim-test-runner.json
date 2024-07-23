@@ -22,6 +22,9 @@
     },
     {
       "uri": "file:../tui.nvim"
+    },
+    {
+      "uri": "file:../notifier.nvim"
     }
   ]
 }
