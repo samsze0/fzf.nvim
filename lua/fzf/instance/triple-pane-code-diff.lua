@@ -91,17 +91,12 @@ function TriplePaneCodeDiffInstance.new(opts)
     main_popup = main_popup,
     side_popups = { a = a_popup, b = b_popup },
     help_popup = help_popup,
-    layout_config = function(layout)
-      ---@cast layout FzfCodeDiffLayout
-
+    box_fn = function()
       -- FIX: NuiPopup does not cater for removing popup from layout
       return NuiLayout.Box({
-        NuiLayout.Box(
-          main_popup,
-          { grow = main_popup.should_show and 10 or 1 }
-        ),
-        NuiLayout.Box(a_popup, { grow = a_popup.should_show and 10 or 1 }),
-        NuiLayout.Box(b_popup, { grow = b_popup.should_show and 10 or 1 }),
+        NuiLayout.Box(main_popup, { grow = main_popup.visible and 10 or 1 }),
+        NuiLayout.Box(a_popup, { grow = a_popup.visible and 10 or 1 }),
+        NuiLayout.Box(b_popup, { grow = b_popup.visible and 10 or 1 }),
       }, { dir = "row" })
     end,
   })

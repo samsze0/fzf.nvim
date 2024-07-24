@@ -62,18 +62,13 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
     main_popup = main_popup,
     side_popups = { preview = preview_popup },
     help_popup = help_popup,
-    layout_config = function(layout)
-      ---@cast layout FzfCodePreviewLayout
-
+    box_fn = function()
       -- FIX: NuiPopup does not cater for removing popup from layout
       return NuiLayout.Box({
-        NuiLayout.Box(
-          main_popup,
-          { grow = main_popup.should_show and 10 or 1 }
-        ),
+        NuiLayout.Box(main_popup, { grow = main_popup.visible and 10 or 1 }),
         NuiLayout.Box(
           preview_popup,
-          { grow = preview_popup.should_show and 10 or 1 }
+          { grow = preview_popup.visible and 10 or 1 }
         ),
       }, { dir = "row" })
     end,

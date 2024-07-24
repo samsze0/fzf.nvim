@@ -7,6 +7,7 @@ local config = require("fzf.core.config").value
 local opts_utils = require("utils.opts")
 local FzfMainPopup = require("fzf.popup").MainPopup
 local FzfSidePopup = require("fzf.popup").SidePopup
+local FzfOverlayPopup = require("fzf.popup").OverlayPopup
 local FzfHelpPopup = require("fzf.popup").HelpPopup
 local lang_utils = require("utils.lang")
 local terminal_utils = require("utils.terminal")
@@ -55,6 +56,7 @@ function GrepInstance.new(opts)
   obj._col_accessor = opts.col_accessor
 
   local main_popup = FzfMainPopup.new({})
+
   local preview_popup = FzfSidePopup.new({
     popup_opts = {
       win_options = {
@@ -64,25 +66,22 @@ function GrepInstance.new(opts)
     },
   })
   local replacement_popup = FzfSidePopup.new({})
-  local files_to_include_popup = FzfSidePopup.new({})
-  local files_to_exclude_popup = FzfSidePopup.new({})
-  local rg_error_popup = FzfSidePopup.new({})
+
+  -- TODO: move these to instance-level config
+  local files_to_include_popup = FzfOverlayPopup.new({
+    toggle_keymap = "<C-i>",
+  })
+  local files_to_exclude_popup = FzfOverlayPopup.new({
+    toggle_keymap = "<C-o>",
+  })
+  local rg_error_popup = FzfOverlayPopup.new({
+    toggle_keymap = "<C-p>",
+  })
+
   local help_popup = FzfHelpPopup.new({})
 
   main_popup.right = preview_popup
   preview_popup.left = main_popup
-
-  main_popup.down = files_to_include_popup
-  files_to_include_popup.up = main_popup
-  files_to_include_popup.right = preview_popup
-
-  files_to_include_popup.down = files_to_exclude_popup
-  files_to_exclude_popup.up = files_to_include_popup
-  files_to_exclude_popup.right = preview_popup
-
-  files_to_exclude_popup.down = rg_error_popup
-  rg_error_popup.up = files_to_exclude_popup
-  rg_error_popup.right = preview_popup
 
   replacement_popup.down = preview_popup
   preview_popup.up = replacement_popup
@@ -98,28 +97,28 @@ function GrepInstance.new(opts)
       files_to_include = files_to_include_popup,
       files_to_exclude = files_to_exclude_popup,
     },
+    other_overlay_popups = {
+      files_to_include = files_to_include_popup,
+      files_to_exclude = files_to_exclude_popup,
+      rg_error = rg_error_popup,
+    },
     help_popup = help_popup,
-    layout_config = function(layout)
-      ---@cast layout FzfGrepLayout
-
+    box_fn = function()
       -- FIX: NuiPopup does not cater for removing popup from layout
       -- FIX: size is weird
       return NuiLayout.Box({
         NuiLayout.Box({
           NuiLayout.Box(main_popup, { grow = 5 }),
-          NuiLayout.Box(files_to_include_popup, { grow = 1 }),
-          NuiLayout.Box(files_to_exclude_popup, { grow = 1 }),
-          NuiLayout.Box(rg_error_popup, { grow = 1 }),
         }, {
           dir = "col",
-          grow = main_popup.should_show and 10 or 1,
+          grow = main_popup.visible and 10 or 1,
         }),
         NuiLayout.Box({
           NuiLayout.Box(replacement_popup, { grow = 1 }),
           NuiLayout.Box(preview_popup, { grow = 5 }),
         }, {
           dir = "col",
-          grow = preview_popup.should_show and 10 or 1,
+          grow = preview_popup.visible and 10 or 1,
         }),
       }, { dir = "row" })
     end,

@@ -1,6 +1,7 @@
 local TUIMainPopup = require("tui.popup").MainPopup
 local TUISidePopup = require("tui.popup").SidePopup
 local TUIHelpPopup = require("tui.popup").HelpPopup
+local TUIOverlayPopup = require("tui.popup").OverlayPopup
 local opts_utils = require("utils.opts")
 local FzfConfig = require("fzf.core.config")
 local oop_utils = require("utils.oop")
@@ -47,6 +48,27 @@ function FzfSidePopup.new(opts)
   return obj
 end
 
+---@class FzfOverlayPopup: TUIOverlayPopup
+---@field _config FzfConfig
+local FzfOverlayPopup = oop_utils.new_class(TUIOverlayPopup)
+
+---@class FzfOverlayPopup.constructor.opts : TUIOverlayPopup.constructor.opts
+
+---@param opts FzfOverlayPopup.constructor.opts
+---@return FzfOverlayPopup
+function FzfOverlayPopup.new(opts)
+  opts = opts or {}
+
+  local obj = TUIOverlayPopup.new({
+    popup_opts = opts.popup_opts,
+    config = FzfConfig,
+  })
+  setmetatable(obj, FzfOverlayPopup)
+  ---@cast obj FzfOverlayPopup
+
+  return obj
+end
+
 ---@class FzfHelpPopup: TUIHelpPopup
 ---@field _config FzfConfig
 local FzfHelpPopup = oop_utils.new_class(TUIHelpPopup)
@@ -71,5 +93,6 @@ end
 return {
   MainPopup = FzfMainPopup,
   SidePopup = FzfSidePopup,
+  OverlayPopup = FzfOverlayPopup,
   HelpPopup = FzfHelpPopup,
 }
