@@ -92,10 +92,7 @@ function GrepInstance.new(opts)
     main_popup = main_popup,
     side_popups = {
       preview = preview_popup,
-      rg_error = rg_error_popup,
       replacement = replacement_popup,
-      files_to_include = files_to_include_popup,
-      files_to_exclude = files_to_exclude_popup,
     },
     other_overlay_popups = {
       files_to_include = files_to_include_popup,
