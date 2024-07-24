@@ -15,12 +15,11 @@ local FzfMainPopup = oop_utils.new_class(TUIMainPopup)
 ---@param opts FzfMainPopup.constructor.opts
 ---@return FzfMainPopup
 function FzfMainPopup.new(opts)
-  opts = opts or {}
-
-  local obj = TUIMainPopup.new({
-    popup_opts = opts.popup_opts,
+  opts = opts_utils.extend({
     config = FzfConfig,
-  })
+  }, opts)
+
+  local obj = TUIMainPopup.new(opts)
   setmetatable(obj, FzfMainPopup)
   ---@cast obj FzfMainPopup
 
@@ -36,12 +35,11 @@ local FzfSidePopup = oop_utils.new_class(TUISidePopup)
 ---@param opts FzfSidePopup.constructor.opts
 ---@return FzfSidePopup
 function FzfSidePopup.new(opts)
-  opts = opts or {}
-
-  local obj = TUISidePopup.new({
-    popup_opts = opts.popup_opts,
+  opts = opts_utils.extend({
     config = FzfConfig,
-  })
+  }, opts)
+
+  local obj = TUISidePopup.new(opts)
   setmetatable(obj, FzfSidePopup)
   ---@cast obj FzfSidePopup
 
@@ -57,12 +55,11 @@ local FzfOverlayPopup = oop_utils.new_class(TUIOverlayPopup)
 ---@param opts FzfOverlayPopup.constructor.opts
 ---@return FzfOverlayPopup
 function FzfOverlayPopup.new(opts)
-  opts = opts or {}
-
-  local obj = TUIOverlayPopup.new({
-    popup_opts = opts.popup_opts,
+  opts = opts_utils.extend({
     config = FzfConfig,
-  })
+  }, opts)
+
+  local obj = TUIOverlayPopup.new(opts)
   setmetatable(obj, FzfOverlayPopup)
   ---@cast obj FzfOverlayPopup
 
@@ -78,12 +75,11 @@ local FzfHelpPopup = oop_utils.new_class(TUIHelpPopup)
 ---@param opts FzfHelpPopup.constructor.opts
 ---@return FzfHelpPopup
 function FzfHelpPopup.new(opts)
-  opts = opts or {}
-
-  local obj = TUIHelpPopup.new({
-    popup_opts = opts.popup_opts,
+  opts = opts_utils.extend({
     config = FzfConfig,
-  })
+  }, opts)
+
+  local obj = TUIHelpPopup.new(opts)
   setmetatable(obj, FzfHelpPopup)
   ---@cast obj FzfHelpPopup
 
