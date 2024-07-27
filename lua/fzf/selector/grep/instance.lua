@@ -24,7 +24,8 @@ local _error = config.notifier.error
 ---@cast _error -nil
 
 ---@class FzfGrepLayout : FzfCodePreviewLayout
----@field side_popups { preview: FzfSidePopup, rg_error: FzfSidePopup, replacement: FzfSidePopup, files_to_include: FzfSidePopup, files_to_exclude: FzfSidePopup }
+---@field side_popups { preview: FzfSidePopup, replacement: FzfSidePopup }
+---@field overlay_popups { files_to_include: FzfOverlayPopup, files_to_exclude: FzfOverlayPopup, rg_error: FzfOverlayPopup }
 
 ---@class FzfGrepInstance : FzfController
 ---@field layout FzfGrepLayout

@@ -94,6 +94,7 @@ return function(opts)
       filepath = instance:prev_filepath(),
     }
   end
+  -- TODO: sometimes the highlight row is not working
   instance._row_accessor = function(entry)
     return entry.symbol.selectionRange.start.line + 1
   end
