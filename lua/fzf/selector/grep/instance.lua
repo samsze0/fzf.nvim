@@ -15,6 +15,7 @@ local tbl_utils = require("utils.table")
 local NuiLayout = require("nui.layout")
 local NuiText = require("nui.text")
 local oop_utils = require("utils.oop")
+local NuiEvent = require("nui.utils.autocmd").event
 
 local _info = config.notifier.info
 ---@cast _info -nil
@@ -137,6 +138,16 @@ function GrepInstance.new(opts)
 
   local rg_error_popup_title = rg_error_popup.top_border_text:prepend("left")
   rg_error_popup_title:render(NuiText("Rg output"))
+
+  -- local rg_error_indicator = main_popup.top_border_text:prepend("right")
+
+  -- rg_error_popup:on(NuiEvent.TextChanged, function()
+  --   if #rg_error_popup:get_lines() == 0 then
+  --     rg_error_indicator:render("")
+  --   else
+  --     rg_error_indicator:render(NuiText("Error"))
+  --   end
+  -- end)
 
   local files_to_include_popup_title =
     files_to_include_popup.top_border_text:prepend("left")

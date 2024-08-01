@@ -70,15 +70,21 @@ return function(opts)
     })
     if status ~= 0 then
       if status == 1 then
-        instance.layout.side_popups.rg_error:set_lines({})
+        instance.layout.overlay_popups.rg_error:set_lines({})
         return {}
       else
-        instance.layout.side_popups.rg_error:set_lines(vim.split(err, "\n"))
+        if type(err) == "string" then
+          instance.layout.overlay_popups.rg_error:set_lines(
+            vim.split(err, "\n")
+          )
+        end
         return {}
       end
     end
 
-    instance.layout.side_popups.rg_error:set_lines({})
+    instance.layout.overlay_popups.rg_error:set_lines({})
+
+    ---@cast lines -nil
 
     return tbl_utils.map(lines, function(i, e)
       local parts = str_utils.split(e, {
