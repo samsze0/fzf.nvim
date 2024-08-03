@@ -16,7 +16,7 @@ local _error = config.notifier.error
 ---@cast _error -nil
 
 ---@class FzfCodeDiffLayout : FzfLayout
----@field side_popups { a: FzfSidePopup, b: FzfSidePopup }
+---@field underlay_popups { main: FzfTUIPopup, a: FzfUnderlayPopup, b: FzfUnderlayPopup }
 
 ---@alias FzfCodeDiffInstanceMixin.accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@alias FzfCodeDiffInstanceMixin.picker fun(entry: FzfEntry): ("a" | "b")
@@ -58,9 +58,12 @@ end
 function FzfCodeDiffInstanceMixin:setup_filepreview(opts)
   opts = opts_utils.extend({}, opts)
 
+  local a_popup = self.layout.underlay_popups.a
+  local b_popup = self.layout.underlay_popups.b
+
   self:on_focus(function(payload)
-    self.layout.side_popups.a:set_lines({})
-    self.layout.side_popups.b:set_lines({})
+    a_popup:set_lines({})
+    b_popup:set_lines({})
 
     local focus = self.focus
     if not focus then return end
@@ -76,15 +79,17 @@ function FzfCodeDiffInstanceMixin:setup_filepreview(opts)
     end
 
     local a = self._a_accessor(self.focus)
-    show(a, self.layout.side_popups.a)
+    show(a, a_popup)
 
     local b = self._b_accessor(self.focus)
-    show(b, self.layout.side_popups.b)
+    show(b, b_popup)
 
-    vimdiff_utils.diff_bufs(
-      self.layout.side_popups.a.bufnr,
-      self.layout.side_popups.b.bufnr
-    )
+    local a_buf = a_popup:get_buffer()
+    local b_buf = b_popup:get_buffer()
+
+    if not a_buf or not b_buf then return end
+
+    vimdiff_utils.diff_bufs(a_buf, b_buf)
   end)
 end
 
@@ -124,28 +129,28 @@ function FzfCodeDiffInstanceMixin:setup_fileopen_keymaps()
     if filetype then vim.bo.filetype = filetype end
   end
 
-  self.layout.main_popup:map(
+  local main_popup = self.layout.underlay_popups.main
+
+  main_popup:map(
     "<C-w>",
     "Open in new window",
     function() open_file(false, "vsplit") end
   )
 
-  self.layout.main_popup:map(
+  main_popup:map(
     "<C-t>",
     "Open in new tab",
     function() open_file(false, "tabnew") end
   )
 
-  self.layout.main_popup:map(
-    "<CR>",
-    "Open",
-    function() open_file(true, "edit") end
-  )
+  main_popup:map("<CR>", "Open", function() open_file(true, "edit") end)
 end
 
 -- TODO: move to private config
 function FzfCodeDiffInstanceMixin:setup_copy_filepath_keymap()
-  self.layout.main_popup:map("<C-y>", "Copy filepath", function()
+  local main_popup = self.layout.underlay_popups.main
+
+  main_popup:map("<C-y>", "Copy filepath", function()
     if not self.focus then return end
 
     local a_or_b = self._picker(self.focus)

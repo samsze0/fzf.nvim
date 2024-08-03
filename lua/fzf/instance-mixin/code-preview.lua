@@ -15,7 +15,7 @@ local _error = config.notifier.error
 ---@cast _error -nil
 
 ---@class FzfCodePreviewLayout : FzfLayout
----@field side_popups { preview: FzfSidePopup }
+---@field underlay_popups { main: FzfTUIPopup, preview: FzfUnderlayPopup }
 
 ---@alias FzfCodePreviewInstanceMixin.accessor fun(entry: FzfEntry): { filepath?: string, lines?: string[], filetype?: string }
 ---@alias FzfCodePreviewInstanceMixin.row_accessor fun(entry: FzfEntry): number
@@ -34,8 +34,10 @@ local FzfCodePreviewInstanceMixin = oop_utils.new_class(FzfController)
 function FzfCodePreviewInstanceMixin:setup_filepreview(opts)
   opts = opts_utils.extend({}, opts)
 
+  local preview_popup = self.layout.underlay_popups.preview
+
   self:on_focus(function(payload)
-    self.layout.side_popups.preview:set_lines({})
+    preview_popup:set_lines({})
 
     local focus = self.focus
     if not focus then return end
@@ -49,11 +51,11 @@ function FzfCodePreviewInstanceMixin:setup_filepreview(opts)
 
     local x = self._accessor(self.focus)
     if x.filepath then
-      self.layout.side_popups.preview:show_file_content(x.filepath, {
+      preview_popup:show_file_content(x.filepath, {
         cursor_pos = cursor_pos,
       })
     elseif x.lines then
-      self.layout.side_popups.preview:set_lines(x.lines, {
+      preview_popup:set_lines(x.lines, {
         cursor_pos = cursor_pos,
         filetype = x.filetype,
       })
@@ -97,28 +99,28 @@ function FzfCodePreviewInstanceMixin:setup_fileopen_keymaps()
     highlight_row()
   end
 
-  self.layout.main_popup:map(
+  local main_popup = self.layout.underlay_popups.main
+
+  main_popup:map(
     "<C-w>",
     "Open in new window",
     function() open_file(false, "vsplit") end
   )
 
-  self.layout.main_popup:map(
+  main_popup:map(
     "<C-t>",
     "Open in new tab",
     function() open_file(false, "tabnew") end
   )
 
-  self.layout.main_popup:map(
-    "<CR>",
-    "Open",
-    function() open_file(true, "edit") end
-  )
+  main_popup:map("<CR>", "Open", function() open_file(true, "edit") end)
 end
 
 -- TODO: move to private config
 function FzfCodePreviewInstanceMixin:setup_copy_filepath_keymap()
-  self.layout.main_popup:map("<C-y>", "Copy filepath", function()
+  local main_popup = self.layout.underlay_popups.main
+
+  main_popup:map("<C-y>", "Copy filepath", function()
     if not self.focus then return end
 
     local x = self._accessor(self.focus)
@@ -134,8 +136,9 @@ function FzfCodePreviewInstanceMixin:setup_copy_filepath_keymap()
 end
 
 function FzfCodePreviewInstanceMixin:setup_filetype_border_component()
-  local border_component =
-    self.layout.side_popups.preview.bottom_border_text:append("right")
+  local preview_popup = self.layout.underlay_popups.preview
+
+  local border_component = preview_popup.bottom_border_text:append("right")
 
   self:on_focus(function(payload)
     local entry = payload.entry
@@ -143,7 +146,11 @@ function FzfCodePreviewInstanceMixin:setup_filetype_border_component()
 
     ---@cast entry FzfFileEntry
 
-    local filetype = vim.bo[self.layout.side_popups.preview.bufnr].filetype
+    local preview_buf = preview_popup:get_buffer()
+
+    if not preview_buf then return end
+
+    local filetype = vim.bo[preview_buf].filetype
     ---@cast filetype string
     border_component:render(
       NuiText(

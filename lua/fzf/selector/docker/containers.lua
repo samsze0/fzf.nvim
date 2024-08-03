@@ -68,7 +68,9 @@ return function(opts)
   instance:set_entries_getter(entries_getter)
   instance._accessor = function(entry) return entry.container end
 
-  instance.layout.main_popup:map("<C-y>", "Copy container ID", function()
+  local main_popup = instance.layout.underlay_popups.main
+
+  main_popup:map("<C-y>", "Copy container ID", function()
     local focus = instance.focus
     ---@cast focus FzfDockerContainersEntry?
 
@@ -78,7 +80,7 @@ return function(opts)
     _info(([[Copied %s to clipboard]]):format(focus.container.ID))
   end)
 
-  instance.layout.main_popup:map("<C-x>", "Delete container", function()
+  main_popup:map("<C-x>", "Delete container", function()
     local focus = instance.focus
     ---@cast focus FzfDockerContainersEntry?
 
@@ -95,7 +97,7 @@ return function(opts)
     instance:refresh({ force_fetch = true })
   end)
 
-  instance.layout.main_popup:map("<Left>", "Start container", function()
+  main_popup:map("<Left>", "Start container", function()
     local focus = instance.focus
     ---@cast focus FzfDockerContainersEntry?
 
@@ -112,7 +114,7 @@ return function(opts)
     instance:refresh({ force_fetch = true })
   end)
 
-  instance.layout.main_popup:map("<Right>", "Stop container", function()
+  main_popup:map("<Right>", "Stop container", function()
     local focus = instance.focus
     ---@cast focus FzfDockerContainersEntry?
 

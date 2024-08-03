@@ -93,12 +93,14 @@ return function(opts)
 
   instance:set_entries_getter(entries_getter)
 
+  local main_popup = instance.layout.underlay_popups.main
+  local a_popup = instance.layout.underlay_popups.a
+  local b_popup = instance.layout.underlay_popups.b
+
   local border_component_git_status =
-    instance.layout.main_popup.bottom_border_text:append("left")
-  local border_component_a =
-    instance.layout.side_popups.a.top_border_text:prepend("left")
-  local border_component_b =
-    instance.layout.side_popups.b.top_border_text:prepend("left")
+    main_popup.bottom_border_text:append("left")
+  local border_component_a = a_popup.top_border_text:prepend("left")
+  local border_component_b = b_popup.top_border_text:prepend("left")
 
   local set_border = function(text, hl_group, popup, border_component)
     local hl_group = match(hl_group, {
@@ -113,14 +115,14 @@ return function(opts)
   ---@param text string
   ---@param hl_group? "added" | "changed" | "deleted"
   local set_a_border = function(text, hl_group)
-    local a_popup = instance.layout.side_popups.a
+    local a_popup = a_popup
     set_border(text, hl_group, a_popup, border_component_a)
   end
 
   ---@param text string
   ---@param hl_group? "added" | "changed" | "deleted"
   local set_b_border = function(text, hl_group)
-    local b_popup = instance.layout.side_popups.b
+    local b_popup = b_popup
     set_border(text, hl_group, b_popup, border_component_b)
   end
 
@@ -221,13 +223,13 @@ return function(opts)
     if focus.deleted then
       TUIBaseInstanceMixin.setup_scroll_keymaps(
         instance, ---@diagnostic disable-line: param-type-mismatch
-        instance.layout.side_popups.a,
+        a_popup,
         { force = true }
       )
     else
       TUIBaseInstanceMixin.setup_scroll_keymaps(
-        instance,  ---@diagnostic disable-line: param-type-mismatch
-        instance.layout.side_popups.b,
+        instance, ---@diagnostic disable-line: param-type-mismatch
+        b_popup,
         { force = true }
       )
     end
@@ -242,7 +244,7 @@ return function(opts)
     )
   end)
 
-  instance.layout.main_popup:map("<Left>", "Stage", function()
+  main_popup:map("<Left>", "Stage", function()
     local focus = instance.focus
     if not focus then return end
     ---@cast focus FzfGitStatusEntry
@@ -254,7 +256,7 @@ return function(opts)
     instance:refresh()
   end)
 
-  instance.layout.main_popup:map("<Right>", "Unstage", function()
+  main_popup:map("<Right>", "Unstage", function()
     local focus = instance.focus
     if not focus then return end
     ---@cast focus FzfGitStatusEntry
@@ -266,7 +268,7 @@ return function(opts)
     instance:refresh()
   end)
 
-  instance.layout.main_popup:map("<C-x>", "Restore", function()
+  main_popup:map("<C-x>", "Restore", function()
     local focus = instance.focus
     if not focus then return end
     ---@cast focus FzfGitStatusEntry
@@ -290,7 +292,7 @@ return function(opts)
 
   -- TODO: stash message customizability
 
-  instance.layout.main_popup:map("<C-s>", "Stash selected", function()
+  main_popup:map("<C-s>", "Stash selected", function()
     instance:selections(function(entries)
       ---@cast entries FzfGitStatusEntry[]
       git_utils.stash({
@@ -301,7 +303,7 @@ return function(opts)
     end)
   end, { force = true })
 
-  instance.layout.main_popup:map("<C-d>", "Stash staged", function()
+  main_popup:map("<C-d>", "Stash staged", function()
     git_utils.stash({
       git_dir = opts.git_dir,
       stash_staged = true,

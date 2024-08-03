@@ -5,9 +5,9 @@ local FzfController = require("fzf.core.controller")
 local FzfLayout = require("fzf.layout")
 local config = require("fzf.core.config").value
 local opts_utils = require("utils.opts")
-local MainPopup = require("fzf.popup").MainPopup
-local SidePopup = require("fzf.popup").SidePopup
-local HelpPopup = require("fzf.popup").HelpPopup
+local MainPopup = require("fzf.popup").TUI
+local UnderlayPopup = require("fzf.popup").Underlay
+local UnderlayPopupSettings = require("tui.layout").UnderlayPopupSettings
 local lang_utils = require("utils.lang")
 local terminal_utils = require("utils.terminal")
 local tbl_utils = require("utils.table")
@@ -53,7 +53,7 @@ function TriplePaneCodeDiffInstance.new(opts)
   obj._b_accessor = opts.b_accessor
   obj._picker = opts.picker
 
-  local a_win_hl, b_win_hl = FzfCodeDiffInstanceMixin.setup_diff_highlights(obj)
+  local a_win_hl, b_win_hl = FzfCodeDiffInstanceMixin.setup_diff_highlights(obj) ---@diagnostic disable-line: param-type-mismatch
 
   local main_popup = MainPopup.new({})
   ---@type nui_popup_options
@@ -63,41 +63,58 @@ function TriplePaneCodeDiffInstance.new(opts)
       cursorline = true,
     },
   }
-  local a_popup = SidePopup.new({
+  local a_popup = UnderlayPopup.new({
     config = obj._config,
-    popup_opts = opts_utils.deep_extend({
+    nui_popup_opts = opts_utils.deep_extend({
       win_options = {
         winhighlight = winhighlight_utils.to_str(a_win_hl),
       },
     }, side_popup_opts),
   })
-  local b_popup = SidePopup.new({
+  local b_popup = UnderlayPopup.new({
     config = obj._config,
-    popup_opts = opts_utils.deep_extend({
+    nui_popup_opts = opts_utils.deep_extend({
       win_options = {
         winhighlight = winhighlight_utils.to_str(b_win_hl),
       },
     }, side_popup_opts),
   })
-  local help_popup = HelpPopup.new({})
 
-  main_popup.right = a_popup
-  a_popup.right = b_popup
-  b_popup.left = a_popup
-  a_popup.left = main_popup
+  local main_popup_settings = UnderlayPopupSettings.new({
+    right = a_popup,
+  })
+  local a_popup_settings = UnderlayPopupSettings.new({
+    left = main_popup,
+    right = b_popup,
+  })
+  local b_popup_settings = UnderlayPopupSettings.new({
+    left = a_popup,
+  })
 
   local layout = FzfLayout.new({
     config = obj._config,
-    main_popup = main_popup,
-    side_popups = { a = a_popup, b = b_popup },
-    help_popup = help_popup,
+    underlay_popups = { main = main_popup, a = a_popup, b = b_popup },
+    underlay_popups_settings = {
+      main = main_popup_settings,
+      a = a_popup_settings,
+      b = b_popup_settings,
+    },
     box_fn = function()
       -- FIX: NuiPopup does not cater for removing popup from layout
-      return NuiLayout.Box({
-        NuiLayout.Box(main_popup, { grow = main_popup.visible and 10 or 1 }),
-        NuiLayout.Box(a_popup, { grow = a_popup.visible and 10 or 1 }),
-        NuiLayout.Box(b_popup, { grow = b_popup.visible and 10 or 1 }),
-      }, { dir = "row" })
+      return NuiLayout.Box(
+        tbl_utils.non_false({
+          main_popup_settings.visible
+              and NuiLayout.Box(main_popup:get_nui_popup(), { grow = 1 })
+            or false,
+          a_popup_settings.visible
+              and NuiLayout.Box(a_popup:get_nui_popup(), { grow = 1 })
+            or false,
+          b_popup_settings.visible
+              and NuiLayout.Box(b_popup:get_nui_popup(), { grow = 1 })
+            or false,
+        }),
+        { dir = "row" }
+      )
     end,
   })
   ---@cast layout FzfCodeDiffLayout

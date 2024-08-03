@@ -125,7 +125,9 @@ function TcpIpcClient:reload(rows)
     self:execute("reload()")
   else
     vim.fn.writefile(rows, self._rows_tmp_file)
-    self:execute("reload(cat " .. vim.fn.shellescape(self._rows_tmp_file) .. ")")
+    self:execute(
+      "reload(cat " .. vim.fn.shellescape(self._rows_tmp_file) .. ")"
+    )
   end
 end
 

@@ -4,9 +4,9 @@ local FzfController = require("fzf.core.controller")
 local Layout = require("fzf.layout")
 local config = require("fzf.core.config").value
 local opts_utils = require("utils.opts")
-local MainPopup = require("fzf.popup").MainPopup
-local SidePopup = require("fzf.popup").SidePopup
-local HelpPopup = require("fzf.popup").HelpPopup
+local MainPopup = require("fzf.popup").TUI
+local UnderlayPopup = require("fzf.popup").Underlay
+local UnderlayPopupSettings = require("tui.layout").UnderlayPopupSettings
 local lang_utils = require("utils.lang")
 local terminal_utils = require("utils.terminal")
 local tbl_utils = require("utils.table")
@@ -21,7 +21,7 @@ local _error = config.notifier.error
 ---@cast _error -nil
 
 ---@class FzfTerminalPreviewLayout : FzfLayout
----@field side_popups { preview: FzfSidePopup }
+---@field underlay_popups { main: FzfTUIPopup, preview: FzfUnderlayPopup }
 
 ---@class FzfDualPaneTerminalPreviewInstance : FzfController
 ---@field layout FzfTerminalPreviewLayout
@@ -43,8 +43,8 @@ function DualPaneTerminalPreviewInstance.new(opts)
   ---@cast obj FzfDualPaneTerminalPreviewInstance
 
   local main_popup = MainPopup.new({})
-  local preview_popup = SidePopup.new({
-    popup_opts = {
+  local preview_popup = UnderlayPopup.new({
+    nui_popup_opts = {
       buf_options = {
         filetype = "terminal",
         synmaxcol = 0,
@@ -57,32 +57,41 @@ function DualPaneTerminalPreviewInstance.new(opts)
     },
     config = obj._config,
   })
-  local help_popup = HelpPopup.new({})
 
-  main_popup.right = preview_popup
-  preview_popup.left = main_popup
+  local main_popup_settings = UnderlayPopupSettings.new({
+    right = preview_popup,
+  })
+  local preview_popup_settings = UnderlayPopupSettings.new({
+    left = main_popup,
+  })
 
   local layout = Layout.new({
     config = obj._config,
-    main_popup = main_popup,
-    side_popups = { preview = preview_popup },
-    help_popup = help_popup,
+    underlay_popups = { main = main_popup, preview = preview_popup },
+    underlay_popups_settings = {
+      main = main_popup_settings,
+      preview = preview_popup_settings,
+    },
     box_fn = function()
       -- FIX: NuiPopup does not cater for removing popup from layout
-      return NuiLayout.Box({
-        NuiLayout.Box(main_popup, { grow = main_popup.visible and 10 or 1 }),
-        NuiLayout.Box(
-          preview_popup,
-          { grow = preview_popup.visible and 10 or 1 }
-        ),
-      }, { dir = "row" })
+      return NuiLayout.Box(
+        tbl_utils.non_false({
+          main_popup_settings.visible
+              and NuiLayout.Box(main_popup:get_nui_popup(), { grow = 1 })
+            or false,
+          preview_popup_settings.visible
+              and NuiLayout.Box(preview_popup:get_nui_popup(), { grow = 1 })
+            or false,
+        }),
+        { dir = "row" }
+      )
     end,
   })
   ---@cast layout FzfTerminalPreviewLayout
   obj.layout = layout
 
   TUIBaseInstanceMixin.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
-  TUIBaseInstanceMixin.setup_scroll_keymaps(obj, obj.layout.side_popups.preview) --- @diagnostic disable-line: param-type-mismatch
+  TUIBaseInstanceMixin.setup_scroll_keymaps(obj, preview_popup) --- @diagnostic disable-line: param-type-mismatch
   TUIBaseInstanceMixin.setup_close_keymaps(obj) --- @diagnostic disable-line: param-type-mismatch
 
   FzfBaseInstanceMixin.setup_main_popup_top_border(obj) --- @diagnostic disable-line: param-type-mismatch

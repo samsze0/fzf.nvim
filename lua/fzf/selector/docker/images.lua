@@ -61,7 +61,9 @@ return function(opts)
   instance:set_entries_getter(entries_getter)
   instance._accessor = function(entry) return entry.image end
 
-  instance.layout.main_popup:map("<C-y>", "Copy image ID", function()
+  local main_popup = instance.layout.underlay_popups.main
+
+  main_popup:map("<C-y>", "Copy image ID", function()
     local focus = instance.focus
     ---@cast focus FzfDockerImagesEntry?
 
@@ -71,7 +73,7 @@ return function(opts)
     _info(([[Copied %s to clipboard]]):format(focus.image.ID))
   end)
 
-  instance.layout.main_popup:map("<C-x>", "Delete image", function()
+  main_popup:map("<C-x>", "Delete image", function()
     local focus = instance.focus
     ---@cast focus FzfDockerImagesEntry?
 

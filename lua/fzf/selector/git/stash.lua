@@ -93,11 +93,13 @@ return function(opts)
 
   instance:set_entries_getter(entries_getter)
 
-  local border_component =
-    instance.layout.side_popups.preview.bottom_border_text:append("left")
+  local main_popup = instance.layout.underlay_popups.main
+  local preview_popup = instance.layout.underlay_popups.preview
+
+  local border_component = preview_popup.bottom_border_text:append("left")
 
   instance:on_focus(function(payload)
-    instance.layout.side_popups.preview:set_lines({})
+    preview_popup:set_lines({})
 
     local focus = instance.focus
     if not focus then return end
@@ -109,7 +111,7 @@ return function(opts)
       git_dir = opts.git_dir,
       delta_args = config.default_delta_args,
     })
-    instance.layout.side_popups.preview:set_lines(output, { filetype = "terminal" })
+    preview_popup:set_lines(output, { filetype = "terminal" })
 
     local diff_stat = git_utils.stash_diff_stat(focus.ref, {
       git_dir = opts.git_dir,
@@ -119,7 +121,7 @@ return function(opts)
     )
   end)
 
-  instance.layout.main_popup:map("<C-y>", "Copy ref", function()
+  main_popup:map("<C-y>", "Copy ref", function()
     local focus = instance.focus
     if not focus then return end
 
@@ -130,7 +132,7 @@ return function(opts)
     _info(([[Copied %s to clipboard]]):format(ref))
   end)
 
-  instance.layout.main_popup:map("<C-l>", "List file changes", function()
+  main_popup:map("<C-l>", "List file changes", function()
     local focus = instance.focus
     if not focus then return end
 

@@ -1,13 +1,11 @@
-local TUILayout = require("tui.layout")
-local FzfMainPopup = require("fzf.popup").MainPopup
-local FzfSidePopup = require("fzf.popup").SidePopup
-local FzfHelpPopup = require("fzf.popup").HelpPopup
+local TUILayout = require("tui.layout").Layout
 local opts_utils = require("utils.opts")
 local FzfConfig = require("fzf.core.config")
 local oop_utils = require("utils.oop")
 
 ---@class FzfLayout: TUILayout
 ---@field _config FzfConfig
+---@field underlay_popups { main: FzfTUIPopup }
 local FzfLayout = oop_utils.new_class(TUILayout)
 
 ---@class FzfLayout.constructor.opts : TUILayout.constructor.opts
@@ -17,7 +15,6 @@ local FzfLayout = oop_utils.new_class(TUILayout)
 function FzfLayout.new(opts)
   opts = opts_utils.extend({
     config = FzfConfig,
-    help_popup = FzfHelpPopup,
   }, opts)
 
   local obj = TUILayout.new(opts)

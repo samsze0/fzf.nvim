@@ -21,8 +21,9 @@ local FzfBaseInstanceMixin = oop_utils.new_class(FzfController)
 ---@class FzfCreateInstanceOptions : FzfCreateControllerOptions
 
 function FzfBaseInstanceMixin:setup_main_popup_top_border()
-  local border_component_1 =
-    self.layout.main_popup.top_border_text:prepend("left")
+  local main_popup = self.layout.underlay_popups.main
+
+  local border_component_1 = main_popup.top_border_text:prepend("left")
 
   ---@type FzfController[]
   local controller_stack = {}
@@ -46,8 +47,7 @@ function FzfBaseInstanceMixin:setup_main_popup_top_border()
     )
   )
 
-  local border_component_2 =
-    self.layout.main_popup.top_border_text:append("left")
+  local border_component_2 = main_popup.top_border_text:append("left")
 
   local loading_icon_animation = { "◴", "◷", "◶", "◵" }
   local loading_icon_animation_state = 1
@@ -92,8 +92,7 @@ function FzfBaseInstanceMixin:setup_main_popup_top_border()
 
   self:on_fetching_entries_change(render_loading_icon)
 
-  local border_component_3 =
-    self.layout.main_popup.top_border_text:append("left")
+  local border_component_3 = main_popup.top_border_text:append("left")
 
   self:on_is_entries_stale_change(
     function()
