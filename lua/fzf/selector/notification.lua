@@ -20,10 +20,6 @@ local _warn = config.notifier.warn
 local _error = config.notifier.error
 ---@cast _error -nil
 
-local _info = config.notifier.info
-local _warn = config.notifier.warn
-local _error = config.notifier.error
-
 ---@class FzfNotificationsOptions.hl_groups.border_text
 
 ---@class FzfNotificationsOptions.hl_groups
