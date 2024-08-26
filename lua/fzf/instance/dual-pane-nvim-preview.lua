@@ -66,7 +66,7 @@ function DualPaneNvimPreviewInstance.new(opts)
   local main_popup = MainPopup.new(opts_utils.deep_extend({
     nui_popup_opts = {
       win_options = {
-        number = true,
+        number = false,
         cursorline = true,
       },
     },
