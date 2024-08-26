@@ -25,9 +25,22 @@ local _error = config.notifier.error
 
 ---@class FzfDualPaneTerminalPreviewInstance : FzfController
 ---@field layout FzfTerminalPreviewLayout
+---@field main_popup FzfTUIPopup
+---@field preview_popup FzfUnderlayPopup
+---@field main_popup_settings TUIUnderlayPopupInfo
+---@field preview_popup_settings TUIUnderlayPopupInfo
 local DualPaneTerminalPreviewInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateDualPaneTerminalPreviewInstanceOptions : FzfCreateControllerOptions
+---@field main_popup_opts? FzfTUIPopup.constructor.opts
+---@field preview_popup_opts? FzfUnderlayPopup.constructor.opts
+---@field main_popup_settings? TUIUnderlayPopupInfo
+---@field preview_popup_settings? TUIUnderlayPopupInfo
+---@field extra_underlay_popups? table<string, FzfTUIPopup | FzfUnderlayPopup>
+---@field extra_underlay_popups_settings? table<string, TUIUnderlayPopupInfo>
+---@field extra_overlay_popups? table<string, FzfOverlayPopup>
+---@field extra_overlay_popups_settings? table<string, TUIOverlayPopupInfo>
+---@field box_fn? fun(): NuiLayout.Box
 
 ---@param opts? FzfCreateDualPaneTerminalPreviewInstanceOptions
 ---@return FzfDualPaneTerminalPreviewInstance
@@ -42,8 +55,10 @@ function DualPaneTerminalPreviewInstance.new(opts)
   ---@diagnostic disable-next-line: cast-type-mismatch
   ---@cast obj FzfDualPaneTerminalPreviewInstance
 
-  local main_popup = MainPopup.new({})
-  local preview_popup = UnderlayPopup.new({
+  local main_popup = MainPopup.new(opts_utils.deep_extend({}, opts.main_popup_opts))
+  obj.main_popup = main_popup
+
+  local preview_popup = UnderlayPopup.new(opts_utils.deep_extend({
     nui_popup_opts = {
       buf_options = {
         filetype = "terminal",
@@ -56,23 +71,32 @@ function DualPaneTerminalPreviewInstance.new(opts)
       },
     },
     config = obj._config,
-  })
+  }, opts.preview_popup_opts))
+  obj.preview_popup = preview_popup
 
-  local main_popup_settings = UnderlayPopupSettings.new({
+  local main_popup_settings = UnderlayPopupSettings.new(opts_utils.deep_extend({
     right = preview_popup,
-  })
-  local preview_popup_settings = UnderlayPopupSettings.new({
+  }, opts.main_popup_settings))
+  obj.main_popup_settings = main_popup_settings
+
+  local preview_popup_settings = UnderlayPopupSettings.new(opts_utils.deep_extend({
     left = main_popup,
-  })
+  }, opts.preview_popup_settings))
+  obj.preview_popup_settings = preview_popup_settings
 
   local layout = Layout.new({
     config = obj._config,
-    underlay_popups = { main = main_popup, preview = preview_popup },
-    underlay_popups_settings = {
+    underlay_popups = opts_utils.extend({
+      main = main_popup,
+      preview = preview_popup,
+    }, opts.extra_underlay_popups),
+    underlay_popups_settings = opts_utils.extend({
       main = main_popup_settings,
       preview = preview_popup_settings,
-    },
-    box_fn = function()
+    }, opts.extra_underlay_popups_settings),
+    overlay_popups = opts.extra_overlay_popups,
+    overlay_popups_settings = opts.extra_overlay_popups_settings,
+    box_fn = opts.box_fn or function()
       -- FIX: NuiPopup does not cater for removing popup from layout
       return NuiLayout.Box(
         tbl_utils.non_false({

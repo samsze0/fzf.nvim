@@ -22,13 +22,29 @@ local _error = config.notifier.error
 
 ---@alias FzfDualPaneLuaObjectPreviewInstance.accessor fun(focus: FzfEntry): any
 
+---@class FzfLuaObjectPreviewLayout : FzfLayout
+---@field underlay_popups { main: FzfTUIPopup, preview: FzfUnderlayPopup }
+
 ---@class FzfDualPaneLuaObjectPreviewInstance : FzfController
----@field layout FzfCodePreviewLayout
+---@field layout FzfLuaObjectPreviewLayout
 ---@field _accessor FzfDualPaneLuaObjectPreviewInstance.accessor
+---@field main_popup FzfTUIPopup
+---@field preview_popup FzfUnderlayPopup
+---@field main_popup_settings TUIUnderlayPopupInfo
+---@field preview_popup_settings TUIUnderlayPopupInfo
 local DualPaneLuaObjectPreviewInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateDualPaneLuaObjectPreviewInstanceOptions : FzfCreateControllerOptions
 ---@field accessor? FzfDualPaneLuaObjectPreviewInstance.accessor
+---@field main_popup_opts? FzfTUIPopup.constructor.opts
+---@field preview_popup_opts? FzfUnderlayPopup.constructor.opts
+---@field main_popup_settings? TUIUnderlayPopupInfo
+---@field preview_popup_settings? TUIUnderlayPopupInfo
+---@field extra_underlay_popups? table<string, FzfTUIPopup | FzfUnderlayPopup>
+---@field extra_underlay_popups_settings? table<string, TUIUnderlayPopupInfo>
+---@field extra_overlay_popups? table<string, FzfOverlayPopup>
+---@field extra_overlay_popups_settings? table<string, TUIOverlayPopupInfo>
+---@field box_fn? fun(): NuiLayout.Box
 
 ---@param opts? FzfCreateDualPaneLuaObjectPreviewInstanceOptions
 ---@return FzfDualPaneLuaObjectPreviewInstance
@@ -43,31 +59,42 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
 
   obj._accessor = opts.accessor
 
-  local main_popup = MainPopup.new({})
-  local preview_popup = UnderlayPopup.new({
+  local main_popup = MainPopup.new(opts_utils.deep_extend({}, opts.main_popup_opts))
+  obj.main_popup = main_popup
+
+  local preview_popup = UnderlayPopup.new(opts_utils.deep_extend({
     nui_popup_opts = {
       buf_options = {
         filetype = "lua",
       },
     },
     config = obj._config,
-  })
+  }, opts.preview_popup_opts))
+  obj.preview_popup = preview_popup
 
-  local main_popup_settings = UnderlayPopupSettings.new({
+  local main_popup_settings = UnderlayPopupSettings.new(opts_utils.deep_extend({
     right = preview_popup,
-  })
-  local preview_popup_settings = UnderlayPopupSettings.new({
+  }, opts.main_popup_settings))
+  obj.main_popup_settings = main_popup_settings
+
+  local preview_popup_settings = UnderlayPopupSettings.new(opts_utils.deep_extend({
     left = main_popup,
-  })
+  }, opts.preview_popup_settings))
+  obj.preview_popup_settings = preview_popup_settings
 
   local layout = FzfLayout.new({
     config = obj._config,
-    underlay_popups = { main = main_popup, preview = preview_popup },
-    underlay_popups_settings = {
+    underlay_popups = opts_utils.extend({
+      main = main_popup,
+      preview = preview_popup,
+    }, opts.extra_underlay_popups),
+    underlay_popups_settings = opts_utils.extend({
       main = main_popup_settings,
       preview = preview_popup_settings,
-    },
-    box_fn = function()
+    }, opts.extra_underlay_popups_settings),
+    overlay_popups = opts.extra_overlay_popups,
+    overlay_popups_settings = opts.extra_overlay_popups_settings,
+    box_fn = opts.box_fn or function()
       -- FIX: NuiPopup does not cater for removing popup from layout
       return NuiLayout.Box(
         tbl_utils.non_false({
@@ -82,7 +109,7 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
       )
     end,
   })
-  ---@cast layout FzfCodePreviewLayout
+  ---@cast layout FzfLuaObjectPreviewLayout
   obj.layout = layout
 
   TUIBaseInstanceMixin.setup_controller_ui_hooks(obj) --- @diagnostic disable-line: param-type-mismatch
@@ -94,6 +121,11 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
   obj:_setup_lua_object_preview()
 
   return obj
+end
+
+---@param accessor FzfDualPaneLuaObjectPreviewInstance.accessor
+function DualPaneLuaObjectPreviewInstance:set_accessor(accessor)
+  self._accessor = accessor
 end
 
 function DualPaneLuaObjectPreviewInstance:_setup_lua_object_preview()

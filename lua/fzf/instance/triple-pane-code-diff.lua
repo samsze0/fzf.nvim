@@ -27,12 +27,29 @@ local _error = config.notifier.error
 ---@field _a_accessor FzfCodeDiffInstanceMixin.accessor
 ---@field _b_accessor FzfCodeDiffInstanceMixin.accessor
 ---@field _picker FzfCodeDiffInstanceMixin.picker
+---@field main_popup FzfTUIPopup
+---@field a_popup FzfUnderlayPopup
+---@field b_popup FzfUnderlayPopup
+---@field main_popup_settings TUIUnderlayPopupInfo
+---@field a_popup_settings TUIUnderlayPopupInfo
+---@field b_popup_settings TUIUnderlayPopupInfo
 local TriplePaneCodeDiffInstance = oop_utils.new_class(FzfController)
 
 ---@class FzfCreateTriplePaneCodeDiffInstanceOptions : FzfCreateControllerOptions
 ---@field a_accessor? FzfCodeDiffInstanceMixin.accessor
 ---@field b_accessor? FzfCodeDiffInstanceMixin.accessor
 ---@field picker? FzfCodeDiffInstanceMixin.picker
+---@field main_popup_opts? FzfTUIPopup.constructor.opts
+---@field a_popup_opts? FzfUnderlayPopup.constructor.opts
+---@field b_popup_opts? FzfUnderlayPopup.constructor.opts
+---@field main_popup_settings? TUIUnderlayPopupInfo
+---@field a_popup_settings? TUIUnderlayPopupInfo
+---@field b_popup_settings? TUIUnderlayPopupInfo
+---@field extra_underlay_popups? table<string, FzfTUIPopup | FzfUnderlayPopup>
+---@field extra_underlay_popups_settings? table<string, TUIUnderlayPopupInfo>
+---@field extra_overlay_popups? table<string, FzfOverlayPopup>
+---@field extra_overlay_popups_settings? table<string, TUIOverlayPopupInfo>
+---@field box_fn? fun(): NuiLayout.Box
 
 ---@param opts? FzfCreateTriplePaneCodeDiffInstanceOptions
 ---@return FzfTriplePaneCodeDiffInstance
@@ -55,51 +72,74 @@ function TriplePaneCodeDiffInstance.new(opts)
 
   local a_win_hl, b_win_hl = FzfCodeDiffInstanceMixin.setup_diff_highlights(obj) ---@diagnostic disable-line: param-type-mismatch
 
-  local main_popup = MainPopup.new({})
-  ---@type nui_popup_options
+  local main_popup = MainPopup.new(opts_utils.deep_extend({
+    nui_popup_opts = {
+      buf_options = {
+        filetype = "diff",
+      },
+    },
+  }, opts.main_popup_opts))
+  obj.main_popup = main_popup
+
   local side_popup_opts = {
     win_options = {
       number = true,
       cursorline = true,
     },
   }
-  local a_popup = UnderlayPopup.new({
+  ---@type nui_popup_options
+
+  local a_popup = UnderlayPopup.new(opts_utils.deep_extend({
     config = obj._config,
     nui_popup_opts = opts_utils.deep_extend({
       win_options = {
         winhighlight = winhighlight_utils.to_str(a_win_hl),
       },
     }, side_popup_opts),
-  })
-  local b_popup = UnderlayPopup.new({
+  }, opts.a_popup_opts))
+  obj.a_popup = a_popup
+
+  local b_popup = UnderlayPopup.new(opts_utils.deep_extend({
     config = obj._config,
     nui_popup_opts = opts_utils.deep_extend({
       win_options = {
         winhighlight = winhighlight_utils.to_str(b_win_hl),
       },
     }, side_popup_opts),
-  })
+  }, opts.b_popup_opts))
+  obj.b_popup = b_popup
 
-  local main_popup_settings = UnderlayPopupSettings.new({
+  local main_popup_settings = UnderlayPopupSettings.new(opts_utils.deep_extend({
     right = a_popup,
-  })
-  local a_popup_settings = UnderlayPopupSettings.new({
+  }, opts.main_popup_settings))
+  obj.main_popup_settings = main_popup_settings
+
+  local a_popup_settings = UnderlayPopupSettings.new(opts_utils.deep_extend({
     left = main_popup,
     right = b_popup,
-  })
-  local b_popup_settings = UnderlayPopupSettings.new({
+  }, opts.a_popup_settings))
+  obj.a_popup_settings = a_popup_settings
+
+  local b_popup_settings = UnderlayPopupSettings.new(opts_utils.deep_extend({
     left = a_popup,
-  })
+  }, opts.b_popup_settings))
+  obj.b_popup_settings = b_popup_settings
 
   local layout = FzfLayout.new({
     config = obj._config,
-    underlay_popups = { main = main_popup, a = a_popup, b = b_popup },
-    underlay_popups_settings = {
+    underlay_popups = opts_utils.deep_extend({
+      main = main_popup,
+      a = a_popup,
+      b = b_popup,
+    }, opts.extra_underlay_popups),
+    underlay_popups_settings = opts_utils.deep_extend({
       main = main_popup_settings,
       a = a_popup_settings,
       b = b_popup_settings,
-    },
-    box_fn = function()
+    }, opts.extra_underlay_popups_settings),
+    overlay_popups = opts.extra_overlay_popups,
+    overlay_popups_settings = opts.extra_overlay_popups_settings,
+    box_fn = opts.box_fn or function()
       -- FIX: NuiPopup does not cater for removing popup from layout
       return NuiLayout.Box(
         tbl_utils.non_false({
