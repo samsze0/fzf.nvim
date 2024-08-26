@@ -126,7 +126,7 @@ return function(opts)
     set_border(text, hl_group, b_popup, border_component_b)
   end
 
-  instance._a_accessor = function(entry)
+  instance:set_a_accessor(function(entry)
     ---@cast entry FzfGitStatusEntry
 
     if entry.added or entry.is_untracked then
@@ -174,9 +174,9 @@ return function(opts)
         ),
       }
     end
-  end
+  end)
 
-  instance._b_accessor = function(entry)
+  instance:set_b_accessor(function(entry)
     ---@cast entry FzfGitStatusEntry
 
     if entry.deleted then
@@ -207,13 +207,13 @@ return function(opts)
     return {
       filepath = entry.filepath,
     }
-  end
+  end)
 
-  instance._picker = function(entry)
+  instance:set_picker(function(entry)
     if entry.deleted then return "a" end
 
     return "b"
-  end
+  end)
 
   instance:on_focus(function(payload)
     local focus = instance.focus

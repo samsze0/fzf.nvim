@@ -66,7 +66,7 @@ return function(opts)
   end
 
   instance:set_entries_getter(entries_getter)
-  instance._accessor = function(entry) return entry.container end
+  instance:set_accessor(function(entry) return entry.container end)
 
   local main_popup = instance.layout.underlay_popups.main
 

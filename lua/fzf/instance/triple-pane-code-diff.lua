@@ -172,4 +172,19 @@ function TriplePaneCodeDiffInstance.new(opts)
   return obj
 end
 
+---@param accessor FzfCodeDiffInstanceMixin.accessor
+function TriplePaneCodeDiffInstance:set_a_accessor(accessor)
+  self._a_accessor = accessor
+end
+
+---@param accessor FzfCodeDiffInstanceMixin.accessor
+function TriplePaneCodeDiffInstance:set_b_accessor(accessor)
+  self._b_accessor = accessor
+end
+
+---@param picker FzfCodeDiffInstanceMixin.picker
+function TriplePaneCodeDiffInstance:set_picker(picker)
+  self._picker = picker
+end
+
 return TriplePaneCodeDiffInstance

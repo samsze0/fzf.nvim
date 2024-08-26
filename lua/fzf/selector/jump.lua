@@ -60,13 +60,13 @@ return function(opts)
   end
 
   instance:set_entries_getter(entries_getter)
-  instance._accessor = function(entry)
+  instance:set_accessor(function(entry)
     return {
       filepath = entry.jump.filename,
     }
-  end
-  instance._row_accessor = function(entry) return entry.jump.line end
-  instance._col_accessor = function(entry) return entry.jump.col end
+  end)
+  instance:set_row_accessor(function(entry) return entry.jump.line end)
+  instance:set_col_accessor(function(entry) return entry.jump.col end)
 
   return instance
 end

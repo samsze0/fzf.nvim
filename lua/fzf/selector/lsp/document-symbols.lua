@@ -88,19 +88,19 @@ return function(opts)
     end
   )
 
-  instance._accessor = function(entry)
+  instance:set_accessor(function(entry)
     return {
       -- TODO: add option to stay at the same file
       filepath = instance:prev_filepath(),
     }
-  end
+  end)
   -- TODO: sometimes the highlight row is not working
-  instance._row_accessor = function(entry)
+  instance:set_row_accessor(function(entry)
     return entry.symbol.selectionRange.start.line + 1
-  end
-  instance._col_accessor = function(entry)
+  end)
+  instance:set_col_accessor(function(entry)
     return entry.symbol.selectionRange.start.character + 1
-  end
+  end)
 
   instance:on_exited(function() handle() end)
 

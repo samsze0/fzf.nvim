@@ -80,11 +80,11 @@ return function(opts)
   end
 
   instance:set_entries_getter(entries_getter)
-  instance._accessor = function(entry)
+  instance:set_accessor(function(entry)
     return {
       filepath = entry.path,
     }
-  end
+  end)
 
   return instance
 end

@@ -122,7 +122,7 @@ return function(opts)
     set_border(text, hl_group, b_popup, border_component_b)
   end
 
-  instance._a_accessor = function(entry)
+  instance:set_a_accessor(function(entry)
     ---@cast entry FzfGitFileChangeEntry
 
     if entry.added then
@@ -144,9 +144,9 @@ return function(opts)
       filetype = files_utils.get_filetype(entry.filepath),
       lines = before or {},
     }
-  end
+  end)
 
-  instance._b_accessor = function(entry)
+  instance:set_b_accessor(function(entry)
     ---@cast entry FzfGitFileChangeEntry
 
     if entry.deleted then
@@ -168,16 +168,16 @@ return function(opts)
       filetype = files_utils.get_filetype(entry.filepath),
       lines = after or {},
     }
-  end
+  end)
 
   -- TODO: Reuse this function from status.lua
-  instance._picker = function(entry)
+  instance:set_picker(function(entry)
     ---@cast entry FzfGitFileChangeEntry
 
     if entry.deleted then return "a" end
 
     return "b"
-  end
+  end)
 
   -- TODO: Reuse this function from status.lua
   instance:on_focus(function(payload)

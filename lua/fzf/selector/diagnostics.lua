@@ -75,14 +75,14 @@ return function(opts)
 
   instance:set_entries_getter(entries_getter)
 
-  instance._accessor = function(entry)
+  instance:set_accessor(function(entry)
     -- TOOD: if current_buffer_only is true, then we should avoid loading up the same file again
     return {
       filepath = entry.filepath,
     }
-  end
-  instance._row_accessor = function(entry) return entry.diagnostic.lnum end
-  instance._col_accessor = function(entry) return entry.diagnostic.col end
+  end)
+  instance:set_row_accessor(function(entry) return entry.diagnostic.lnum end)
+  instance:set_col_accessor(function(entry) return entry.diagnostic.col end)
 
   return instance
 end
