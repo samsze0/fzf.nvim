@@ -1,5 +1,7 @@
 local FzfDualPaneNvimPreviewInstance =
   require("fzf.instance.dual-pane-nvim-preview")
+local OverlayPopupSettings = require("tui.layout").OverlayPopupSettings
+local FzfOverlayPopup = require("fzf.popup").Overlay
 local tbl_utils = require("utils.table")
 local opts_utils = require("utils.opts")
 local terminal_utils = require("utils.terminal")
@@ -41,8 +43,42 @@ return function(opts)
   }, opts)
   ---@cast opts FzfFilesOptions
 
+  local exclude_popup = FzfOverlayPopup.new({
+    nui_popup_opts = {
+      win_options = {
+        number = false,
+      },
+    },
+  })
+  local exclude_popup_settings = OverlayPopupSettings.new({
+    toggle_keymap = "<C-o>",
+  })
+  local exclude_popup_title = exclude_popup.top_border_text:append("left")
+  exclude_popup_title:render(NuiText("Exclude"))
+
+  local include_popup = FzfOverlayPopup.new({
+    nui_popup_opts = {
+      win_options = {
+        number = false,
+      },
+    },
+  })
+  local include_popup_settings = OverlayPopupSettings.new({
+    toggle_keymap = "<C-i>",
+  })
+  local include_popup_title = include_popup.top_border_text:append("left")
+  include_popup_title:render(NuiText("Include"))
+
   local instance = FzfDualPaneNvimPreviewInstance.new({
     name = "Files",
+    extra_overlay_popups = {
+      ["exclude"] = exclude_popup,
+      ["include"] = include_popup,
+    },
+    extra_overlay_popups_settings = {
+      ["exclude"] = exclude_popup_settings,
+      ["include"] = include_popup_settings,
+    },
   })
 
   ---@alias FzfFileEntry { display: string, path: string, git_path?: string }
@@ -80,11 +116,13 @@ return function(opts)
   end
 
   instance:set_entries_getter(entries_getter)
-  instance:set_accessor(function(entry)
-    return {
-      filepath = entry.path,
-    }
-  end)
+  instance:set_accessor(
+    function(entry)
+      return {
+        filepath = entry.path,
+      }
+    end
+  )
 
   return instance
 end
