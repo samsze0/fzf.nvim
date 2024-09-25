@@ -25,6 +25,9 @@
     },
     {
       "uri": "file:../notifier.nvim"
+    },
+    {
+      "uri": "file:../websocket.nvim"
     }
   ]
 }

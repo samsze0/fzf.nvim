@@ -14,7 +14,8 @@
       "../nui.nvim/lua",
       ".test/lua",
       "../tui.nvim/lua",
-      "../notifier.nvim/lua"
+      "../notifier.nvim/lua",
+      "../websocket.nvim/lua"
     ],
     "checkThirdParty": false
   },
