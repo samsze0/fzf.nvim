@@ -18,6 +18,7 @@ local oop_utils = require("utils.oop")
 ---@field highlight_groups? FzfHighlightGroupsConfig
 ---@field focus_event_default_debounce_ms? number
 ---@field change_event_default_debounce_ms? number
+---@field fzf_bin? string
 
 ---@class FzfConfig: TUIConfig
 ---@field value FzfConfig.config

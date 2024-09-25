@@ -6,6 +6,7 @@ local opts_utils = require("utils.opts")
 local terminal_utils = require("utils.terminal")
 local TUICallbackMap = require("tui.callback-map")
 local TcpIpcClient = require("fzf.core.ipc-client").TcpIpcClient
+local WebsocketIpcClient = require("fzf.core.ipc-client").WebsocketIpcClient
 local fzf_utils = require("fzf.utils")
 local config = require("fzf.core.config").value
 local TUIController = require("tui.controller")
@@ -85,6 +86,7 @@ function FzfController.new(opts)
   obj.fzf_ready = false
   obj._ipc_client = match(config.ipc_client_type, {
     [1] = function() return TcpIpcClient.new() end,
+    [2] = function() return WebsocketIpcClient.new() end,
   })()
   obj._display_accessor = function(e) return e.display end
   obj._initial_focus_accessor = function(e) return e.initial_focus end
@@ -163,7 +165,7 @@ function FzfController:start()
   -- TODO: cater Windows
   -- Start fzf without any entries
   local command = terminal_utils.shell_opts_tostring(env_vars)
-    .. [[ printf "" | fzf ]]
+    .. ([[ printf "" | %s ]]):format(config.fzf_bin or "fzf")
     .. terminal_utils.shell_opts_tostring(args)
 
   if self._parent_id then self:parent():hide() end
@@ -194,8 +196,10 @@ function FzfController:start()
       elseif code == 1 then
         -- No match
       elseif code == 2 then
-        -- TODO: Check stdout if this error occurs
-        error("Unexpected error")
+        -- Check stdout if this error occurs
+        local stdout = vim.fn.system(command)
+        -- TODO: Capture stdout without having to re-run the command
+        error("Unexpected error: " .. stdout)
       elseif code == 130 then -- abort
         self._on_aborted_subscribers:invoke_all()
       else
