@@ -183,8 +183,6 @@ function TriplePaneCodeDiffInstance:set_b_accessor(accessor)
 end
 
 ---@param picker FzfCodeDiffInstanceMixin.picker
-function TriplePaneCodeDiffInstance:set_picker(picker)
-  self._picker = picker
-end
+function TriplePaneCodeDiffInstance:set_picker(picker) self._picker = picker end
 
 return TriplePaneCodeDiffInstance

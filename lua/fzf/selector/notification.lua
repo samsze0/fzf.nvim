@@ -77,11 +77,13 @@ return function(opts)
   end
 
   instance:set_entries_getter(entries_getter)
-  instance:set_accessor(function(entry)
-    return {
-      lines = vim.split(entry.notification.message, "\n"),
-    }
-  end)
+  instance:set_accessor(
+    function(entry)
+      return {
+        lines = vim.split(entry.notification.message, "\n"),
+      }
+    end
+  )
 
   return instance
 end

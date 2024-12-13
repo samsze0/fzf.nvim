@@ -193,9 +193,9 @@ function FzfController:start()
     command = command,
     exit_code_handler = function(code)
       if code == 0 then
-        -- Match
+      -- Match
       elseif code == 1 then
-        -- No match
+      -- No match
       elseif code == 2 then
         -- Check stdout if this error occurs
         local stdout = vim.fn.system(command)

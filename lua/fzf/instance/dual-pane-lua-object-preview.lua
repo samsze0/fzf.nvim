@@ -59,7 +59,8 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
 
   obj._accessor = opts.accessor
 
-  local main_popup = MainPopup.new(opts_utils.deep_extend({}, opts.main_popup_opts))
+  local main_popup =
+    MainPopup.new(opts_utils.deep_extend({}, opts.main_popup_opts))
   obj.main_popup = main_popup
 
   local preview_popup = UnderlayPopup.new(opts_utils.deep_extend({
@@ -77,9 +78,10 @@ function DualPaneLuaObjectPreviewInstance.new(opts)
   }, opts.main_popup_settings))
   obj.main_popup_settings = main_popup_settings
 
-  local preview_popup_settings = UnderlayPopupSettings.new(opts_utils.deep_extend({
-    left = main_popup,
-  }, opts.preview_popup_settings))
+  local preview_popup_settings =
+    UnderlayPopupSettings.new(opts_utils.deep_extend({
+      left = main_popup,
+    }, opts.preview_popup_settings))
   obj.preview_popup_settings = preview_popup_settings
 
   local layout = FzfLayout.new({

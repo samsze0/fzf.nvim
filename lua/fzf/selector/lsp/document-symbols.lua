@@ -95,12 +95,12 @@ return function(opts)
     }
   end)
   -- TODO: sometimes the highlight row is not working
-  instance:set_row_accessor(function(entry)
-    return entry.symbol.selectionRange.start.line + 1
-  end)
-  instance:set_col_accessor(function(entry)
-    return entry.symbol.selectionRange.start.character + 1
-  end)
+  instance:set_row_accessor(
+    function(entry) return entry.symbol.selectionRange.start.line + 1 end
+  )
+  instance:set_col_accessor(
+    function(entry) return entry.symbol.selectionRange.start.character + 1 end
+  )
 
   instance:on_exited(function() handle() end)
 

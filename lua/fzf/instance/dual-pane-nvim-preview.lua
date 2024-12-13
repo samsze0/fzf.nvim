@@ -89,9 +89,10 @@ function DualPaneNvimPreviewInstance.new(opts)
   }, opts.main_popup_settings))
   obj.main_popup_settings = main_popup_settings
 
-  local preview_popup_settings = UnderlayPopupSettings.new(opts_utils.deep_extend({
-    left = main_popup,
-  }, opts.preview_popup_settings))
+  local preview_popup_settings =
+    UnderlayPopupSettings.new(opts_utils.deep_extend({
+      left = main_popup,
+    }, opts.preview_popup_settings))
   obj.preview_popup_settings = preview_popup_settings
 
   local layout = FzfLayout.new({

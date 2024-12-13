@@ -70,11 +70,13 @@ return function(opts)
     end,
   })
 
-  instance:set_accessor(function(entry)
-    return {
-      filepath = entry.filepath,
-    }
-  end)
+  instance:set_accessor(
+    function(entry)
+      return {
+        filepath = entry.filepath,
+      }
+    end
+  )
   instance:set_row_accessor(function(entry) return entry.row end)
   instance:set_col_accessor(function(entry) return entry.col end)
 
