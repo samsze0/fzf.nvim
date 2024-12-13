@@ -26,7 +26,7 @@ local WebsocketIpcClient = oop_utils.new_class(IpcClient)
 
 function WebsocketIpcClient.new()
   local obj = setmetatable({
-    fzf_host = "127.0.0.1",
+    fzf_host = "localhost",
     fzf_port = os_utils.find_available_port(),
     _event_map = TUIEventMap.new(),
     _callback_map = TUICallbackMap.new(),
@@ -34,8 +34,10 @@ function WebsocketIpcClient.new()
   }, WebsocketIpcClient)
   ---@cast obj FzfWebsocketIpcClient
 
+  vim.info(("Fzf will be listening on port: %s"):format(obj.fzf_port))
+
   local websocket_client = WebsocketClient.new({
-    connect_addr = ("%s:%s"):format(obj.fzf_host, obj.fzf_port),
+    connect_addr = ("ws://%s:%s"):format(obj.fzf_host, obj.fzf_port),
     on_message = function(client, message)
       xpcall(
         function() obj:on_message(message) end,
@@ -43,10 +45,15 @@ function WebsocketIpcClient.new()
       )
     end,
     on_error = function(client, err) _error("Websocket error: " .. err) end,
+    extra_headers = {
+      ["Fzf-Api-Key"] = FZF_API_KEY,
+    },
   })
   obj._websocket_client = websocket_client
   return obj
 end
+
+function WebsocketIpcClient:start() self._websocket_client:try_connect() end
 
 ---@param rows string[]
 function WebsocketIpcClient:reload(rows)

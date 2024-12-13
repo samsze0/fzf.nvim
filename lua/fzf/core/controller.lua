@@ -164,9 +164,10 @@ function FzfController:start()
 
   -- TODO: cater Windows
   -- Start fzf without any entries
-  local command = terminal_utils.shell_opts_tostring(env_vars)
-    .. ([[ printf "" | %s ]]):format(config.fzf_bin or "fzf")
-    .. terminal_utils.shell_opts_tostring(args)
+  local command = ([[ printf "" | %s %s ]]):format(
+    terminal_utils.shell_opts_tostring(env_vars),
+    config.fzf_bin or "fzf"
+  ) .. terminal_utils.shell_opts_tostring(args)
 
   if self._parent_id then self:parent():hide() end
 
@@ -207,6 +208,9 @@ function FzfController:start()
       end
     end,
   })
+
+  -- TODO: revert the IPC server and client role so that fzf instance can connect to nvim instantly
+  vim.defer_fn(function() self._ipc_client:start() end, 500)
 end
 
 ---@return integer

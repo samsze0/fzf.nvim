@@ -24,6 +24,8 @@ local FZF_API_KEY = uuid_utils.v4()
 ---@field _callback_map TUICallbackMap Map of keys to lua callbacks
 local IpcClient = oop_utils.new_class()
 
+function IpcClient:start() error("Not implemented") end
+
 ---@param action string
 ---@param opts? { load_action_from_file?: boolean }
 function IpcClient:execute(action, opts) error("Not implemented") end

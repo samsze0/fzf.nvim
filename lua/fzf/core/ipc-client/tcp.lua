@@ -49,6 +49,8 @@ function TcpIpcClient.new()
   return obj
 end
 
+function TcpIpcClient:start() end
+
 ---@param rows string[]
 function TcpIpcClient:reload(rows)
   if #rows == 0 then
